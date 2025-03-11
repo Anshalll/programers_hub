@@ -2,7 +2,7 @@ from flask import Flask, jsonify , request , session
 from  flask_cors import CORS
 from db import database
 from  functions.CheckRequiredFields import CheckFields
-from functions.PasswordWorks import VerifyPassword 
+from functions.PasswordWorks import VerifyPassword , HashPassword
 from functions.GenerateVals import GenerateOTP
 from functions.SendMail import SendMail
 from functions.CheckForms import CheckRegisterForm
@@ -26,10 +26,18 @@ def index():
 @app.route('/api/otpregister', methods=['POST'])
 def otpregister():
     try: 
-         
+        if "username" in session:
+            return jsonify(logged=True) , 200
+        
         data = request.get_json()
-
-        validatedata = CheckRegisterForm(data)
+        reqfields = [
+            {"name" : "name" , "value": "Name"},
+            {"name" : "email" , "value": "Email"},
+            {"name" : "username" , "value": "Username"},
+            {"name" : "password" , "value": "Password"},
+            {"name" : "confirmpassword" , "value": "Confirm Password"}
+        ]
+        validatedata = CheckRegisterForm(data , reqfields)
       
         if  validatedata["error"]:
             return jsonify(error=validatedata["message"]), validatedata["status_code"]
@@ -68,6 +76,48 @@ def otpregister():
         return jsonify(error= "Internal server error!"), 500
 
 
+@app.route("/api/register" , methods=["POST"])
+def registeruser(): 
+    try: 
+        if "username" in session:
+            return jsonify(logged=True) , 200
+        data = request.get_json()
+        reqfields = [
+            {"name": "otp", "value": "otp"},
+            {"name" : "name" , "value": "Name"},
+            {"name" : "email" , "value": "Email"},
+            {"name" : "username" , "value": "Username"},
+            {"name" : "password" , "value": "Password"},
+            {"name" : "confirmpassword" , "value": "Confirm Password"}
+        ]
+        validatedata = CheckRegisterForm(data , reqfields)
+      
+        if  validatedata["error"]:
+            return jsonify(error=validatedata["message"]), validatedata["status_code"]
+
+
+        checkotp = database.ExecuteQuery("SELECT * FROM  otps WHERE email = %s" , (data.get("email") , ))
+        if len(checkotp) == 0:
+            return jsonify(error="An error occured!"), 400
+
+        dbotp = checkotp[0]["otp"]
+        if dbotp != int(data.get("otp").strip()):
+            return jsonify(error="Invalid otp!"), 400
+        
+        hashpwd = HashPassword(data.get("password").strip())
+
+        createuser = database.ExecuteQuery("INSERT INTO registers (email , username, password , name) VALUES (%s , %s , %s ,%s)" , (data.get("email").strip() , data.get("username").strip() , hashpwd , data.get("name").strip() , ))
+
+        if createuser != 1:
+            return jsonify(error="An error occured!"), 400
+
+        return jsonify(message="Registration successful!"), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify(error= "Internal server error!"), 500
+
+
 @app.route("/api/login", methods=['POST'])
 def login():
     try: 
@@ -93,13 +143,13 @@ def login():
         
         pwdhashed = checkuser[0]["password"]
         isuser = VerifyPassword(data.get("password") , pwdhashed)
-
+      
         if not isuser: 
             return jsonify(error='Invalid credentials!' , login=False), 400
         
         session["username"] = checkuser[0]["username"]
 
-        return jsonify(message='Login route' , login=True), 200
+        return jsonify(message='Logged in!' , login=True), 200
     
     except Exception as e:
         print(e)
@@ -107,6 +157,7 @@ def login():
 
 
 @app.route("/api/logout" , methods=["GET"])
+
 def logout():
 
     try:
@@ -116,5 +167,4 @@ def logout():
     except Exception as e:
         print(e)
         return jsonify(error="Internal server error") , 500
-    
 app.run(debug=True , port=8000 )

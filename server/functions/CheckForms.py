@@ -3,15 +3,9 @@ from  functions.CheckRequiredFields import CheckFields ,   ValidateEmail
 from functions.PasswordWorks import  CheckPassword
 
 
-def CheckRegisterForm(data):
+def CheckRegisterForm(data , reqfields):
       
-        reqfields = [
-            {"name" : "name" , "value": "Name"},
-            {"name" : "email" , "value": "Email"},
-            {"name" : "username" , "value": "Username"},
-            {"name" : "password" , "value": "Password"},
-            {"name" : "confirmpassword" , "value": "Confirm Password"}
-        ]
+       
         fieldscheck = CheckFields(reqfields , data)
    
         if fieldscheck["error"]:
