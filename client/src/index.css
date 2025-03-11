@@ -1,0 +1,16 @@
+@import "tailwindcss";
+:root{
+    background-color: #0B192C;
+}
+
+.itsjust{
+    @apply flex justify-center items-center;
+}
+
+.itsjustbtw{
+    @apply flex justify-between items-center;
+}
+
+.its{
+    @apply flex items-center;
+}
