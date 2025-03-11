@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 load_dotenv()
 
 
-def SendMail(email , subject , ): 
+def SendMail(email , subject , body ): 
     sender_email = os.getenv("EMAIL")
     sender_password = os.getenv("EMAILPASS")
     receiver_email = email
@@ -20,7 +20,7 @@ def SendMail(email , subject , ):
     msg["To"] = receiver_email
     msg["Subject"] = subject
 
-    body = "Hello, this is a test email sent from Python using smtplib."
+    
     msg.attach(MIMEText(body, "plain"))
 
 
@@ -29,9 +29,11 @@ def SendMail(email , subject , ):
             server.starttls()  
             server.login(sender_email, sender_password)
             server.sendmail(sender_email, receiver_email, msg.as_string())
-    
+
+        return True
     
     except Exception as e:
-        print(f"Error: {e}")
+        print(e)
+        return False
 
 

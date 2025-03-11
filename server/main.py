@@ -1,8 +1,12 @@
-from flask import Flask, jsonify , request , session , redirect
+from flask import Flask, jsonify , request , session
 from  flask_cors import CORS
 from db import database
-from  functions.CheckRequiredFields import CheckFields ,  ValidateEmail
-from functions.PasswordWorks import HashPassword , VerifyPassword
+from  functions.CheckRequiredFields import CheckFields
+from functions.PasswordWorks import VerifyPassword 
+from functions.GenerateVals import GenerateOTP
+from functions.SendMail import SendMail
+from functions.CheckForms import CheckRegisterForm
+
 import os
 
 app = Flask(__name__)
@@ -19,59 +23,51 @@ def index():
     else: 
         return jsonify(error='Unauthorized!') , 401
     
-@app.route('/api/register', methods=['POST'])
-
-def register():
+@app.route('/api/otpregister', methods=['POST'])
+def otpregister():
     try: 
          
         data = request.get_json()
-     
-        reqfields = [
-            {"name" : "name" , "value": "Name"},
-            {"name" : "email" , "value": "Email"},
-            {"name" : "username" , "value": "Username"},
-            {"name" : "password" , "value": "Password"},
-            {"name" : "confirmpassword" , "value": "Confirm Password"}
-        ]
-        fieldscheck = CheckFields(reqfields , data)
-   
-        if fieldscheck["error"]:
-            return jsonify(error=fieldscheck["message"]), 400
+
+        validatedata = CheckRegisterForm(data)
+      
+        if  validatedata["error"]:
+            return jsonify(error=validatedata["message"]), validatedata["status_code"]
         
+        checkotpdata = database.ExecuteQuery("SELECT * FROM otps WHERE email = %s" , (data.get("email").strip() , ))
 
-        isValidEmail = ValidateEmail(data.get("email"))
-    
-        if not isValidEmail:
-            return jsonify(error="Invalid email"), 400
         
+        if len(checkotpdata) == 0:
 
-        if data.get("password").strip() != data.get("confirmpassword").strip():
-            return jsonify(error="Confirm password does not match!"), 400
+           otp = GenerateOTP(6)
+           mailsend =  SendMail(data.get("email") , "Register otp" , f"Your otp for account registration is {otp}" )
 
-        checkemail = database.ExecuteQuery("SELECT * FROM registers WHERE email = %s" , (data.get("email"), ))
-
-
-        if len(checkemail) > 0:
-             return jsonify(error="This email is taken!") , 400
-    
-        checkusername = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (data.get("username"), ))
+           if not mailsend:
+               return jsonify(error= "An error occured!"), 400
            
-        if len(checkusername) > 0: 
-            return jsonify(error="Username is taken!"), 400   
+           database.ExecuteQuery("INSERT INTO otps (email , times , otp) VALUES (%s , %s , %s)" , (data.get("email") , 1 , otp,))
         
-        hash_password = HashPassword(data.get("password").strip())
+        elif checkotpdata[0]["times"] < 3 and  checkotpdata[0]["times"] >=1:
+            otp = checkotpdata[0]["otp"]
+            mailsend =  SendMail(data.get("email") , "Register otp" , f"Your otp for account registration is {otp}" )
+            times = checkotpdata[0]["times"]
 
-        createuser = database.ExecuteQuery("INSERT INTO registers (email , name , username , password ) VALUES (%s, %s , %s , %s)" , (data.get("email").strip(), data.get("name").strip(), data.get("username").strip(), hash_password, ))
+            if not mailsend:
+                return jsonify(error= "An error occured!"), 400
+            
+            database.ExecuteQuery("UPDATE  otps SET times=%s WHERE email = %s" , (times + 1, checkotpdata[0]["email"] ,))
+            
+        else:
+            return  jsonify(error="Max otp sent!") , 400
+
         
-        if createuser != 1:
-            return jsonify(error= "Internal server error!"), 500
-        
-        return jsonify(message="Account created!"), 200
-    
+        return jsonify(message="Registration otp sent!"), 200
+
     except Exception as e:
         print(e)
         return jsonify(error= "Internal server error!"), 500
-    
+
+
 @app.route("/api/login", methods=['POST'])
 def login():
     try: 
