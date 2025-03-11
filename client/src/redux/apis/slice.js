@@ -24,8 +24,7 @@ const api = createApi({
                 method,
                 body: data
             }),
-            transformResponse: (response) => response.data || response,    
-            transformErrorResponse: (response) => response.error
+
         }),
     })
 });

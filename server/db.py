@@ -5,6 +5,7 @@ class DB:
  
     def __init__(self):
         load_dotenv()
+       
         self.conn = mysql.connector.connect(
             host=os.getenv("DBHOST"),
             database=os.getenv("DBNAME"),
@@ -14,13 +15,21 @@ class DB:
         )
     def get_connection(self):
         if self.conn.is_connected():
-           self.curosr = self.conn.cursor()
+           self.cursor = self.conn.cursor(dictionary=True)
 
            print("Database connection established")
         else:
            print("Database connection failed")
 
-    def ExecuteQuery(self , query): 
-       return self.curosr.execute(query);    
+    def ExecuteQuery(self , query , values): 
+        self.cursor.execute(query, values)
+        
+     
+        if query.strip().lower().startswith("select"):
+            
+            return self.cursor.fetchall() 
+        
+        self.conn.commit()  
+        return self.cursor.rowcount  
 
 database = DB()

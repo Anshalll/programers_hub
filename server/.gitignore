@@ -1,3 +1,4 @@
 .env
 __pycache__/
 servervnv/
+functions/__pycache__/
