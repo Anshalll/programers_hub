@@ -109,4 +109,16 @@ def login():
         print(e)
         return jsonify(error='An error occured' , login=False), 500
 
+
+@app.route("/api/logout" , methods=["GET"])
+def logout():
+
+    try:
+
+        session.pop('username', None)
+        return jsonify(logout=True) , 200
+    except Exception as e:
+        print(e)
+        return jsonify(error="Internal server error") , 500
+    
 app.run(debug=True , port=8000 )
