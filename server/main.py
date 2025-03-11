@@ -1,7 +1,7 @@
 from flask import Flask, jsonify , request
 from  flask_cors import CORS
 from db import database
-from  functions.CheckRequiredFields import CheckFields
+from  functions.CheckRequiredFields import CheckFields ,  ValidateEmail
 
 
 app = Flask(__name__)
@@ -27,7 +27,11 @@ def register():
             {"name" : "confirmpassword" , "value": "Confirm Password"}
         ]
         fieldscheck = CheckFields(reqfields , data)
-        print(fieldscheck)
+        isValidEmail = ValidateEmail(data.get("email"))
+        
+        if not isValidEmail:
+            return jsonify(error="Invalid email"), 400
+        
         if fieldscheck["error"]:
             return jsonify(error=fieldscheck["message"]), 400
 

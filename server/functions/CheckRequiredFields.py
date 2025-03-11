@@ -1,3 +1,5 @@
+import re
+
 def CheckFields(reqfieldsarr  , udata): 
     error = False
   
@@ -9,3 +11,13 @@ def CheckFields(reqfieldsarr  , udata):
             return {"error": error , "message": f"{i["value"]} is required!" }
     
     return {"error": False, "message" : ""}
+
+
+def ValidateEmail(email):
+    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+
+    if(re.fullmatch(regex, email.strip())):
+
+        return True
+
+    return False
