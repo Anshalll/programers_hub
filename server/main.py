@@ -2,6 +2,7 @@ from flask import Flask, jsonify , request
 from  flask_cors import CORS
 from db import database
 from  functions.CheckRequiredFields import CheckFields ,  ValidateEmail
+from functions.PasswordWorks import HashPassword
 
 
 app = Flask(__name__)
@@ -27,25 +28,34 @@ def register():
             {"name" : "confirmpassword" , "value": "Confirm Password"}
         ]
         fieldscheck = CheckFields(reqfields , data)
-        isValidEmail = ValidateEmail(data.get("email"))
+   
+        if fieldscheck["error"]:
+            return jsonify(error=fieldscheck["message"]), 400
         
+
+        isValidEmail = ValidateEmail(data.get("email"))
+    
         if not isValidEmail:
             return jsonify(error="Invalid email"), 400
         
-        if fieldscheck["error"]:
-            return jsonify(error=fieldscheck["message"]), 400
+
+        if data.get("password").strip() != data.get("confirmpassword").strip():
+            return jsonify(error="Confirm password does not match!"), 400
 
         checkemail = database.ExecuteQuery("SELECT * FROM registers WHERE email = %s" , (data.get("email"), ))
 
+
         if len(checkemail) > 0:
              return jsonify(error="This email is taken!") , 400
- 
+    
         checkusername = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (data.get("username"), ))
            
         if len(checkusername) > 0: 
             return jsonify(error="Username is taken!"), 400   
-           
-        createuser = database.ExecuteQuery("INSERT INTO registers (email , name , username , password ) VALUES (%s, %s , %s , %s)" , (data.get("email"), data.get("name"), data.get("username"), data.get("password"), ))
+        
+        hash_password = HashPassword(data.get("password"))
+
+        createuser = database.ExecuteQuery("INSERT INTO registers (email , name , username , password ) VALUES (%s, %s , %s , %s)" , (data.get("email").strip(), data.get("name").strip(), data.get("username").strip(), hash_password, ))
         
         if createuser != 1:
             return jsonify(error= "Internal server error!"), 500
