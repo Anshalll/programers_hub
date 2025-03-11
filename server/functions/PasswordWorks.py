@@ -1,8 +1,13 @@
 import bcrypt
 
 
-def VerifyPassword(password):
-    pass
+def VerifyPassword(password , hashpwd):
+    upass = password.strip().encode("utf-8")
+
+    verify = bcrypt.checkpw(upass , hashpwd.encode("utf-8"))
+    return verify
+
+
 
 
 def HashPassword(password):
