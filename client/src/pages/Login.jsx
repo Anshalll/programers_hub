@@ -1,12 +1,31 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-export default function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+import {useSendDataMutation} from '../redux/apis/slice'
 
-  const handleSubmit = (e) => {
+export default function LoginForm() {
+
+
+  const [FormMutation] = useSendDataMutation()
+  const [Error, setError] = useState("")
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Email:", email, "Password:", password);
+    let formdata = new FormData(e.target)
+    let data = Object.fromEntries(formdata)
+    let resp = await FormMutation({ url: "/login" , method: "POST" , data })
+    if (!resp.error?.data.login) {
+        setError(resp.error?.data.error)
+        setTimeout(() => {
+          setError("")
+        } , 3000)
+    } 
+
+      
+    if (resp.data?.login) {
+        
+    }
+    
+   
+    
   };
 
   return (
@@ -15,30 +34,29 @@ export default function LoginForm() {
         {/* Left Side - Form */}
         <div className="w-1/2 p-8">
           <h2 className="text-2xl font-semibold mb-2">Login</h2>
+          {Error && <p className="text-red-500 mt-[10px] mb-[10px]">{Error}</p> }
           <p className="text-gray-500 text-sm mb-6">
             If you have an account, please login
           </p>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label className="block text-gray-700 text-sm mb-2">Email Address</label>
+              <label className="block text-gray-700 text-sm mb-2">Email or Username</label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                name="uemail"
                 className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="Enter Email Address"
-                required
+                
               />
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm mb-2">Password</label>
               <input
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                name="password"
                 className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="Enter Password"
-                required
+                
               />
             </div>
             <Link to="/forgotpass" className="text-right text-blue-500 text-sm mb-4 cursor-pointer">

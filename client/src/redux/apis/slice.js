@@ -7,15 +7,16 @@ const api = createApi({
         prepareHeaders: (headers) => {
             headers.set('Content-Type', 'application/json');
             return headers;
-        }
+        },
+        credentials: "include"
     }),
     endpoints: (builder) => ({
         fetchData: builder.query({
             query: (path) => ({
-                url: path
+                url: path,
+                
             }),
-            transformResponse: (response) => response.data,    
-            transformErrorResponse: (response) => response.error
+            
         }),
 
         SendData: builder.mutation({
