@@ -25,12 +25,17 @@ export default function Register() {
       setFormdata(Object.fromEntries(formdata))
       setAuthOtp(true)
     }
-    if (resp.error?.data?.error) {
-      setError(resp.error.data.error)
+    if (resp.error?.data?.error.toLowerCase() !== "max otp sent!") {
+      setError(resp.error?.data?.error)
       setTimeout(() => {
         setError("")
       }, 3000)
     }
+    else{
+      setFormdata(Object.fromEntries(formdata))
+      setAuthOtp(true)
+    }
+
 
     setIsloading(false)
 
@@ -46,7 +51,7 @@ export default function Register() {
           <p className="text-gray-500 text-sm mb-6">
             Create an account to get started
           </p>
-          {!Isloading ? <>
+         
           <form onSubmit={(e) => handleSubmit(e)}>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm mb-2">Name</label>
@@ -108,7 +113,7 @@ export default function Register() {
               Register
             </button> : <div className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">Loading..</div>}
           </form>
-    
+          {!Isloading ? <>
             <div className="my-4 flex items-center">
               <div className="border-t w-full"></div>
               <span className="px-2 text-gray-500">OR</span>

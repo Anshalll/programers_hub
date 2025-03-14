@@ -59,7 +59,7 @@ export default function Verifyotp({ registerdata }) {
         
         const resp = await SendData({ url: "/register"  , method: "POST" , data: registerdata})
         if (resp.error?.data?.error) {
-          
+            
             setError(resp.error.data.error)
             setTimeout(() => {
                 setError("")
