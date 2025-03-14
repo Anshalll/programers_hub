@@ -1,10 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useSendDataMutation } from "../redux/apis/slice";
+import Verifyotp from "../components/Verifyotp";
+
 
 export default function Register() {
 
   const [DataMutate] = useSendDataMutation()
+  const [Error, setError] = useState("")
+  const [AuthOtp, setAuthOtp] = useState(false)
+  const [Formdata, setFormdata] = useState(null)
+  const [Isloading, setIsloading] = useState(false)
 
   const handleSubmit = async (e) => {
 
@@ -12,20 +18,35 @@ export default function Register() {
     e.preventDefault();
     const form = e.target;
     let formdata = new FormData(form);
-    let resp = await DataMutate({ url: "/register" , method: "POST" , data: Object.fromEntries(formdata) })
-    console.log(resp)
+    setIsloading(true)
+    let resp = await DataMutate({ url: "/otpregister", method: "POST", data: Object.fromEntries(formdata) })
+
+    if (resp.data?.success) {
+      setFormdata(Object.fromEntries(formdata))
+      setAuthOtp(true)
+    }
+    if (resp.error?.data?.error) {
+      setError(resp.error.data.error)
+      setTimeout(() => {
+        setError("")
+      }, 3000)
+    }
+
+    setIsloading(false)
 
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-200">
-      <div className="bg-white shadow-lg rounded-2xl flex max-w-4xl w-full">
+      {AuthOtp ? <Verifyotp registerdata={Formdata} /> : <div className="bg-white shadow-lg rounded-2xl flex max-w-4xl w-full">
         {/* Left Side - Form */}
         <div className="w-1/2 p-8">
           <h2 className="text-2xl font-semibold mb-2">Register</h2>
+          {Error && <p className="text-red-500 mt-[10px] mb-[10px]">{Error}</p>}
           <p className="text-gray-500 text-sm mb-6">
             Create an account to get started
           </p>
+          {!Isloading ? <>
           <form onSubmit={(e) => handleSubmit(e)}>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm mb-2">Name</label>
@@ -80,26 +101,30 @@ export default function Register() {
             <Link to="/forgotpass" className="text-right text-blue-500 text-sm mb-4 cursor-pointer">
               Forgot Password?
             </Link>
-            <button
+            {!Isloading ? <button
               type="submit"
               className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
             >
               Register
-            </button>
+            </button> : <div className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">Loading..</div>}
           </form>
-          <div className="my-4 flex items-center">
-            <div className="border-t w-full"></div>
-            <span className="px-2 text-gray-500">OR</span>
-            <div className="border-t w-full"></div>
-          </div>
-          <button className="w-full flex items-center justify-center gap-2 border py-3 rounded-lg hover:bg-gray-100">
-            <img src="https://www.svgrepo.com/show/303108/google-icon-logo.svg" alt="Google" className="w-5 h-5" />
-            Register with Google
-          </button>
-          <p className="text-sm text-gray-500 mt-4">
-           Already have an account ? <Link to="/login" className="text-blue-500 cursor-pointer">Login</Link>
-          </p>
+    
+            <div className="my-4 flex items-center">
+              <div className="border-t w-full"></div>
+              <span className="px-2 text-gray-500">OR</span>
+              <div className="border-t w-full"></div>
+            </div>
+            <button className="w-full flex items-center justify-center gap-2 border py-3 rounded-lg hover:bg-gray-100">
+              <img src="https://www.svgrepo.com/show/303108/google-icon-logo.svg" alt="Google" className="w-5 h-5" />
+              Register with Google
+            </button>
+            <p className="text-sm text-gray-500 mt-4">
+              Already have an account ? <Link to="/login" className="text-blue-500 cursor-pointer">Login</Link>
+            </p>
+        
+            </> : <p>Loading...</p> }
         </div>
+     
         {/* Right Side - Image */}
         <div className="w-1/2 p-[20px]">
           <img
@@ -108,7 +133,7 @@ export default function Register() {
             className="h-full w-full object-cover rounded-2xl"
           />
         </div>
-      </div>
+      </div>}
     </div>
   );
 }

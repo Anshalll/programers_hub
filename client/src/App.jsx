@@ -20,7 +20,7 @@ export default function App() {
 
   useEffect(() => {
     if (!isLoading) {
-
+      
       if (!error) {
 
         dispatch(setAuthuser(data.logged));

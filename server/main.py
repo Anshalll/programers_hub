@@ -10,11 +10,15 @@ from functions.CheckForms import CheckRegisterForm
 import os
 
 app = Flask(__name__)
-CORS(app , supports_credentials=True,  origins=[ "http://127.0.0.1:5173" , "http://localhost:5173"])
+CORS(app , supports_credentials=True,  origins=[ os.getenv("CLIENTURL")])
+
 database.get_connection()
 app.secret_key = os.getenv("SESSIONKEY")
-app.config["SESSION_COOKIE_SAMESITE"] = "None"
-app.config["SESSION_COOKIE_SECURE"] = True
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,   # Prevent JavaScript access
+    SESSION_COOKIE_SECURE=True,     # Allow only over HTTPS
+    SESSION_COOKIE_SAMESITE="None", # Allow cross-origin requests
+)
 
 @app.route('/api/index', methods=['GET'])
 def index():
@@ -73,7 +77,7 @@ def otpregister():
             return  jsonify(error="Max otp sent!") , 400
 
         
-        return jsonify(message="Registration otp sent!"), 200
+        return jsonify(message="Registration otp sent!", success=True), 200
 
     except Exception as e:
         print(e)
@@ -85,7 +89,9 @@ def registeruser():
     try: 
         if "username" in session:
             return jsonify(logged=True) , 200
+        
         data = request.get_json()
+       
         reqfields = [
             {"name": "otp", "value": "otp"},
             {"name" : "name" , "value": "Name"},
@@ -163,7 +169,7 @@ def login():
 @app.route('/api/check')
 def check_session():
     if 'username' in session:
-        print(session)
+        
         return jsonify(user=session['username'], login=True), 200
     return jsonify(login=False), 401
 
@@ -178,4 +184,4 @@ def logout():
         print(e)
         return jsonify(error="Internal server error") , 500
 
-app.run(debug=True , port=8000 )
+app.run(debug=True , port=8000 , host="0.0.0.0")

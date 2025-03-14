@@ -3,7 +3,7 @@ import { fetchBaseQuery, createApi } from '@reduxjs/toolkit/query/react';
 const api = createApi({
     reducerPath: 'api',
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://127.0.0.1:8000/api',
+        baseUrl: `${import.meta.env.VITE_SERVERURL}/api`,
         prepareHeaders: (headers) => {
             headers.set('Content-Type', 'application/json');
             return headers;
