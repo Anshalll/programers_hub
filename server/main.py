@@ -10,7 +10,7 @@ from functions.CheckForms import CheckRegisterForm
 import os
 
 app = Flask(__name__)
-CORS(app , supports_credentials=True,  origins=[ os.getenv("CLIENTURL")])
+CORS(app , supports_credentials=True,   origins=[ os.getenv("CLIENTURL") , "http://localhost:5173" , "http://127.0.0.1:5173"])
 
 database.get_connection()
 app.secret_key = os.getenv("SESSIONKEY")
@@ -118,8 +118,13 @@ def registeruser():
 
         createuser = database.ExecuteQuery("INSERT INTO registers (email , username, password , name) VALUES (%s , %s , %s ,%s)" , (data.get("email").strip() , data.get("username").strip() , hashpwd , data.get("name").strip() , ))
 
+        database.ExecuteQuery("DELETE FROM otps WHERE email = %s" , (data.get("email"), ))
+
+
         if createuser != 1:
             return jsonify(error="An error occured!"), 400
+        
+        session["username"] = data.get("email").strip()
 
         return jsonify(message="Registration successful!"), 200
 
