@@ -1,16 +1,18 @@
 from flask import Flask, jsonify , request , session
 from  flask_cors import CORS
-from db import database
+from db.db import database
 from  functions.CheckRequiredFields import CheckFields
 from functions.PasswordWorks import VerifyPassword , HashPassword
 from functions.GenerateVals import GenerateOTP
 from functions.SendMail import SendMail
 from functions.CheckForms import CheckRegisterForm
+from functions.GetTime import GetTime
+from functions.Deleteotps import Deleteotps
 
 import os
 
 app = Flask(__name__)
-CORS(app , supports_credentials=True,   origins=[ os.getenv("CLIENTURL") , "http://localhost:5173" , "http://127.0.0.1:5173"])
+CORS(app , supports_credentials=True,   origins=[os.getenv("CLIENTURL") , "http://localhost:5173" , "http://127.0.0.1:5173"])
 
 database.get_connection()
 app.secret_key = os.getenv("SESSIONKEY")
@@ -19,6 +21,7 @@ app.config.update(
     SESSION_COOKIE_SECURE=True,     # Allow only over HTTPS
     SESSION_COOKIE_SAMESITE="None", # Allow cross-origin requests
 )
+
 
 @app.route('/api/index', methods=['GET'])
 def index():
@@ -61,7 +64,7 @@ def otpregister():
            if not mailsend:
                return jsonify(error= "An error occured!"), 400
            
-           database.ExecuteQuery("INSERT INTO otps (email , times , otp) VALUES (%s , %s , %s)" , (data.get("email") , 1 , otp,))
+           database.ExecuteQuery("INSERT INTO otps (email , times , otp , time) VALUES (%s , %s , %s , %s)" , (data.get("email") , 1 , otp, GetTime()))
         
         elif checkotpdata[0]["times"] < 3 and  checkotpdata[0]["times"] >=1:
             otp = checkotpdata[0]["otp"]
@@ -82,7 +85,6 @@ def otpregister():
     except Exception as e:
         print(e)
         return jsonify(error= "Internal server error!"), 500
-
 
 @app.route("/api/register" , methods=["POST"])
 def registeruser(): 
@@ -132,7 +134,6 @@ def registeruser():
         print(e)
         return jsonify(error= "Internal server error!"), 500
 
-
 @app.route("/api/login", methods=['POST'])
 def login():
     try: 
@@ -170,7 +171,6 @@ def login():
         print(e)
         return jsonify(error='An error occured' , login=False), 500
 
-
 @app.route('/api/check')
 def check_session():
     if 'username' in session:
@@ -189,4 +189,5 @@ def logout():
         print(e)
         return jsonify(error="Internal server error") , 500
 
+Deleteotps()
 app.run(debug=True , port=8000 , host="0.0.0.0")

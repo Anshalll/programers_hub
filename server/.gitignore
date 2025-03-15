@@ -2,3 +2,4 @@
 __pycache__/
 servervnv/
 functions/__pycache__/
+db/__pycache__/

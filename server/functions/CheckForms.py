@@ -1,4 +1,4 @@
-from db import database
+from db.db import database
 from  functions.CheckRequiredFields import CheckFields ,   ValidateEmail  
 from functions.PasswordWorks import  CheckPassword
 
