@@ -8,7 +8,7 @@ from functions.SendMail import SendMail
 from functions.CheckForms import CheckRegisterForm
 from functions.GetTime import GetTime
 from functions.Deleteotps import Deleteotps
-
+from  functions.jwtstring import Generatejwt
 import os
 
 app = Flask(__name__)
@@ -21,7 +21,6 @@ app.config.update(
     SESSION_COOKIE_SECURE=True,     # Allow only over HTTPS
     SESSION_COOKIE_SAMESITE="None", # Allow cross-origin requests
 )
-
 
 @app.route('/api/index', methods=['GET'])
 def index():
@@ -192,7 +191,9 @@ def logout():
 @app.route("/api/resendotp" , methods=["POST"])
 def resendotp():
     try: 
-
+        if 'username' in session:
+            return jsonify(login=True) , 200
+         
         data = request.get_json()
         reqfields = [
             
@@ -220,6 +221,53 @@ def resendotp():
         return jsonify(message="otp sent!"), 200
     except Exception as e:
         print(e)
+        return jsonify(error="Internal server error!"), 500
+
+@app.route("/api/forgotpassword" , methods=["POST"])
+def forgotpass():
+    try:
+        if "username" in session: 
+            return jsonify(logged=True) , 200
+        
+        data = request.get_json()
+        reqfields = [
+            {"name": "uemail", "value": "All fields are required!"}
+        ]
+        fieldscheck = CheckFields(reqfields, data)
+        if fieldscheck["error"]:
+            return jsonify(error=fieldscheck["message"]), 400
+
+        checkuser = database.ExecuteQuery("SELECT * FROM registers WHERE email = %s OR username = %s", (data.get("uemail").strip(),data.get("uemail").strip(),))
+
+        if len(checkuser) == 0:
+            return jsonify(error="Email or Username not found!"), 400
+
+        checkotpdata = database.ExecuteQuery("SELECT * FROM passreset WHERE email = %s", (checkuser[0]["email"],))
+        if len(checkotpdata) == 0:
+            jwt_token = f"{os.getenv('CLIENTLOCALURL')}/resetpass?token={Generatejwt()}"
+
+
+            mailsend = SendMail(checkuser[0]["email"] , "Your password reset link!", f"Your password reset link is: {jwt_token}")
+
+            if mailsend:
+                 database.ExecuteQuery("INSERT INTO passreset (email , times, token , timing) VALUES (%s, %s, %s, %s)", (checkuser[0]["email"] , 1 , jwt_token, GetTime() ,))
+            else:
+                return jsonify(error="An error occured!"), 400
+        
+        elif checkotpdata[0]["times"] == 3:
+            return jsonify(error="Max password reset links sent!"), 400
+
+        else:
+            jwt_token = f"{os.getenv("CLIENTLOCALURL")}/resetpass?token={checkotpdata[0]['token']}"
+            mailsend = SendMail(checkuser[0]["email"], "Your password reset link!", f"Your password reset link is: {jwt_token}")
+            if mailsend:
+                database.ExecuteQuery("UPDATE passreset SET times=%s WHERE email=%s" , (checkotpdata[0]["times"] + 1 , checkuser[0]["email"] , ))
+
+            else:
+                return jsonify(error="An error occured!"), 400
+        return jsonify(message="OTP sent!"), 200
+
+    except Exception:
         return jsonify(error="Internal server error!"), 500
 
 Deleteotps()
