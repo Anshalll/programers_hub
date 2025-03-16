@@ -9,6 +9,7 @@ from functions.CheckForms import CheckRegisterForm
 from functions.GetTime import GetTime
 from functions.Deleteotps import Deleteotps
 from  functions.jwtstring import Generatejwt
+
 import os
 
 app = Flask(__name__)
@@ -268,6 +269,25 @@ def forgotpass():
         return jsonify(message="OTP sent!"), 200
 
     except Exception:
+        return jsonify(error="Internal server error!"), 500
+
+@app.route("/api/validate_token", methods=["POST"])
+def validate_token():
+    try:
+        data = request.get_json()
+        token = data.get("token")
+
+        if not token:
+            return jsonify(error="Token is required!"), 400
+
+        checkifexists = database.ExecuteQuery("SELECT * FROM passreset where token = %s" , (token , ))
+        
+        if not len(checkifexists) > 1:
+            return jsonify(error="An error occured!") , 400
+        return jsonify(message="Token found!"), 200
+    
+    except Exception as e:
+        print(e)
         return jsonify(error="Internal server error!"), 500
 
 Deleteotps()
