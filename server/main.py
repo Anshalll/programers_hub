@@ -2,7 +2,7 @@ from flask import Flask, jsonify , request , session
 from  flask_cors import CORS
 from db.db import database
 from  functions.CheckRequiredFields import CheckFields
-from functions.PasswordWorks import VerifyPassword , HashPassword
+from functions.PasswordWorks import VerifyPassword , HashPassword , CheckPassword
 from functions.GenerateVals import GenerateOTP
 from functions.SendMail import SendMail
 from functions.CheckForms import CheckRegisterForm
@@ -245,10 +245,10 @@ def forgotpass():
 
         checkotpdata = database.ExecuteQuery("SELECT * FROM passreset WHERE email = %s", (checkuser[0]["email"],))
         if len(checkotpdata) == 0:
-            jwt_token = f"{os.getenv('CLIENTLOCALURL')}/resetpass?token={Generatejwt()}"
+            jwt_token = Generatejwt()
 
 
-            mailsend = SendMail(checkuser[0]["email"] , "Your password reset link!", f"Your password reset link is: {jwt_token}")
+            mailsend = SendMail(checkuser[0]["email"] , "Your password reset link!", f"Your password reset link is: {os.getenv('CLIENTLOCALURL')}/resetpass?token={jwt_token}")
 
             if mailsend:
                  database.ExecuteQuery("INSERT INTO passreset (email , times, token , timing) VALUES (%s, %s, %s, %s)", (checkuser[0]["email"] , 1 , jwt_token, GetTime() ,))
@@ -266,26 +266,69 @@ def forgotpass():
 
             else:
                 return jsonify(error="An error occured!"), 400
-        return jsonify(message="OTP sent!"), 200
+        return jsonify(message="OTP sent!",  email=checkuser[0]["email"]), 200
 
     except Exception:
         return jsonify(error="Internal server error!"), 500
 
-@app.route("/api/validate_token", methods=["POST"])
+@app.route("/api/validatetoken", methods=["POST"])
 def validate_token():
     try:
         data = request.get_json()
         token = data.get("token")
-
+        print(token)
         if not token:
             return jsonify(error="Token is required!"), 400
 
         checkifexists = database.ExecuteQuery("SELECT * FROM passreset where token = %s" , (token , ))
-        
-        if not len(checkifexists) > 1:
+
+        if len(checkifexists) == 0:
             return jsonify(error="An error occured!") , 400
         return jsonify(message="Token found!"), 200
     
+    except Exception as e:
+        print(e)
+        return jsonify(error="Internal server error!"), 500
+
+@app.route("/api/resetpassword", methods=["POST"])
+def resetpassword():
+    try:
+        data = request.get_json()
+        reqfields = [
+            {"name": "token", "value": "Token"},
+            {"name": "password", "value": "Password"},
+            {"name": "cpass", "value": "Confirm Password"}
+        ]
+        fieldscheck = CheckFields(reqfields, data)
+        if fieldscheck["error"]:
+            return jsonify(error=fieldscheck["message"]), 400
+
+        if data.get("password") != data.get("cpass"):
+            return jsonify(error="Passwords do not match!"), 400
+       
+        checkifexists = database.ExecuteQuery("SELECT * FROM passreset WHERE token = %s", (data.get("token"),))
+        
+        if len(checkifexists) == 0:
+            return jsonify(error="Invalid or expired token!"), 400
+
+        email = checkifexists[0]["email"]
+        getuser = database.ExecuteQuery("SELECT * FROM registers WHERE email =%s" , (email, ))
+        if len(getuser) == 0:
+            return jsonify(error="An error occured!"), 400
+        
+        checkpass = CheckPassword(data.get("password") , getuser[0]["username"] , email )
+        if  not checkpass["valid"]:
+            return jsonify(error=checkpass["error"]), checkpass["status_code"]
+        
+        hashpwd = HashPassword(data.get("password").strip())
+        updateuser = database.ExecuteQuery("UPDATE registers SET password = %s WHERE email = %s", (hashpwd, email))
+
+        if updateuser != 1:
+            return jsonify(error="An error occurred!"), 400
+
+        database.ExecuteQuery("DELETE FROM passreset WHERE email = %s", (email,))
+        return jsonify(message="Password reset successful!"), 200
+
     except Exception as e:
         print(e)
         return jsonify(error="Internal server error!"), 500

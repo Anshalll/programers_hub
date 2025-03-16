@@ -13,7 +13,8 @@ export default function App() {
   const Profile = lazy(() => import("./pages/Profile.jsx"));
   const Login = lazy(() => import("./pages/Login.jsx"));
   const Register = lazy(() => import("./pages/Register.jsx"));
-
+  const Passwordreset = lazy(() => import("./pages/Passwordreset.jsx"))
+  const Resetpass = lazy(() => import("./pages/Resetpass.jsx"))
 
   const dispatch = useDispatch()
   const { isLoading, data, error } = useFetchDataQuery("/index")
@@ -51,6 +52,8 @@ export default function App() {
 
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgotpassword" element={<Passwordreset/>} />
+              <Route path="/resetpass" element={<Resetpass/>} />
 
             </Route>
 
