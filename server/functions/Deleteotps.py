@@ -18,7 +18,7 @@ def run_scheduler():
 
 
 def Deleteotps():
-   
+    Deleterecord()
     schedule.every(15).minutes.do(Deleterecord)
 
     scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)

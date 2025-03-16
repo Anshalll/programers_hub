@@ -189,5 +189,39 @@ def logout():
         print(e)
         return jsonify(error="Internal server error") , 500
 
+@app.route("/api/resendotp" , methods=["POST"])
+def resendotp():
+    try: 
+
+        data = request.get_json()
+        reqfields = [
+            
+            {"name" : "name" , "value": "Name"},
+            {"name" : "email" , "value": "Email"},
+            {"name" : "username" , "value": "Username"},
+            {"name" : "password" , "value": "Password"},
+            {"name" : "confirmpassword" , "value": "Confirm Password"}
+
+        ]
+        validatedata = CheckRegisterForm(data , reqfields)
+      
+        if  validatedata["error"]:
+            return jsonify(error=validatedata["message"]), validatedata["status_code"]
+        
+        finduser = database.ExecuteQuery("SELECT * FROM otps where email = %s" , (data.get("email"),))
+        if len(finduser) == 0:
+            return jsonify(error="An error occured!"), 400
+        elif finduser[0]["times"] ==3 :
+            return jsonify(error="Max otp sent!"), 400
+        else:
+            SendMail(data.get("email") , "Register otp verification!" , f"{finduser[0]["otp"]}")
+            database.ExecuteQuery("UPDATE otps set times = %s WHERE email = %s" , (finduser[0]["times"] + 1, finduser[0]["email"]))
+
+        return jsonify(message="otp sent!"), 200
+    except Exception as e:
+        print(e)
+        return jsonify(error="Internal server error!"), 500
+
 Deleteotps()
+
 app.run(debug=True , port=8000 , host="0.0.0.0")

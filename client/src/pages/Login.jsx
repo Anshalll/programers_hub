@@ -21,7 +21,7 @@ export default function LoginForm() {
 
       
     if (resp.data?.login) {
-        window.location.href = import.meta.env.VITE_CLIENTURL
+        window.location.href = import.meta.env.VITE_CLIENTLOCAL
     }
     
    
