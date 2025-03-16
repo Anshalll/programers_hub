@@ -16,7 +16,7 @@ def CheckRegisterForm(data , reqfields):
         if not isValidEmail:
             return {"error": True, "message": "Invalid email", "status_code": 400}
         
-        checkpass = CheckPassword(data.get("password"))
+        checkpass = CheckPassword(data.get("password") , data.get("username"), data.get("email"))
         if  not checkpass["valid"]: 
             return {"error": True, "message": checkpass["error"], "status_code": 400}
 

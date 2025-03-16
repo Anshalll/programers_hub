@@ -68,7 +68,7 @@ export default function Verifyotp({ registerdata }) {
             } ,3000)
         }
         else{
-           window.location.href = `${import.meta.env.VITE_CLIENTURL}`
+           window.location.href = `${import.meta.env.VITE_CLIENTLOCAL}`
         }
     }
 

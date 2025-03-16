@@ -15,15 +15,20 @@ def HashPassword(password):
     hashed = bcrypt.hashpw(password.encode("utf-8"), salt)
     return hashed.decode()
     
-def CheckPassword(password):
+def CheckPassword(password, username , email):
     valid = True
     
     if len(password.strip())  < 8:
         valid = False
         return { "valid" : valid, "error" : "Password is too short!" } 
     
-    if not password.strip().isalnum():
+    if  password.strip().isdigit():
         valid = False
-        return { "valid" : valid, "error" : "Password should have number , letters and special characters." } 
-    
+        return { "valid" : valid, "error" : "Password is entirely numeric" } 
+    if password.strip().lower() == username.strip().lower():
+         valid = False
+         return { "valid" : valid, "error" : "Password is same as username!" }
+    if email.strip().lower() == email.strip().lower():
+         valid = False
+         return { "valid" : valid, "error" : "Password is same as email!" } 
     return {"valid": valid}
