@@ -138,7 +138,7 @@ def registeruser():
 def login():
     try: 
         if 'username' in session:
-            return jsonify(login=True) , 200
+            return jsonify(logged=True) , 200
 
         data = request.get_json()
 
@@ -150,8 +150,8 @@ def login():
         fieldscheck = CheckFields(req_fields , data)
         if fieldscheck["error"]:
                 return jsonify(error=fieldscheck["message"] , login=False), 400
-        
         checkuser = database.ExecuteQuery("SELECT * FROM registers WHERE email = %s OR username = %s" ,(data.get("uemail").strip(), data.get("uemail").strip() , ))
+        
        
         if len(checkuser) == 0:
             
@@ -159,7 +159,7 @@ def login():
         
         pwdhashed = checkuser[0]["password"]
         isuser = VerifyPassword(data.get("password") , pwdhashed)
-      
+
         if not isuser: 
             return jsonify(error='Invalid credentials!' , login=False), 400
         
@@ -193,7 +193,7 @@ def logout():
 def resendotp():
     try: 
         if 'username' in session:
-            return jsonify(login=True) , 200
+            return jsonify(logged=True) , 200
          
         data = request.get_json()
         reqfields = [
@@ -274,9 +274,13 @@ def forgotpass():
 @app.route("/api/validatetoken", methods=["POST"])
 def validate_token():
     try:
+
+        if 'username' in session:
+            return jsonify(login=True) , 200
+        
         data = request.get_json()
         token = data.get("token")
-        print(token)
+
         if not token:
             return jsonify(error="Token is required!"), 400
 
@@ -293,6 +297,9 @@ def validate_token():
 @app.route("/api/resetpassword", methods=["POST"])
 def resetpassword():
     try:
+        if "username" in session:
+            return jsonify(logged=True) , 200
+        
         data = request.get_json()
         reqfields = [
             {"name": "token", "value": "Token"},
@@ -312,14 +319,16 @@ def resetpassword():
             return jsonify(error="Invalid or expired token!"), 400
 
         email = checkifexists[0]["email"]
+       
         getuser = database.ExecuteQuery("SELECT * FROM registers WHERE email =%s" , (email, ))
         if len(getuser) == 0:
             return jsonify(error="An error occured!"), 400
         
         checkpass = CheckPassword(data.get("password") , getuser[0]["username"] , email )
-        if  not checkpass["valid"]:
-            return jsonify(error=checkpass["error"]), checkpass["status_code"]
         
+        if  not checkpass["valid"]:
+            return jsonify(error=checkpass["error"]), 400
+     
         hashpwd = HashPassword(data.get("password").strip())
         updateuser = database.ExecuteQuery("UPDATE registers SET password = %s WHERE email = %s", (hashpwd, email))
 

@@ -28,7 +28,7 @@ def CheckPassword(password, username , email):
     if password.strip().lower() == username.strip().lower():
          valid = False
          return { "valid" : valid, "error" : "Password is same as username!" }
-    if email.strip().lower() == email.strip().lower():
+    if email.strip().lower() == password.strip().lower():
          valid = False
          return { "valid" : valid, "error" : "Password is same as email!" } 
     return {"valid": valid}
