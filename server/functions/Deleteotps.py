@@ -8,7 +8,8 @@ app = Flask(__name__)
 
 def Deleterecord():
     database.ExecuteQuery("DELETE FROM otps WHERE (UNIX_TIMESTAMP() * 1000 - time) > 9000" , ())
-    
+    database.ExecuteQuery("DELETE FROM passreset WHERE (UNIX_TIMESTAMP() * 1000 - timing) > 9000" , ())
+
 
 def run_scheduler():
     while True:

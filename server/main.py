@@ -166,7 +166,7 @@ def login():
         session["username"] = checkuser[0]["username"]
      
         return jsonify(message='Logged in!' , login=True), 200
-    
+        
     except Exception as e:
         print(e)
         return jsonify(error='An error occured' , login=False), 500
