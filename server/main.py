@@ -166,7 +166,7 @@ def login():
         session["username"] = checkuser[0]["username"]
      
         return jsonify(message='Logged in!' , login=True), 200
-        
+
     except Exception as e:
         print(e)
         return jsonify(error='An error occured' , login=False), 500
@@ -217,7 +217,7 @@ def resendotp():
             return jsonify(error="Max otp sent!"), 400
         else:
             SendMail(data.get("email") , "Register otp verification!" , f"{finduser[0]["otp"]}")
-            database.ExecuteQuery("UPDATE otps set times = %s WHERE email = %s" , (finduser[0]["times"] + 1, finduser[0]["email"]))
+            database.ExecuteQuery("UPDATE otps set times = %s , time = %s WHERE email = %s" , (finduser[0]["times"] + 1, GetTime() ,  finduser[0]["email"]))
 
         return jsonify(message="otp sent!"), 200
     except Exception as e:
@@ -262,7 +262,7 @@ def forgotpass():
             jwt_token = f"{os.getenv("CLIENTLOCALURL")}/resetpass?token={checkotpdata[0]['token']}"
             mailsend = SendMail(checkuser[0]["email"], "Your password reset link!", f"Your password reset link is: {jwt_token}")
             if mailsend:
-                database.ExecuteQuery("UPDATE passreset SET times=%s WHERE email=%s" , (checkotpdata[0]["times"] + 1 , checkuser[0]["email"] , ))
+                database.ExecuteQuery("UPDATE passreset SET times=%s , time = %s,  WHERE email=%s" , (checkotpdata[0]["times"] + 1 , GetTime() ,  checkuser[0]["email"] , ))
 
             else:
                 return jsonify(error="An error occured!"), 400
