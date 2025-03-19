@@ -268,7 +268,8 @@ def forgotpass():
                 return jsonify(error="An error occured!"), 400
         return jsonify(message="OTP sent!",  email=checkuser[0]["email"]), 200
 
-    except Exception:
+    except Exception as e:
+        print(e)
         return jsonify(error="Internal server error!"), 500
 
 @app.route("/api/validatetoken", methods=["POST"])

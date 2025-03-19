@@ -1,4 +1,5 @@
 import random
+import math
 def GenerateOTP(length):
     otp = ""
     for _ in range(0, length):
@@ -9,6 +10,7 @@ def GenerateOTP(length):
 def GenerateToken():
     token=""
     strval = "abcdefghijklmnopqrstuvwxyz@#$%^&*"
-    for i in range(0, len(strval) - 1):
-        token+=strval[i]
+    for _ in range(0, len(strval)):
+        randval = random.choice(strval)
+        token+=randval
     return token
