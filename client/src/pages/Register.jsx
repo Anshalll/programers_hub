@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import { useSendDataMutation } from "../redux/apis/slice";
 import Verifyotp from "../components/Verifyotp";
 import PasswordField from "../components/PasswordField";
+import Hcaptcha from "../components/Hcaptcha";
 
 export default function Register() {
 
+  const [captchaToken, setCaptchaToken] = useState("");
   const [DataMutate] = useSendDataMutation()
   const [Error, setError] = useState("")
   const [AuthOtp, setAuthOtp] = useState(false)
@@ -17,8 +19,21 @@ export default function Register() {
 
     e.preventDefault();
     const form = e.target;
+
+    if (!captchaToken) {
+      setError("Please complete the captcha")
+      setTimeout(() => {
+        setError("")
+      }, 3000)
+      return
+      
+    }
+
     let formdata = new FormData(form);
     setIsloading(true)
+
+    formdata.append("captcha", captchaToken)
+
     let resp = await DataMutate({ url: "/otpregister", method: "POST", data: Object.fromEntries(formdata) })
 
     if (resp.data?.success) {
@@ -91,9 +106,8 @@ export default function Register() {
               <label className="block text-gray-700 text-sm mb-2">Confirm Password</label>
               <PasswordField name={"confirmpassword"} placeholder={"Confirm password"}/>
             </div>
-            <Link to="/forgotpass" className="text-right text-blue-500 text-sm mb-4 cursor-pointer">
-              Forgot Password?
-            </Link>
+            <Hcaptcha setCaptchaToken={setCaptchaToken} />
+
             {!Isloading ? <button
               type="submit"
               className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
@@ -101,6 +115,11 @@ export default function Register() {
               Register
             </button> : <div className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">Loading..</div>}
           </form>
+
+          <Link to="/forgotpass" className="text-right text-blue-500 text-sm mb-4 cursor-pointer">
+              Forgot Password?
+            </Link>
+
           {!Isloading ? <>
             <div className="my-4 flex items-center">
               <div className="border-t w-full"></div>

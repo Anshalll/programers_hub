@@ -42,6 +42,7 @@ def otpregister():
         
         data = request.get_json()
         reqfields = [
+            {"name" : "captcha" ,  "value" : "HCaptcha"},
             {"name" : "name" , "value": "Name"},
             {"name" : "email" , "value": "Email"},
             {"name" : "username" , "value": "Username"},
@@ -52,6 +53,10 @@ def otpregister():
       
         if  validatedata["error"]:
             return jsonify(error=validatedata["message"]), validatedata["status_code"]
+        
+        checkcap = Verifyhcaptcha(data.get("captcha"))
+        if not checkcap:
+            return jsonify(error="Invalid captcha!"), 400
         
         checkotpdata = database.ExecuteQuery("SELECT * FROM otps WHERE email = %s" , (data.get("email").strip() , ))
 
@@ -95,6 +100,7 @@ def registeruser():
         data = request.get_json()
        
         reqfields = [
+            {"name" : "captcha" ,  "value" : "HCaptcha"},
             {"name": "otp", "value": "otp"},
             {"name" : "name" , "value": "Name"},
             {"name" : "email" , "value": "Email"},
@@ -107,7 +113,10 @@ def registeruser():
         if  validatedata["error"]:
             return jsonify(error=validatedata["message"]), validatedata["status_code"]
 
-
+        checkcap = Verifyhcaptcha(data.get("captcha"))
+        if not checkcap:
+            return jsonify(error="Invalid captcha!"), 400
+        
         checkotp = database.ExecuteQuery("SELECT * FROM  otps WHERE email = %s" , (data.get("email") , ))
         if len(checkotp) == 0:
             return jsonify(error="An error occured!"), 400
