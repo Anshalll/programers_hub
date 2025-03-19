@@ -57,7 +57,7 @@ export default function Verifyotp({ registerdata }) {
 
     const HandleFormSubmit = async (e) => {
         e.preventDefault()
-        setisLoading(true)
+       
         if (!captchaToken) {
             setError("Please complete the captcha")
             setTimeout(() => {
@@ -66,14 +66,14 @@ export default function Verifyotp({ registerdata }) {
             return
 
         }
-
+        setisLoading(true)
         let otp = InputVals.join("")
         registerdata.otp = otp
         registerdata.captcha = captchaToken
         const resp = await SendData({ url: "/register", method: "POST", data: registerdata })
         if (resp.error?.data?.error) {
-            Refcaptcha.current.resetCaptcha()
             setError(resp.error.data.error)
+            Refcaptcha.current.resetCaptcha()
             setTimeout(() => {
                 setError("")
             }, 3000)
@@ -108,7 +108,7 @@ export default function Verifyotp({ registerdata }) {
 
     return (
         <div className='w-full h-full  flex items-center justify-center'>
-            <div className='flex flex-col gap-[20px]  p-[20px] w-[450px] max-h-[350px] shadow-lg  rounded-lg'>
+            <div className='flex flex-col gap-[20px]  p-[20px] w-[450px] min-h-[350px] shadow-lg  rounded-lg'>
 
                 <p className='w-full h-[20px]'>otp verification</p>
 
@@ -125,7 +125,7 @@ export default function Verifyotp({ registerdata }) {
 
                     <div className="w-full flex items-center justify-center mb-[10px]">
 
-                        <Hcaptcha  setCaptchaToken={setCaptchaToken} />
+                        <Hcaptcha ref={Refcaptcha}  setCaptchaToken={setCaptchaToken} />
 
                     </div>
 
