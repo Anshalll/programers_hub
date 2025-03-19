@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { setAuthuser } from "./redux/auth/slice.js";
 import ProtectedRoutes from "./ProtectedRoutes.jsx";
 import { useAuthSlice } from "./hooks/useAuthSlice.js";
+import Loading from "./components/Loading.jsx";
 
 export default function App() {
 
@@ -37,7 +38,9 @@ export default function App() {
   return (
     <>
       {!isLoading ? <Router>
-        <Suspense fallback={<div className="h-screen flex items-center justify-center">Loading...</div>}>
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen w-[100vw] bg-black">
+        <Loading />
+      </div>}>
           <Routes>
           <Route path="/" element={<Home />} />
 
@@ -59,7 +62,9 @@ export default function App() {
 
           </Routes>
         </Suspense>
-      </Router> : <p className="text-white">{"Loading"}</p>}
+      </Router> : <div className="flex items-center justify-center min-h-screen w-[100vw] bg-black">
+        <Loading />
+      </div> }
 
     </>
 

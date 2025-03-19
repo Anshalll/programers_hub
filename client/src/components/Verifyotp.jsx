@@ -2,6 +2,7 @@
 import React, { useEffect, useState , useRef} from 'react'
 import { useSendDataMutation } from '../redux/apis/slice'
 import Hcaptcha from './Hcaptcha'
+import Loading from './Loading'
 
 export default function Verifyotp({ registerdata }) {
 
@@ -129,7 +130,9 @@ export default function Verifyotp({ registerdata }) {
 
                     </div>
 
-                    {!isLoading ? <button type='submit' disabled={!ShowBtn} className={`w-full h-[30px] ${ShowBtn ? "bg-[#FF6500]" : "bg-[#d67b3e]"} rounded-lg`}>Verify</button> : <p>Loading...</p>}
+                    {!isLoading ? <button type='submit' disabled={!ShowBtn} className={`w-full h-[30px] ${ShowBtn ? "bg-[#FF6500]" : "bg-[#d67b3e]"} rounded-lg`}>Verify</button> : <div className="flex items-center justify-center w-full p-[5px]">
+              <Loading />
+            </div>}
 
                 </form>
 

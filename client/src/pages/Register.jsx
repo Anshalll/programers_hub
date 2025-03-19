@@ -1,9 +1,10 @@
-import React, { useState , useRef} from "react";
+import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useSendDataMutation } from "../redux/apis/slice";
 import Verifyotp from "../components/Verifyotp";
 import PasswordField from "../components/PasswordField";
 import Hcaptcha from "../components/Hcaptcha";
+import Loading from "../components/Loading";
 
 export default function Register() {
 
@@ -26,7 +27,7 @@ export default function Register() {
         setError("")
       }, 3000)
       return
-      
+
     }
 
     let formdata = new FormData(form);
@@ -47,7 +48,7 @@ export default function Register() {
         setError("")
       }, 3000)
     }
-    else{
+    else {
       setFormdata(Object.fromEntries(formdata))
       setAuthOtp(true)
     }
@@ -67,7 +68,7 @@ export default function Register() {
           <p className="text-gray-500 text-sm mb-6">
             Create an account to get started
           </p>
-         
+
           <form onSubmit={(e) => handleSubmit(e)}>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm mb-2">Name</label>
@@ -101,27 +102,33 @@ export default function Register() {
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm mb-2">Password</label>
-              <PasswordField name={"password"} placeholder={"Enter password"}/>
+              <PasswordField name={"password"} placeholder={"Enter password"} />
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm mb-2">Confirm Password</label>
-              <PasswordField name={"confirmpassword"} placeholder={"Confirm password"}/>
+              <PasswordField name={"confirmpassword"} placeholder={"Confirm password"} />
             </div>
+
+            <div className="w-full flex items-center justify-center mb-[10px]">
+
             <Hcaptcha ref={Refcaptcha} setCaptchaToken={setCaptchaToken} />
+
+            </div>
+
 
             {!Isloading ? <button
               type="submit"
               className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
             >
               Register
-            </button> : <div className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">Loading..</div>}
+            </button> : <div className="flex items-center justify-center w-full p-[5px]">
+              <Loading />
+            </div>}
           </form>
 
-          <Link to="/forgotpass" className="text-right text-blue-500 text-sm mb-4 cursor-pointer">
-              Forgot Password?
-            </Link>
+      
 
-          {!Isloading ? <>
+          {!Isloading && <>
             <div className="my-4 flex items-center">
               <div className="border-t w-full"></div>
               <span className="px-2 text-gray-500">OR</span>
@@ -134,10 +141,12 @@ export default function Register() {
             <p className="text-sm text-gray-500 mt-4">
               Already have an account ? <Link to="/login" className="text-blue-500 cursor-pointer">Login</Link>
             </p>
-        
-            </> : <p>Loading...</p> }
+
+            
+          </>}
+
         </div>
-     
+
         {/* Right Side - Image */}
         <div className="w-1/2 p-[20px]">
           <img

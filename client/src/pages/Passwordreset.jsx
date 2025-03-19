@@ -2,7 +2,7 @@ import React, { useState , useRef} from 'react'
 import { useSendDataMutation } from '../redux/apis/slice'
 import { useNavigate } from 'react-router-dom'
 import Hcaptcha from '../components/Hcaptcha';
-
+import Loading from '../components/Loading';
 export default function Passwordreset() {
 
     const [captchaToken, setCaptchaToken] = useState("");
@@ -59,7 +59,9 @@ export default function Passwordreset() {
                     <Hcaptcha ref={Refcaptcha} setCaptchaToken={setCaptchaToken} />
                 
                 </div>
-                {isLoading ? "Loading..." : <button disabled={InputValue.trim() === ""} className={`w-full h-[40px] ${InputValue.trim() !== "" ? "bg-[#FF6500]" : "bg-[#d67b3e]"} rounded-lg`} onClick={() => HandleSubmit()}>Submit</button>}
+                {isLoading ? <div className="flex items-center justify-center w-full p-[5px]">
+              <Loading />
+            </div> : <button disabled={InputValue.trim() === ""} className={`w-full h-[40px] ${InputValue.trim() !== "" ? "bg-[#FF6500]" : "bg-[#d67b3e]"} rounded-lg`} onClick={() => HandleSubmit()}>Submit</button>}
             </div>}
         </div>
     )

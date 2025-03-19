@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useSendDataMutation } from '../redux/apis/slice'
 import PasswordField from "../components/PasswordField";
 import Hcaptcha from "../components/Hcaptcha";
+import Loading from "../components/Loading";
 
 export default function LoginForm() {
 
@@ -78,7 +79,9 @@ export default function LoginForm() {
 
             </div>
 
-            {isLoading ? "Loading..." :  <button
+            {isLoading ? <div className="flex items-center justify-center w-full p-[5px]">
+              <Loading />
+            </div> :  <button
               type="submit"
               className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
             >
@@ -87,8 +90,9 @@ export default function LoginForm() {
 
 
           </form>
-
-
+          
+         {!isLoading &&  <>
+          
 
           <Link to="/forgotpass" className="text-right text-blue-500 text-sm mb-4 cursor-pointer">
             Forgot Password?
@@ -106,7 +110,11 @@ export default function LoginForm() {
           <p className="text-sm text-gray-500 mt-4">
             If you don’t have an account... <Link to="/register" className="text-blue-500 cursor-pointer">Register</Link>
           </p>
+
+          </>}
+
         </div>
+
         {/* Right Side - Image */}
         <div className="w-1/2 p-[20px]">
           <img

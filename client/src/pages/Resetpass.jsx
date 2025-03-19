@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import {useSendDataMutation} from '../redux/apis/slice'
 import Hcaptcha from '../components/Hcaptcha'
 import PasswordField from '../components/PasswordField'
+import Loading from '../components/Loading'
+
 export default function Resetpass() {
     
     const [captchaToken, setCaptchaToken] = useState("");
@@ -101,7 +103,9 @@ export default function Resetpass() {
             
                         </div>
 
-            {!isLoading ?  <button disabled={!ShowPassreset} onClick={() => HandlePasswordReset()} className={`w-full h-[40px] ${ShowPassreset ? "bg-[#FF6500]" : "bg-[#d67b3e]"} rounded-lg`}>Reset</button> : "Loading..." }
+            {!isLoading ?  <button disabled={!ShowPassreset} onClick={() => HandlePasswordReset()} className={`w-full h-[40px] ${ShowPassreset ? "bg-[#FF6500]" : "bg-[#d67b3e]"} rounded-lg`}>Reset</button> : <div className="flex items-center justify-center w-full p-[5px]">
+                    <Loading />
+                  </div> }
          </div>}
     </div>
   )
