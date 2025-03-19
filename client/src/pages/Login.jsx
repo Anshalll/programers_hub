@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState , useRef} from "react";
 import { Link } from "react-router-dom";
 import { useSendDataMutation } from '../redux/apis/slice'
 import PasswordField from "../components/PasswordField";
@@ -7,10 +7,10 @@ import Hcaptcha from "../components/Hcaptcha";
 export default function LoginForm() {
 
   const [captchaToken, setCaptchaToken] = useState("");
-
+  const [isLoading , setisLoading] = useState(false)
   const [FormMutation] = useSendDataMutation()
   const [Error, setError] = useState("")
-
+  const Refcaptcha = useRef(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +22,9 @@ export default function LoginForm() {
       return
       
     }
+
     let formdata = new FormData(e.target)
+    setisLoading(true)
     formdata.append("captcha", captchaToken)
     
     let data = Object.fromEntries(formdata)
@@ -30,6 +32,7 @@ export default function LoginForm() {
     let resp = await FormMutation({ url: "/login", method: "POST", data })
     if (!resp.error?.data.login) {
       setError(resp.error?.data.error)
+      Refcaptcha.current.resetCaptcha()
       setTimeout(() => {
         setError("")
       }, 3000)
@@ -39,7 +42,7 @@ export default function LoginForm() {
     if (resp.data?.login) {
       window.location.href = import.meta.env.VITE_CLIENTLOCAL
     }
-
+    setisLoading(false)
 
 
   };
@@ -71,16 +74,16 @@ export default function LoginForm() {
             </div>
             <div className="w-full flex items-center justify-center mb-[10px]">
 
-            <Hcaptcha setCaptchaToken={setCaptchaToken} />
+            <Hcaptcha ref={Refcaptcha} setCaptchaToken={setCaptchaToken} />
 
             </div>
 
-            <button
+            {isLoading ? "Loading..." :  <button
               type="submit"
               className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
             >
               Log In
-            </button>
+            </button>}
 
 
           </form>

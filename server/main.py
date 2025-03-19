@@ -246,12 +246,16 @@ def forgotpass():
         
         data = request.get_json()
         reqfields = [
+            {"name" : "captcha" ,  "value" : "HCaptcha"},
             {"name": "uemail", "value": "All fields are required!"}
         ]
         fieldscheck = CheckFields(reqfields, data)
         if fieldscheck["error"]:
             return jsonify(error=fieldscheck["message"]), 400
-
+        checkhcap = Verifyhcaptcha(data.get("captcha"))
+        if not checkhcap:
+            return jsonify(error="Invalid captcha!"), 400
+        
         checkuser = database.ExecuteQuery("SELECT * FROM registers WHERE email = %s OR username = %s", (data.get("uemail").strip(),data.get("uemail").strip(),))
 
         if len(checkuser) == 0:
@@ -317,6 +321,7 @@ def resetpassword():
         
         data = request.get_json()
         reqfields = [
+            {"name": "captcha", "value": "HCaptcha"},
             {"name": "token", "value": "Token"},
             {"name": "password", "value": "Password"},
             {"name": "cpass", "value": "Confirm Password"}
@@ -327,7 +332,10 @@ def resetpassword():
 
         if data.get("password") != data.get("cpass"):
             return jsonify(error="Passwords do not match!"), 400
-       
+        checkhcap = Verifyhcaptcha(data.get("captcha"))
+        if not checkhcap:
+            return jsonify(error="Invalid captcha!"), 400
+        
         checkifexists = database.ExecuteQuery("SELECT * FROM passreset WHERE token = %s", (data.get("token"),))
         
         if len(checkifexists) == 0:

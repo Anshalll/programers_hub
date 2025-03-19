@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState , useRef} from "react";
 import { Link } from "react-router-dom";
 import { useSendDataMutation } from "../redux/apis/slice";
 import Verifyotp from "../components/Verifyotp";
@@ -13,7 +13,7 @@ export default function Register() {
   const [AuthOtp, setAuthOtp] = useState(false)
   const [Formdata, setFormdata] = useState(null)
   const [Isloading, setIsloading] = useState(false)
-
+  const Refcaptcha = useRef(null)
   const handleSubmit = async (e) => {
 
 
@@ -42,6 +42,7 @@ export default function Register() {
     }
     if (resp.error?.data?.error.toLowerCase() !== "max otp sent!") {
       setError(resp.error?.data?.error)
+      Refcaptcha.current.resetCaptcha()
       setTimeout(() => {
         setError("")
       }, 3000)
@@ -106,7 +107,7 @@ export default function Register() {
               <label className="block text-gray-700 text-sm mb-2">Confirm Password</label>
               <PasswordField name={"confirmpassword"} placeholder={"Confirm password"}/>
             </div>
-            <Hcaptcha setCaptchaToken={setCaptchaToken} />
+            <Hcaptcha ref={Refcaptcha} setCaptchaToken={setCaptchaToken} />
 
             {!Isloading ? <button
               type="submit"

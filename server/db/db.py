@@ -15,7 +15,7 @@ class DB:
         )
     def get_connection(self):
         if self.conn.is_connected():
-           self.cursor = self.conn.cursor(dictionary=True)
+           self.cursor = self.conn.cursor(dictionary=True , buffered=True)
 
            print("Database connection established")
         else:
@@ -30,6 +30,7 @@ class DB:
             return self.cursor.fetchall() 
         
         self.conn.commit()  
+      
         return self.cursor.rowcount  
 
 database = DB()

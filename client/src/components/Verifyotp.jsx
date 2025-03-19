@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState , useRef} from 'react'
 import { useSendDataMutation } from '../redux/apis/slice'
 import Hcaptcha from './Hcaptcha'
 
@@ -14,7 +14,7 @@ export default function Verifyotp({ registerdata }) {
     const [InputVals, setInputVals] = useState([
         "", "", "", "", "", ""
     ])
-
+    const Refcaptcha = useRef(null)
     useEffect(() => {
         const allFilled = InputVals.every((val) => val !== "");
         setShowBtn(allFilled);
@@ -72,7 +72,7 @@ export default function Verifyotp({ registerdata }) {
         registerdata.captcha = captchaToken
         const resp = await SendData({ url: "/register", method: "POST", data: registerdata })
         if (resp.error?.data?.error) {
-
+            Refcaptcha.current.resetCaptcha()
             setError(resp.error.data.error)
             setTimeout(() => {
                 setError("")
@@ -125,7 +125,7 @@ export default function Verifyotp({ registerdata }) {
 
                     <div className="w-full flex items-center justify-center mb-[10px]">
 
-                        <Hcaptcha setCaptchaToken={setCaptchaToken} />
+                        <Hcaptcha  setCaptchaToken={setCaptchaToken} />
 
                     </div>
 

@@ -1,9 +1,11 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState , useRef} from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {useSendDataMutation} from '../redux/apis/slice'
-
+import Hcaptcha from '../components/Hcaptcha'
+import PasswordField from '../components/PasswordField'
 export default function Resetpass() {
-
+    
+    const [captchaToken, setCaptchaToken] = useState("");
     const [ConfirmPass, setConfirmPass] = useState("")
     const [Pass, setPass] = useState("")
     const [Error, setError] = useState("")
@@ -12,7 +14,8 @@ export default function Resetpass() {
     const [Postdata] = useSendDataMutation()
     const [Token ,setToken] = useState("")
     const [ShowModel, setShowModel] = useState(false)
-
+    const [isLoading , setisLoading] = useState(false)
+    const Refcaptcha = useRef(null)
 
     useEffect(() => {
         const query = new URLSearchParams(window.location.search)
@@ -54,13 +57,26 @@ export default function Resetpass() {
     
 
     const HandlePasswordReset = async () => {
-        let response  = await Postdata({ url: "/resetpassword" , method: "POST" , data: {token: Token , cpass: ConfirmPass , password: Pass } })
+     
+        if (!captchaToken) {
+            setError("Please complete the captcha")
+            setTimeout(() => {
+                setError("")
+            }, 3000)
+            return
+
+        }
+        setisLoading(true)
+        let response  = await Postdata({ url: "/resetpassword" , method: "POST" , data: {token: Token , cpass: ConfirmPass , password: Pass , captcha: captchaToken } })
         if (response.error?.data.error) {
+            Refcaptcha.current.resetCaptcha()
             setError(response.error?.data.error)
         }
         if (response.data?.message) {
             setShowModel(true)
         }
+
+        setisLoading(false)
     }
 
   return (
@@ -68,14 +84,24 @@ export default function Resetpass() {
          {ShowModel ? <div className='w-[400px] gap-[20px] flex p-[10px] flex-col items-center justify-center  h-[200px] bg-white rounded-lg shadow-lg'>
                 <p>Password changed!</p>
                 <Link to="/login"  className='flex items-center justify-center w-full font-bold'>ok</Link>
-         </div> : <div className='w-[400px] max-h-[250px] flex-col flex gap-[20px] p-[20px] bg-white rounded-lg shadow-lg'>
+         </div> : <div className='w-[400px] min-h-[250px] flex-col flex gap-[20px] p-[20px] bg-white rounded-lg shadow-lg'>
 
             <p>Password reset</p>
             {Error && <p className='text-red-500'>{Error}</p> }
 
-            <input value={Pass} onChange={(e) => setPass(e.target.value)} type="password" className='border-2 border-[#FF6500] px-[10px] h-[40px] rounded-lg' placeholder='New password' />
-            <input value={ConfirmPass} onChange={(e) => setConfirmPass(e.target.value)} type="password" placeholder='Confirm password' className='border-2 border-[#FF6500] px-[10px] h-[40px] rounded-lg'/>
-             <button disabled={!ShowPassreset} onClick={() => HandlePasswordReset()} className={`w-full h-[40px] ${ShowPassreset ? "bg-[#FF6500]" : "bg-[#d67b3e]"} rounded-lg`}>Reset</button> 
+            <PasswordField type="valchange"  value={Pass} onChange={(e) => setPass(e.target.value)} name={"password"} placeholder='New password' />
+            <PasswordField type="valchange"  value={ConfirmPass} onChange={(e) => setConfirmPass(e.target.value)} name={"cpass"} placeholder='Confirm password' />
+
+            
+                
+
+                       <div className="w-full flex items-center justify-center mb-[10px]">
+            
+                        <Hcaptcha ref={Refcaptcha} setCaptchaToken={setCaptchaToken} />
+            
+                        </div>
+
+            {!isLoading ?  <button disabled={!ShowPassreset} onClick={() => HandlePasswordReset()} className={`w-full h-[40px] ${ShowPassreset ? "bg-[#FF6500]" : "bg-[#d67b3e]"} rounded-lg`}>Reset</button> : "Loading..." }
          </div>}
     </div>
   )
