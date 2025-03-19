@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useSendDataMutation } from "../redux/apis/slice";
 import Verifyotp from "../components/Verifyotp";
-
+import PasswordField from "../components/PasswordField";
 
 export default function Register() {
 
@@ -85,23 +85,11 @@ export default function Register() {
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm mb-2">Password</label>
-              <input
-                type="password"
-                name="password"
-                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Enter Password"
-                required
-              />
+              <PasswordField name={"password"} placeholder={"Enter password"}/>
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm mb-2">Confirm Password</label>
-              <input
-                type="password"
-                name="confirmpassword"
-                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Confirm Password"
-                required
-              />
+              <PasswordField name={"confirmpassword"} placeholder={"Confirm password"}/>
             </div>
             <Link to="/forgotpass" className="text-right text-blue-500 text-sm mb-4 cursor-pointer">
               Forgot Password?
