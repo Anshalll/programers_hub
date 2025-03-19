@@ -1,31 +1,47 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import {useSendDataMutation} from '../redux/apis/slice'
+import { useSendDataMutation } from '../redux/apis/slice'
 import PasswordField from "../components/PasswordField";
+import Hcaptcha from "../components/Hcaptcha";
+
 export default function LoginForm() {
 
+  const [captchaToken, setCaptchaToken] = useState("");
 
   const [FormMutation] = useSendDataMutation()
   const [Error, setError] = useState("")
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let formdata = new FormData(e.target)
-    let data = Object.fromEntries(formdata)
-    let resp = await FormMutation({ url: "/login" , method: "POST" , data })
-    if (!resp.error?.data.login) {
-        setError(resp.error?.data.error)
-        setTimeout(() => {
-          setError("")
-        } , 3000)
-    } 
-
+    if (!captchaToken) {
+      setError("Please complete the captcha")
+      setTimeout(() => {
+        setError("")
+      }, 3000)
+      return
       
-    if (resp.data?.login) {
-        window.location.href = import.meta.env.VITE_CLIENTLOCAL
     }
+    let formdata = new FormData(e.target)
+    formdata.append("captcha", captchaToken)
     
-   
+    let data = Object.fromEntries(formdata)
     
+    let resp = await FormMutation({ url: "/login", method: "POST", data })
+    if (!resp.error?.data.login) {
+      setError(resp.error?.data.error)
+      setTimeout(() => {
+        setError("")
+      }, 3000)
+    }
+
+
+    if (resp.data?.login) {
+      window.location.href = import.meta.env.VITE_CLIENTLOCAL
+    }
+
+
+
   };
 
   return (
@@ -34,7 +50,7 @@ export default function LoginForm() {
         {/* Left Side - Form */}
         <div className="w-1/2 p-8">
           <h2 className="text-2xl font-semibold mb-2">Login</h2>
-          {Error && <p className="text-red-500 mt-[10px] mb-[10px]">{Error}</p> }
+          {Error && <p className="text-red-500 mt-[10px] mb-[10px]">{Error}</p>}
           <p className="text-gray-500 text-sm mb-6">
             If you have an account, please login
           </p>
@@ -46,23 +62,35 @@ export default function LoginForm() {
                 name="uemail"
                 className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="Enter Email Address"
-                
+
               />
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm mb-2">Password</label>
-              <PasswordField name={"password"} placeholder={"Enter password"}   />
+              <PasswordField name={"password"} placeholder={"Enter password"} />
             </div>
-            <Link to="/forgotpass" className="text-right text-blue-500 text-sm mb-4 cursor-pointer">
-              Forgot Password?
-            </Link>
+            <div className="w-full flex items-center justify-center mb-[10px]">
+
+            <Hcaptcha setCaptchaToken={setCaptchaToken} />
+
+            </div>
+
             <button
               type="submit"
               className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
             >
               Log In
             </button>
+
+
           </form>
+
+
+
+          <Link to="/forgotpass" className="text-right text-blue-500 text-sm mb-4 cursor-pointer">
+            Forgot Password?
+          </Link>
+
           <div className="my-4 flex items-center">
             <div className="border-t w-full"></div>
             <span className="px-2 text-gray-500">OR</span>

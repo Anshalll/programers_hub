@@ -9,7 +9,7 @@ from functions.CheckForms import CheckRegisterForm
 from functions.GetTime import GetTime
 from functions.Deleteotps import Deleteotps
 from  functions.jwtstring import Generatejwt
-
+from functions.VerifyHcaptcha import Verifyhcaptcha
 import os
 
 app = Flask(__name__)
@@ -143,13 +143,18 @@ def login():
         data = request.get_json()
 
         req_fields = [
-
+            {"name" : "captcha" ,  "value" : "HCaptcha"},
             {"name" : "uemail" ,  "value" : "Email or Username"},
             {"name" : "password" ,  "value" : "Password"}
         ]
         fieldscheck = CheckFields(req_fields , data)
         if fieldscheck["error"]:
                 return jsonify(error=fieldscheck["message"] , login=False), 400
+        
+        verifyhcap = Verifyhcaptcha(data.get("captcha"))
+        if not verifyhcap:
+            return jsonify(error="Invalid captcha!" , login=False), 400
+        
         checkuser = database.ExecuteQuery("SELECT * FROM registers WHERE email = %s OR username = %s" ,(data.get("uemail").strip(), data.get("uemail").strip() , ))
         
        
