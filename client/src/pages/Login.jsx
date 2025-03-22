@@ -4,6 +4,7 @@ import { useSendDataMutation } from '../redux/apis/slice'
 import PasswordField from "../components/PasswordField";
 import Hcaptcha from "../components/Hcaptcha";
 import Loading from "../components/Loading";
+import GoogleAuth from '../components/GoogleAuth'
 
 export default function LoginForm() {
 
@@ -103,10 +104,7 @@ export default function LoginForm() {
             <span className="px-2 text-gray-500">OR</span>
             <div className="border-t w-full"></div>
           </div>
-          <button className="w-full flex items-center justify-center gap-2 border py-3 rounded-lg hover:bg-gray-100">
-            <img src="https://www.svgrepo.com/show/303108/google-icon-logo.svg" alt="Google" className="w-5 h-5" />
-            Login with Google
-          </button>
+          <GoogleAuth/>
           <p className="text-sm text-gray-500 mt-4">
             If you don’t have an account... <Link to="/register" className="text-blue-500 cursor-pointer">Register</Link>
           </p>

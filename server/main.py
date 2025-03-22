@@ -210,6 +210,7 @@ def resendotp():
             return jsonify(logged=True) , 200
          
         data = request.get_json()
+  
         reqfields = [
             
             {"name" : "name" , "value": "Name"},
@@ -364,6 +365,29 @@ def resetpassword():
     except Exception as e:
         print(e)
         return jsonify(error="Internal server error!"), 500
+
+@app.route("/api/googleauth" , methods=["POST"])
+def authgoogle(): 
+    
+    try:
+
+        if "username" in  session:
+            return jsonify(logged=True) , 200
+        
+        data = request.get_json()
+        print(data)
+        reqfields = [{
+            "name" : "access_token" , "value": "Access token"
+        }]
+        checkfields = CheckFields(reqfields , data)
+     
+        if  checkfields:
+            return jsonify(error=checkfields["message"]), 400
+        return jsonify(message="data") , 200
+    except Exception as e:
+        print(e)
+        return jsonify(error="Internal server error") , 500
+
 
 Deleteotps()
 
