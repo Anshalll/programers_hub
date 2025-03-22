@@ -104,7 +104,7 @@ export default function LoginForm() {
             <span className="px-2 text-gray-500">OR</span>
             <div className="border-t w-full"></div>
           </div>
-          <GoogleAuth/>
+          <GoogleAuth setError={setError} text={"Login"}/>
           <p className="text-sm text-gray-500 mt-4">
             If you don’t have an account... <Link to="/register" className="text-blue-500 cursor-pointer">Register</Link>
           </p>

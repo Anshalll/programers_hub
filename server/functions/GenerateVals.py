@@ -14,3 +14,10 @@ def GenerateToken():
         randval = random.choice(strval)
         token+=randval
     return token
+
+def GenerateUsername(name):
+    string  = "abcdefgijklmnopqrstuvwxyz0123456789"
+    for _ in range(0, 5):
+        rand_choice = random.choice(string)
+        name +=rand_choice
+    return name

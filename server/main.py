@@ -3,7 +3,7 @@ from  flask_cors import CORS
 from db.db import database
 from  functions.CheckRequiredFields import CheckFields
 from functions.PasswordWorks import VerifyPassword , HashPassword , CheckPassword
-from functions.GenerateVals import GenerateOTP
+from functions.GenerateVals import GenerateOTP , GenerateUsername
 from functions.SendMail import SendMail
 from functions.CheckForms import CheckRegisterForm
 from functions.GetTime import GetTime
@@ -11,6 +11,7 @@ from functions.Deleteotps import Deleteotps
 from  functions.jwtstring import Generatejwt
 from functions.VerifyHcaptcha import Verifyhcaptcha
 import os
+import requests
 
 app = Flask(__name__)
 CORS(app , supports_credentials=True,   origins=[os.getenv("CLIENTURL") , "http://localhost:5173" , "http://127.0.0.1:5173"])
@@ -375,15 +376,49 @@ def authgoogle():
             return jsonify(logged=True) , 200
         
         data = request.get_json()
-        print(data)
+       
         reqfields = [{
             "name" : "access_token" , "value": "Access token"
         }]
         checkfields = CheckFields(reqfields , data)
-     
-        if  checkfields:
+        
+        if checkfields["error"]:
             return jsonify(error=checkfields["message"]), 400
-        return jsonify(message="data") , 200
+
+        
+        GOOGLE_USER_INFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
+        access_token = data.get("access_token", "").strip()  # Extract & clean token
+        
+        if not access_token:
+            return jsonify({"error": "Access token is missing"}), 400
+
+        
+        uinfo = requests.get(GOOGLE_USER_INFO_URL, headers={"Authorization": f"Bearer {access_token}"})
+        userinfo_response = uinfo.json()
+        check_user = database.ExecuteQuery("SELECT * FROM google_register WHERE email=%s" , (userinfo_response["email"],))
+        
+        if len(check_user) > 0:
+            session["username"] = check_user[0]["username"]
+            return jsonify(logged=True) , 200
+            
+        else:
+            username = GenerateUsername(userinfo_response["given_name"].strip())
+            checkuname = database.ExecuteQuery("SELECT * FROM google_register WHERE username = %s" , (username,))
+            while True:
+                if len(checkuname) > 0:
+                    username = GenerateUsername()
+                else:
+            
+                    break
+
+            createuser = database.ExecuteQuery("INSERT INTO google_register (email , username) VALUES (%s , %s)" , (userinfo_response["email"] , username,))
+
+            session["username"] = username
+            if createuser != 1:
+                return jsonify(error="An error occurred!"), 400   
+                   
+            return jsonify(logged=True) , 200    
+          
     except Exception as e:
         print(e)
         return jsonify(error="Internal server error") , 500
