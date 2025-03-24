@@ -1,4 +1,4 @@
-from flask import Flask, jsonify , request , session
+from flask import Flask, jsonify , request , session , send_from_directory
 from  flask_cors import CORS
 from db.db import database
 from  functions.CheckRequiredFields import CheckFields
@@ -12,6 +12,7 @@ from  functions.jwtstring import Generatejwt
 from functions.VerifyHcaptcha import Verifyhcaptcha
 import os
 import requests
+from functions.CreateProfile import createProfile
 
 app = Flask(__name__)
 CORS(app , supports_credentials=True,   origins=[os.getenv("CLIENTURL") , "http://localhost:5173" , "http://127.0.0.1:5173"])
@@ -135,6 +136,9 @@ def registeruser():
 
         if createuser != 1:
             return jsonify(error="An error occured!"), 400
+        else:
+            fetchlast = database.ExecuteQuery("SELECT * FROM registers where id = LAST_INSERT_ID()" , ())
+            createProfile(fetchlast[0]["id"])
         
         session["username"] = data.get("email").strip()
 
@@ -422,6 +426,7 @@ def authgoogle():
     except Exception as e:
         print(e)
         return jsonify(error="Internal server error") , 500
+
 
 
 Deleteotps()

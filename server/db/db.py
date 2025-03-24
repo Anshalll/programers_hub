@@ -28,9 +28,9 @@ class DB:
         if query.strip().lower().startswith("select"):
             
             return self.cursor.fetchall() 
-        
+            
         self.conn.commit()  
       
-        return self.cursor.rowcount  
+        return self.cursor.rowcount      
 
 database = DB()
