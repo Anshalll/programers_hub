@@ -30,21 +30,18 @@ def index():
     
     if "username" in session:
         data  = {}
-        udata = []
-      
-        if session["type"] == "manual":
-            udata = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (session.get("username") ,))
-        else:
+    
+   
            
-            udata = database.ExecuteQuery("SELECT * FROM google_register WHERE username = %s" , (session.get("username") ,))
+        udata = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (session.get("username") ,))
 
         if len(udata) > 0 :
             profiledata = database.ExecuteQuery("SELECT * FROM profile where id = %s" , (udata[0]["id"] , ))
             if len(profiledata) == 0:
                 return jsonify(error='Internal server error!', logged=False) , 500
 
-            data["profile"] = profiledata
-            data["udata"] = udata 
+            data["profile"] = profiledata[0]
+            data["udata"] = udata[0]
              
         return jsonify(data=data, logged=True) , 200
     
@@ -145,7 +142,7 @@ def registeruser():
         
         hashpwd = HashPassword(data.get("password").strip())
 
-        createuser = database.ExecuteQuery("INSERT INTO registers (email , username, password , name) VALUES (%s , %s , %s ,%s)" , (data.get("email").strip() , data.get("username").strip() , hashpwd , data.get("name").strip() , ))
+        createuser = database.ExecuteQuery("INSERT INTO registers (email , username, password , name , type) VALUES (%s , %s , %s ,%s , %s)" , (data.get("email").strip() , data.get("username").strip() , hashpwd , data.get("name").strip() , "manual" ,))
 
         database.ExecuteQuery("DELETE FROM otps WHERE email = %s" , (data.get("email"), ))
 
@@ -154,6 +151,7 @@ def registeruser():
             return jsonify(error="An error occured!"), 400
         else:
             fetchlast = database.ExecuteQuery("SELECT * FROM registers where id = LAST_INSERT_ID()" , ())
+
             createProfile(fetchlast[0]["id"])
         
         session["username"] = data.get("email").strip()
@@ -416,7 +414,7 @@ def authgoogle():
         
         uinfo = requests.get(GOOGLE_USER_INFO_URL, headers={"Authorization": f"Bearer {access_token}"})
         userinfo_response = uinfo.json()
-        check_user = database.ExecuteQuery("SELECT * FROM google_register WHERE email=%s" , (userinfo_response["email"],))
+        check_user = database.ExecuteQuery("SELECT * FROM registers WHERE email=%s" , (userinfo_response["email"],))
         
         if len(check_user) > 0:
             session["username"] = check_user[0]["username"]
@@ -425,21 +423,26 @@ def authgoogle():
             
         else:
             username = GenerateUsername(userinfo_response["given_name"].strip())
-            checkuname = database.ExecuteQuery("SELECT * FROM google_register WHERE username = %s" , (username,))
+            checkuname = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (username,))
             while True:
                 if len(checkuname) > 0:
                     username = GenerateUsername()
                 else:
             
                     break
+            
 
-            createuser = database.ExecuteQuery("INSERT INTO google_register (email , username) VALUES (%s , %s)" , (userinfo_response["email"] , username,))
+            createuser = database.ExecuteQuery("INSERT INTO registers (email , username , name , type) VALUES (%s , %s , %s , %s)" , (userinfo_response["email"] , username, userinfo_response["name"]  , "google",))
 
             session["username"] = username
             session["type"] = "google"
             if createuser != 1:
                 return jsonify(error="An error occurred!"), 400   
-                   
+            else:
+                fetchlast = database.ExecuteQuery("SELECT * FROM registers where id = LAST_INSERT_ID()" , ())
+
+                createProfile(fetchlast[0]["id"])
+
             return jsonify(logged=True) , 200    
           
     except Exception as e:

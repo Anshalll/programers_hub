@@ -6,7 +6,7 @@ import { setAuthuser } from "./redux/auth/slice.js";
 import ProtectedRoutes from "./ProtectedRoutes.jsx";
 import { useAuthSlice } from "./hooks/useAuthSlice.js";
 import Loading from "./components/Loading.jsx";
-
+import {setudata} from './redux/userdata/slice.js'
 
 export default function App() {
 
@@ -23,14 +23,17 @@ export default function App() {
 
   useEffect(() => {
     if (!isLoading) {
-      console.log(data)
+      
       if (!error) {
 
         dispatch(setAuthuser(data.logged));
-
+        if (data.logged) {
+          dispatch(setudata(data.data))
+        }
       }
       else {
         dispatch(setAuthuser(error.data.logged))
+        
       }
     }
 
