@@ -27,10 +27,26 @@ app.config.update(
 
 @app.route('/api/index', methods=['GET'])
 def index():
-   
+    
     if "username" in session:
-        
-        return jsonify(message='Hello World', logged=True) , 200
+        data  = {}
+        udata = []
+      
+        if session["type"] == "manual":
+            udata = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (session.get("username") ,))
+        else:
+           
+            udata = database.ExecuteQuery("SELECT * FROM google_register WHERE username = %s" , (session.get("username") ,))
+
+        if len(udata) > 0 :
+            profiledata = database.ExecuteQuery("SELECT * FROM profile where id = %s" , (udata[0]["id"] , ))
+            if len(profiledata) == 0:
+                return jsonify(error='Internal server error!', logged=False) , 500
+
+            data["profile"] = profiledata
+            data["udata"] = udata 
+             
+        return jsonify(data=data, logged=True) , 200
     
     else: 
       
@@ -183,7 +199,7 @@ def login():
             return jsonify(error='Invalid credentials!' , login=False), 400
         
         session["username"] = checkuser[0]["username"]
-     
+        session["type"] = "manual"
         return jsonify(message='Logged in!' , login=True), 200
 
     except Exception as e:
@@ -203,6 +219,7 @@ def logout():
     try:
 
         session.pop('username', None)
+        session.pop("type" , None)
         return jsonify(logout=True) , 200
     except Exception as e:
         print(e)
@@ -403,6 +420,7 @@ def authgoogle():
         
         if len(check_user) > 0:
             session["username"] = check_user[0]["username"]
+            session["type"] = "google"
             return jsonify(logged=True) , 200
             
         else:
@@ -418,6 +436,7 @@ def authgoogle():
             createuser = database.ExecuteQuery("INSERT INTO google_register (email , username) VALUES (%s , %s)" , (userinfo_response["email"] , username,))
 
             session["username"] = username
+            session["type"] = "google"
             if createuser != 1:
                 return jsonify(error="An error occurred!"), 400   
                    

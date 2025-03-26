@@ -7,6 +7,7 @@ import ProtectedRoutes from "./ProtectedRoutes.jsx";
 import { useAuthSlice } from "./hooks/useAuthSlice.js";
 import Loading from "./components/Loading.jsx";
 
+
 export default function App() {
 
   const { auth } = useAuthSlice()
@@ -22,7 +23,7 @@ export default function App() {
 
   useEffect(() => {
     if (!isLoading) {
-      
+      console.log(data)
       if (!error) {
 
         dispatch(setAuthuser(data.logged));
@@ -34,6 +35,8 @@ export default function App() {
     }
 
   }, [isLoading, data, error, dispatch])
+
+  
 
   return (
     <>
