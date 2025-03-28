@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import { useProfiledata } from "../hooks/useProfiledata";
-
+import UserSearchbar from "./UserSearchbar";
 
 const Navbar = () => {
 
@@ -18,16 +18,15 @@ const Navbar = () => {
           <h1>Programmer hub</h1>
       </div>
 
-      <div className="flex w-[300px] bg-black h-[50px]">
-
-      </div>
+      <UserSearchbar/>
+      
 
       <div>
          {
          
          (!loading  ) &&
          
-         (data?.udata?.username ? <Link to={`/profile?user=${data.udata.username}`} className=" min-w-[130px] h-[30px] bg-[#FF6500] rounded-full itsjust gap-[20px]">{data.udata.username}</Link> :  <Link to={`/login`} className=" min-w-[130px] h-[30px] bg-[#FF6500] rounded-full itsjust gap-[20px]">Login</Link>)
+         (data?.udata?.username ? <button className=" min-w-[130px] h-[30px] bg-[#FF6500] rounded-full itsjust gap-[20px]">{data.udata.username}</button> :  <Link to={`/login`} className=" min-w-[130px] h-[30px] bg-[#FF6500] rounded-full itsjust gap-[20px]">Login</Link>)
          
          
          }

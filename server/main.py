@@ -511,6 +511,29 @@ def updateinfo():
         return jsonify(error="Internal server error!"), 500
 
 
+@app.route("/api/searchusers", methods=["POST"])
+def search_users():
+    try:
+        data = request.get_json()
+        search_term = data.get("search")
+        if not search_term:
+            return jsonify(error="Search term is required!"), 400
+
+        # Query to fetch user details
+        query = """
+            SELECT p.*, r.username, r.name 
+            FROM profile p 
+            JOIN registers r ON p.id = r.id 
+            WHERE r.username LIKE %s
+        """
+        users = database.ExecuteQuery(query, (f"{search_term}%",))
+
+        return jsonify(users=users, success=True), 200
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify(error="Internal server error!"), 500
+
 
 Deleteotps()
 
