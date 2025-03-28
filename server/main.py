@@ -13,7 +13,7 @@ from functions.VerifyHcaptcha import Verifyhcaptcha
 import os
 import requests
 from functions.CreateProfile import createProfile
-
+import json
 app = Flask(__name__)
 CORS(app , supports_credentials=True,   origins=[os.getenv("CLIENTURL") , "http://localhost:5173" , "http://127.0.0.1:5173"])
 
@@ -24,6 +24,8 @@ app.config.update(
     SESSION_COOKIE_SECURE=True,     # Allow only over HTTPS
     SESSION_COOKIE_SAMESITE="None", # Allow cross-origin requests
 )
+
+#Auth apis
 
 @app.route('/api/index', methods=['GET'])
 def index():
@@ -448,6 +450,65 @@ def authgoogle():
     except Exception as e:
         print(e)
         return jsonify(error="Internal server error") , 500
+
+
+
+#Account apis
+@app.route("/api/updateinfo", methods=["POST"])
+def updateinfo():
+    try: 
+        print(session["username"])
+        data = request.get_json()
+
+        # Check required fields
+        reqfields = [{"name": "username", "value": "Username"}]
+        checkfields = CheckFields(reqfields, data)
+        if checkfields["error"]:
+            return jsonify(error=checkfields["message"]), 400
+
+        # Get user ID from database
+        getuserid = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (session["username"],))
+        if len(getuserid) == 0:
+            return jsonify(error="An error occurred!"), 400
+
+        # Update profile info
+        update_profile = database.ExecuteQuery(
+            "UPDATE profile SET socialmedialinks=%s, bio=%s, location=%s, role=%s WHERE id = %s",
+            (json.dumps(data.get("socialmedialinks")),  # If MySQL expects JSON string, keep json.dumps()
+             data.get("bio", "").strip(),
+             data.get("location", "").strip(),
+             data.get("role", "").strip(),
+             getuserid[0]["id"])
+        )
+
+        print("Update Profile Result:", update_profile)
+
+        # Update username if changed
+        if session["username"] != data.get("username", "").strip():
+            database.ExecuteQuery(
+                "UPDATE registers SET username = %s WHERE id = %s",
+                (data.get("username", "").strip(), getuserid[0]["id"])
+            )
+
+        # Update name (Fixing incorrect condition)
+        if "name" in data and data.get("name"):
+            database.ExecuteQuery(
+                "UPDATE registers SET name = %s WHERE id = %s",
+                (data.get("name").strip(), getuserid[0]["id"])
+            )
+
+        # Check if update was successful
+        if update_profile != 1:
+            return jsonify(error="An error occurred!"), 400
+
+        # Update session username
+        session["username"] = data.get("username", "").strip()
+
+        return jsonify(message="Profile updated!", success=True), 200
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify(error="Internal server error!"), 500
 
 
 
