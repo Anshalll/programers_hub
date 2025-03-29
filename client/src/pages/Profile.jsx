@@ -47,7 +47,7 @@ export default function Profile() {
               data.profile.socialmedialinks.map((link , index) => <a href={link} key={index}>{link}</a>)
               
               : null}
-              {data.profile.location && <p className='flex items-center gap-[20px]'><LocationOnOutlinedIcon />{data.profile.location}</p>}
+              {data.profile.location && <p className='flex items-center gap-[10px]'><LocationOnOutlinedIcon />{data.profile.location}</p>}
               {data.profile.joinedon && <p className='flex items-center gap-[20px]'><DateRangeOutlinedIcon />{data.profile.joinedon}</p>}
             </div>
             <div className='flex flex-col gap-[20px]'>

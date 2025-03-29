@@ -9,13 +9,21 @@ export default function Updatecomp({ data , setUpdateState}) {
   const [Role, setRole] = useState(data.profile.role)
   const [Location, setLocation] = useState(data.profile.location)
   const [SocialMediaLinks, setSocialMediaLinks] = useState(JSON.parse(data.profile.socialmedialinks))
-
+  const [Error, setError] = useState("")
 
 
   const HandleProfileSave = async () => {
     const response = await Senddata({ url: "/updateinfo", method: "POST", data: { username: Username, name: Name, bio: Bio, role: Role, location: Location, socialmedialinks: SocialMediaLinks } })
-
     console.log(response)
+    if (response.error) {
+      setError(response.error.data.error)
+      setTimeout(() => {
+        setError("")
+      } , 3000)
+    }
+    if (response.data) {
+      window.location.reload()
+    }
     // const response  = await Senddata({ path: "/updateinfo" , method: "POST" ,  })
   }
 
@@ -49,7 +57,7 @@ export default function Updatecomp({ data , setUpdateState}) {
 
 
             <input name='location' type="text" placeholder='Location' className='border-2 border-gray-300 px-[10px] rounded-lg py-[3px]'onChange={(e) => setLocation(e.target.value)} value={Location} />
-
+            {Error && <p className='text-red-500'>{Error}</p>}
             <button onClick={() => HandleProfileSave()} className="bg-green-500  hover:bg-green-600 cursor-pointer text-white py-[3px] px-[30px] rounded-lg">Save</button>
 
 

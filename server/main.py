@@ -457,7 +457,7 @@ def authgoogle():
 @app.route("/api/updateinfo", methods=["POST"])
 def updateinfo():
     try: 
-        print(session["username"])
+
         data = request.get_json()
 
         # Check required fields
@@ -468,6 +468,7 @@ def updateinfo():
 
         # Get user ID from database
         getuserid = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (session["username"],))
+    
         if len(getuserid) == 0:
             return jsonify(error="An error occurred!"), 400
 
@@ -481,16 +482,20 @@ def updateinfo():
              getuserid[0]["id"])
         )
 
-        print("Update Profile Result:", update_profile)
-
+       
         # Update username if changed
+
+        checkusername = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (data.get("username").strip() , ))
+
+        if len(checkusername) > 0:
+            return jsonify(error="Username already exists!"), 400
         if session["username"] != data.get("username", "").strip():
             database.ExecuteQuery(
                 "UPDATE registers SET username = %s WHERE id = %s",
                 (data.get("username", "").strip(), getuserid[0]["id"])
             )
 
-        # Update name (Fixing incorrect condition)
+
         if "name" in data and data.get("name"):
             database.ExecuteQuery(
                 "UPDATE registers SET name = %s WHERE id = %s",
@@ -498,10 +503,14 @@ def updateinfo():
             )
 
         # Check if update was successful
-        if update_profile != 1:
+        if update_profile != 1 and update_profile != 0:
+            
             return jsonify(error="An error occurred!"), 400
+  
 
         # Update session username
+        session.pop("username" , None)
+        print(data.get("username"))
         session["username"] = data.get("username", "").strip()
 
         return jsonify(message="Profile updated!", success=True), 200
