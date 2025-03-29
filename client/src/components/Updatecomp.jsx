@@ -1,45 +1,110 @@
-import React , {useState} from 'react'
-import {useSendDataMutation} from '../redux/apis/slice'
-export default function Updatecomp({ data , setUpdateState}) {
+import React, { useRef, useState } from 'react'
+import { useSendDataMutation, useSendImagedataMutation } from '../redux/apis/slice'
+import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
+
+export default function Updatecomp({ data, setUpdateState }) {
 
   const [Senddata] = useSendDataMutation()
+  const [SendImage] = useSendImagedataMutation()
   const [Username, setUsername] = useState(data.udata.username)
   const [Name, setName] = useState(data.udata.name)
   const [Bio, setBio] = useState(data.profile.bio)
   const [Role, setRole] = useState(data.profile.role)
   const [Location, setLocation] = useState(data.profile.location)
+  const [Bg, setBg] = useState(`${import.meta.env.VITE_SERVERURL}/api/sendstatic/bg/${data.profile.bg}`)
+  const [Dp, setDp] = useState(`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${data.profile.dp}`)
   const [SocialMediaLinks, setSocialMediaLinks] = useState(JSON.parse(data.profile.socialmedialinks))
+  const [BGtosend, setBGtosend] = useState("")
+  const [DptoSend, setDptoSend] = useState("")
+  const BGref = useRef(null)
+  const Dpref = useRef(null)
+  let Errors = []
   const [Error, setError] = useState("")
 
 
+  const HanndleBGupload = (e) => {
+
+    const readfile = new FileReader()
+    readfile.readAsDataURL(e.target.files[0])
+    readfile.onload = () => {
+      setBg(readfile.result)
+      setBGtosend(e.target.files[0])
+    }
+
+  }
+
+  const HandleDpupload = (e) => {
+    const readfile = new FileReader()
+    readfile.readAsDataURL(e.target.files[0])
+    readfile.onload = () => {
+      setDp(readfile.result)
+      setDptoSend(e.target.files[0])
+    }
+  }
+
   const HandleProfileSave = async () => {
+
     const response = await Senddata({ url: "/updateinfo", method: "POST", data: { username: Username, name: Name, bio: Bio, role: Role, location: Location, socialmedialinks: SocialMediaLinks } })
-    console.log(response)
+
+
+    if (BGtosend || DptoSend) {
+      const formdata = new FormData();
+
+      if (BGtosend) formdata.append("bg", BGtosend);
+      if (DptoSend) formdata.append("dp", DptoSend);
+
+      const respuploadimages = await SendImage({ url: "/uploadimages", method: "POST", data: formdata });
+
+      if (respuploadimages.error?.data?.error) {
+        setError(respuploadimages.error.data.error)
+        setTimeout(() => {
+          setError("")
+        }, 3000)
+        return
+      }
+
+    }
     if (response.error) {
       setError(response.error.data.error)
       setTimeout(() => {
         setError("")
-      } , 3000)
+      }, 3000)
+      return
     }
+
     if (response.data) {
       window.location.reload()
     }
-    // const response  = await Senddata({ path: "/updateinfo" , method: "POST" ,  })
+
+
+
   }
 
   return (
-    <div  className='flex flex-col bg-white h-screen max-w-[1800px] overflow-y-auto p-[20px]'>
+    <div className='flex flex-col bg-white h-screen max-w-[1800px] overflow-y-auto p-[20px]'>
 
       <div className='w-full  relative h-[300px]'>
 
-        <div className='w-full h-[200px]'>
-          <img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Y29kaW5nJTIwYmFja2dyb3VuZHxlbnwwfHwwfHx8MA%3D%3D" alt="" className='object-cover h-full w-full rounded-lg' />
+        <div className='w-full flex  h-[200px]'>
+
+
+          <img src={Bg} alt="" className='object-cover h-full w-full rounded-lg' />
+          <div className='flex absolute w-full h-[200px] rounded-lg'>
+            <input type="file" onChange={(e) => HanndleBGupload(e)} ref={BGref} className='absolute hidden w-full h-full ' />
+            <button onClick={() => BGref.current.click()} className='text-white cursor-pointer  w-full opacity-[0.5] h-full bg-black'><FileUploadOutlinedIcon /></button>
+          </div>
+    
+
+
         </div>
-        <div className='w-max  h-max  absolute top-[30%]'>
-          <img className='w-[200px] h-[200px] object-cover rounded-full' src="https://miro.medium.com/v2/resize:fit:1400/1*RRCdaxwb-ZB3GWCK8nz-bg.png" alt="" />
+        <div className='w-max  h-max  flex absolute top-[30%]'>
+          <img className='w-[200px] h-[200px] object-cover rounded-full' src={Dp} alt="" />
+          <input type="file" onChange={(e) => HandleDpupload(e)} ref={Dpref} className='absolute hidden w-full h-full ' />
+
+          <button onClick={() => Dpref.current.click()} className='rounded-full absolute w-full h-full cursor-pointer flex items-center justify-center text-white bg-black opacity-[0.5]'><FileUploadOutlinedIcon /></button>
         </div>
 
-        <button onClick={() => setUpdateState(false)}  className='absolute hover:bg-red-700 cursor-pointer right-[10px] bottom-[7rem] px-[30px] rounded-lg text-white bg-[crimson]'>Cancel</button>
+        <button onClick={() => setUpdateState(false)} className='absolute hover:bg-red-700 cursor-pointer right-[10px] bottom-[7rem] px-[30px] rounded-lg text-white bg-[crimson]'>Cancel</button>
 
       </div>
 
@@ -56,14 +121,14 @@ export default function Updatecomp({ data , setUpdateState}) {
 
 
 
-            <input name='location' type="text" placeholder='Location' className='border-2 border-gray-300 px-[10px] rounded-lg py-[3px]'onChange={(e) => setLocation(e.target.value)} value={Location} />
+            <input name='location' type="text" placeholder='Location' className='border-2 border-gray-300 px-[10px] rounded-lg py-[3px]' onChange={(e) => setLocation(e.target.value)} value={Location} />
             {Error && <p className='text-red-500'>{Error}</p>}
             <button onClick={() => HandleProfileSave()} className="bg-green-500  hover:bg-green-600 cursor-pointer text-white py-[3px] px-[30px] rounded-lg">Save</button>
 
 
           </div>
 
-          
+
 
 
         </div>

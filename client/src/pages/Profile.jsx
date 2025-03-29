@@ -11,7 +11,8 @@ export default function Profile() {
 
   const admin = true
   const [UpdateState, setUpdateState] = useState(false)
-
+    const [Bg, setBg] = useState(`${import.meta.env.VITE_SERVERURL}/api/sendstatic/bg/${data.profile.bg}`)
+    const [Dp, setDp] = useState(`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${data.profile.dp}`)
   
 
   return (
@@ -22,11 +23,11 @@ export default function Profile() {
         <div className='w-full  relative h-[300px]'>
 
           <div className='w-full h-[200px]'>
-            <img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Y29kaW5nJTIwYmFja2dyb3VuZHxlbnwwfHwwfHx8MA%3D%3D" alt="" className='object-cover h-full w-full rounded-lg' />
+            <img src={Bg} alt="" className='object-cover h-full w-full rounded-lg' />
 
           </div>
           <div className='w-max  h-max  absolute top-[30%]'>
-            <img className='w-[200px] h-[200px] object-cover rounded-full' src="https://miro.medium.com/v2/resize:fit:1400/1*RRCdaxwb-ZB3GWCK8nz-bg.png" alt="" />
+            <img className='w-[200px] h-[200px] object-cover rounded-full' src={Dp} alt="" />
           </div>
 
           <button onClick={() => setUpdateState(true)} className='absolute cursor-pointer hover:bg-green-600 right-[10px] bottom-[7rem] px-[30px] rounded-lg text-white bg-green-500'>Edit</button>

@@ -4,8 +4,11 @@ const api = createApi({
     reducerPath: 'api',
     baseQuery: fetchBaseQuery({
         baseUrl: `http://localhost:8000/api`,
-        prepareHeaders: (headers) => {
-            headers.set('Content-Type', 'application/json');
+        prepareHeaders: (headers, {endpoint }) => {
+       
+            if (endpoint !== "SendImagedata") {
+                headers.set("Content-Type", "application/json");
+            }
             return headers;
         },
         credentials: "include"
@@ -27,8 +30,19 @@ const api = createApi({
             }),
 
         }),
+
+        SendImagedata : builder.mutation({ 
+
+            query: ({ method, data, url }) => ({
+                url,
+                method,
+                body: data
+             
+            }),
+
+        })
     })
 });
 
 export default api;
-export const { useFetchDataQuery, useSendDataMutation } = api;
+export const { useFetchDataQuery, useSendDataMutation , useSendImagedataMutation } = api;

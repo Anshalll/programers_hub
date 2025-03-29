@@ -14,6 +14,7 @@ import os
 import requests
 from functions.CreateProfile import createProfile
 import json
+
 app = Flask(__name__)
 CORS(app , supports_credentials=True,   origins=[os.getenv("CLIENTURL") , "http://localhost:5173" , "http://127.0.0.1:5173"])
 
@@ -452,65 +453,60 @@ def authgoogle():
         return jsonify(error="Internal server error") , 500
 
 
-
 #Account apis
 @app.route("/api/updateinfo", methods=["POST"])
 def updateinfo():
     try: 
 
         data = request.get_json()
-
-        # Check required fields
+   
         reqfields = [{"name": "username", "value": "Username"}]
         checkfields = CheckFields(reqfields, data)
         if checkfields["error"]:
             return jsonify(error=checkfields["message"]), 400
 
-        # Get user ID from database
+   
         getuserid = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (session["username"],))
-    
+     
         if len(getuserid) == 0:
             return jsonify(error="An error occurred!"), 400
 
-        # Update profile info
+     
         update_profile = database.ExecuteQuery(
             "UPDATE profile SET socialmedialinks=%s, bio=%s, location=%s, role=%s WHERE id = %s",
-            (json.dumps(data.get("socialmedialinks")),  # If MySQL expects JSON string, keep json.dumps()
+            (json.dumps(data.get("socialmedialinks")), 
              data.get("bio", "").strip(),
              data.get("location", "").strip(),
              data.get("role", "").strip(),
              getuserid[0]["id"])
         )
-
-       
-        # Update username if changed
-
-        checkusername = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (data.get("username").strip() , ))
-
-        if len(checkusername) > 0:
-            return jsonify(error="Username already exists!"), 400
+    
         if session["username"] != data.get("username", "").strip():
+
+            checkusername = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (data.get("username").strip() , ))
+    
+            if len(checkusername) > 0:
+                return jsonify(error="Username already exists!"), 400
+
             database.ExecuteQuery(
                 "UPDATE registers SET username = %s WHERE id = %s",
-                (data.get("username", "").strip(), getuserid[0]["id"])
+                (data.get("username", "").strip(), getuserid[0]["id"],)
             )
-
-
+           
+  
         if "name" in data and data.get("name"):
             database.ExecuteQuery(
                 "UPDATE registers SET name = %s WHERE id = %s",
-                (data.get("name").strip(), getuserid[0]["id"])
+                (data.get("name").strip(), getuserid[0]["id"],)
             )
 
-        # Check if update was successful
         if update_profile != 1 and update_profile != 0:
             
             return jsonify(error="An error occurred!"), 400
   
 
-        # Update session username
+    
         session.pop("username" , None)
-        print(data.get("username"))
         session["username"] = data.get("username", "").strip()
 
         return jsonify(message="Profile updated!", success=True), 200
@@ -518,7 +514,6 @@ def updateinfo():
     except Exception as e:
         print("Error:", e)
         return jsonify(error="Internal server error!"), 500
-
 
 @app.route("/api/searchusers", methods=["POST"])
 def search_users():
@@ -538,6 +533,51 @@ def search_users():
         users = database.ExecuteQuery(query, (f"{search_term}%",))
 
         return jsonify(users=users, success=True), 200
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify(error="Internal server error!"), 500
+
+@app.route("/api/sendstatic/<path:filename>", methods=["GET"])
+def send_static(filename):
+    try:
+        
+        return send_from_directory(os.path.join(os.getcwd(), "static/uploads"), filename)
+    except Exception as e:
+        print("Error:", e)
+        return jsonify(error="Internal server error!"), 500
+
+
+@app.route("/api/uploadimages", methods=["POST"])
+def uploadfiles():
+    try:
+        if "username" not in session:
+            return jsonify(logged=False), 401
+
+        ALLOWED_EXTENTIONS = {".jpg", ".jpeg", ".png", ".gif"}
+
+        dp = request.files.get("dp")
+        bg = request.files.get("bg")
+        getuser = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (session["username"],))
+   
+        if len(getuser) != 1:
+            return jsonify(error="An error occurred!"), 400
+        
+        if dp:
+            if os.path.splitext(dp.filename)[1] not in ALLOWED_EXTENTIONS:
+                return jsonify(error="Invalid file type for dp!"), 400
+            generaterandvals = GenerateOTP(20)
+            dp.save(os.path.join(os.getcwd() , "static/uploads/dp" , f"{generaterandvals}{os.path.splitext(dp.filename)[1]}"))
+            database.ExecuteQuery("UPDATE profile SET dp = %s WHERE id = %s", (f"{generaterandvals}{os.path.splitext(dp.filename)[1]}", getuser[0]["id"]))
+
+        if bg:
+            if os.path.splitext(bg.filename)[1] not in ALLOWED_EXTENTIONS:
+                return jsonify(error="Invalid file type for Background image!"), 400
+            generaterandvals = GenerateOTP(20)
+            bg.save(os.path.join(os.getcwd() , "static/uploads/bg" , f"{generaterandvals}{os.path.splitext(bg.filename)[1]}"))
+            database.ExecuteQuery("UPDATE profile SET bg = %s WHERE id = %s", (f"{generaterandvals}{os.path.splitext(bg.filename)[1]}", getuser[0]["id"]))
+
+        return jsonify(message="Files uploaded successfully!", success=True), 200
 
     except Exception as e:
         print("Error:", e)
