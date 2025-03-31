@@ -11,8 +11,7 @@ export default function Profile() {
 
   const admin = true
   const [UpdateState, setUpdateState] = useState(false)
-    const [Bg, setBg] = useState(`${import.meta.env.VITE_SERVERURL}/api/sendstatic/bg/${data.profile.bg}`)
-    const [Dp, setDp] = useState(`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${data.profile.dp}`)
+  
   
 
   return (
@@ -23,11 +22,11 @@ export default function Profile() {
         <div className='w-full  relative h-[300px]'>
 
           <div className='w-full h-[200px]'>
-            <img src={Bg} alt="" className='object-cover h-full w-full rounded-lg' />
+            <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/bg/${data.profile.bg}`} alt="" className='object-cover h-full w-full rounded-lg' />
 
           </div>
           <div className='w-max  h-max  absolute top-[30%]'>
-            <img className='w-[200px] h-[200px] object-cover rounded-full' src={Dp} alt="" />
+            <img className='w-[200px] h-[200px] object-cover rounded-full' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${data.profile.dp}`} alt="" />
           </div>
 
           <button onClick={() => setUpdateState(true)} className='absolute cursor-pointer hover:bg-green-600 right-[10px] bottom-[7rem] px-[30px] rounded-lg text-white bg-green-500'>Edit</button>

@@ -18,7 +18,7 @@ export default function Updatecomp({ data, setUpdateState }) {
   const [DptoSend, setDptoSend] = useState("")
   const BGref = useRef(null)
   const Dpref = useRef(null)
-  let Errors = []
+
   const [Error, setError] = useState("")
 
 
@@ -93,7 +93,7 @@ export default function Updatecomp({ data, setUpdateState }) {
             <input type="file" onChange={(e) => HanndleBGupload(e)} ref={BGref} className='absolute hidden w-full h-full ' />
             <button onClick={() => BGref.current.click()} className='text-white cursor-pointer  w-full opacity-[0.5] h-full bg-black'><FileUploadOutlinedIcon /></button>
           </div>
-    
+
 
 
         </div>

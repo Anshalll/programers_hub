@@ -3,4 +3,6 @@ __pycache__/
 servervnv/
 functions/__pycache__/
 db/__pycache__/
-static/uploads
+static/*
+!static/uploads/bg/defaultbg.jpg
+!static/uploads/dp/defaultdp.jpg

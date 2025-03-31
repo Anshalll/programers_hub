@@ -1,11 +1,11 @@
 import React from 'react'
 import { useGoogleLogin } from '@react-oauth/google';
 import { useSendDataMutation } from '../redux/apis/slice'
-import { useNavigate } from 'react-router-dom';
+
 export default function GoogleAuth({ setError , text}) {
 
     const [sendMutation] = useSendDataMutation()
-    const navigate = useNavigate()
+    
 
     const ErrorHandler = () => {
       setError("An error occured!")
@@ -19,7 +19,7 @@ export default function GoogleAuth({ setError , text}) {
     const ValidateToken = async (res) => {
         let resp = await sendMutation({ url: "/googleauth" , method: "POST" , data: {"access_token" : res.access_token}})
         if (resp.data?.logged) {
-            navigate("/")
+            window.location.href = import.meta.env.VITE_CLIENTLOCAL
         }
         else{
             setError("An error occured!")

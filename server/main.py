@@ -551,6 +551,10 @@ def send_static(filename):
 @app.route("/api/uploadimages", methods=["POST"])
 def uploadfiles():
     try:
+
+        def deleteFiles(filepath):
+            os.remove(filepath)
+
         if "username" not in session:
             return jsonify(logged=False), 401
 
@@ -558,8 +562,10 @@ def uploadfiles():
 
         dp = request.files.get("dp")
         bg = request.files.get("bg")
-        getuser = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (session["username"],))
-   
+
+        query = "SELECT p.*, r.username, r.name from profile p JOIN registers r ON p.id = r.id where username = %s "
+        getuser = database.ExecuteQuery(query, (session["username"],))
+     
         if len(getuser) != 1:
             return jsonify(error="An error occurred!"), 400
         
@@ -568,6 +574,8 @@ def uploadfiles():
                 return jsonify(error="Invalid file type for dp!"), 400
             generaterandvals = GenerateOTP(20)
             dp.save(os.path.join(os.getcwd() , "static/uploads/dp" , f"{generaterandvals}{os.path.splitext(dp.filename)[1]}"))
+            if getuser[0]["dp"] != "defaultdp.jpg":
+                deleteFiles(os.path.join(os.getcwd() , "static/uploads/dp" , getuser[0]["dp"]))
             database.ExecuteQuery("UPDATE profile SET dp = %s WHERE id = %s", (f"{generaterandvals}{os.path.splitext(dp.filename)[1]}", getuser[0]["id"]))
 
         if bg:
@@ -575,6 +583,8 @@ def uploadfiles():
                 return jsonify(error="Invalid file type for Background image!"), 400
             generaterandvals = GenerateOTP(20)
             bg.save(os.path.join(os.getcwd() , "static/uploads/bg" , f"{generaterandvals}{os.path.splitext(bg.filename)[1]}"))
+            if getuser[0]["bg"] != "defaultbg.jpg":
+                deleteFiles(os.path.join(os.getcwd() , "static/uploads/bg" , getuser[0]["bg"]))
             database.ExecuteQuery("UPDATE profile SET bg = %s WHERE id = %s", (f"{generaterandvals}{os.path.splitext(bg.filename)[1]}", getuser[0]["id"]))
 
         return jsonify(message="Files uploaded successfully!", success=True), 200
