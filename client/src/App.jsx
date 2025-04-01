@@ -28,7 +28,7 @@ export default function App() {
 
         dispatch(setAuthuser(data.logged));
         if (data.logged) {
-          dispatch(setudata(data.data))
+          dispatch(setudata(data.data[0]))
         }
       }
       else {

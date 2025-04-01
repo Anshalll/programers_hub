@@ -26,7 +26,7 @@ const Navbar = () => {
          
          (!loading  ) &&
          
-         (data?.udata?.username ? <button className=" min-w-[130px] h-[30px] bg-[#FF6500] rounded-full itsjust gap-[20px]">{data.udata.username}</button> :  <Link to={`/login`} className=" min-w-[130px] h-[30px] bg-[#FF6500] rounded-full itsjust gap-[20px]">Login</Link>)
+         (data?.username ? <button className=" min-w-[130px] h-[30px] bg-[#FF6500] rounded-full itsjust gap-[20px]">{data.username}</button> :  <Link to={`/login`} className=" min-w-[130px] h-[30px] bg-[#FF6500] rounded-full itsjust gap-[20px]">Login</Link>)
          
          
          }

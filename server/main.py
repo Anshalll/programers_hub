@@ -32,21 +32,14 @@ app.config.update(
 def index():
     
     if "username" in session:
-        data  = {}
+        
+        query = "SELECT p.* , r.* from profile p join registers r on r.id = p.id where username = %s"
+        userdata = database.ExecuteQuery(query , (session["username"], ))
     
-   
-           
-        udata = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (session.get("username") ,))
-
-        if len(udata) > 0 :
-            profiledata = database.ExecuteQuery("SELECT * FROM profile where id = %s" , (udata[0]["id"] , ))
-            if len(profiledata) == 0:
-                return jsonify(error='Internal server error!', logged=False) , 500
-
-            data["profile"] = profiledata[0]
-            data["udata"] = udata[0]
+        if len(userdata) == 0:
+            return jsonify(error="An error ocuured"), 400
              
-        return jsonify(data=data, logged=True) , 200
+        return jsonify(data=userdata, logged=True) , 200
     
     else: 
       
@@ -593,6 +586,22 @@ def uploadfiles():
         print("Error:", e)
         return jsonify(error="Internal server error!"), 500
 
+
+@app.route("/api/getuser" , methods=["POST"])
+def getuser():
+    data = request.get_json()
+    username = data.get("username")
+    if  username.strip() == "":
+        return jsonify(error="Username is required!"), 400
+
+    query = "SELECT p.* , r.* from profile p join registers r on r.id = p.id where username = %s"
+    
+    userdata = database.ExecuteQuery(query , (username, ))
+   
+    if userdata !=1:
+        return jsonify(error="An error ocuured"), 400
+
+    return jsonify(data=userdata ), 200
 
 Deleteotps()
 
