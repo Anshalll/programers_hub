@@ -469,7 +469,7 @@ def updateinfo():
      
         update_profile = database.ExecuteQuery(
             "UPDATE profile SET socialmedialinks=%s, bio=%s, location=%s, role=%s WHERE id = %s",
-            (json.dumps(data.get("socialmedialinks")), 
+            (data.get("socialmedialinks", "").strip(), 
              data.get("bio", "").strip(),
              data.get("location", "").strip(),
              data.get("role", "").strip(),

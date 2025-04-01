@@ -14,7 +14,7 @@ export default function Updatecomp({ data, setUpdateState }) {
   const [Location, setLocation] = useState(data.location)
   const [Bg, setBg] = useState(`${import.meta.env.VITE_SERVERURL}/api/sendstatic/bg/${data.bg}`)
   const [Dp, setDp] = useState(`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${data.dp}`)
-  const [SocialMediaLinks, setSocialMediaLinks] = useState(JSON.parse(data.socialmedialinks))
+  const [SocialMediaLinks, setSocialMediaLinks] = useState(data.socialmedialinks)
   const [BGtosend, setBGtosend] = useState("")
   const [DptoSend, setDptoSend] = useState("")
   const BGref = useRef(null)
@@ -165,6 +165,8 @@ export default function Updatecomp({ data, setUpdateState }) {
             <input name='bio' type='text' placeholder='Bio' className='border-2 border-gray-300 px-[10px] rounded-lg py-[3px]' onChange={(e) => setBio(e.target.value)} value={Bio} />
             <input name='role' type='text' placeholder='Role' className='border-2 border-gray-300 px-[10px] rounded-lg py-[3px]' onChange={(e) => setRole(e.target.value)} value={Role} />
             <input name='location' type="text" placeholder='Location' className='border-2 border-gray-300 px-[10px] rounded-lg py-[3px]' onChange={(e) => setLocation(e.target.value)} value={Location} />
+            <input name='socialmedialinks' type="text" placeholder='Enter link' className='border-2 border-gray-300 px-[10px] rounded-lg py-[3px]' onChange={(e) => setSocialMediaLinks(e.target.value)} value={SocialMediaLinks} />
+            
             {Error && <p className='text-red-500'>{Error}</p>}
             <button onClick={() => HandleProfileSave()} className="bg-green-500  hover:bg-green-600 cursor-pointer text-white py-[3px] px-[30px] rounded-lg">Save</button>
           </div>

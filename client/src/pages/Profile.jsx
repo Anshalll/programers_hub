@@ -109,11 +109,8 @@ export default function Profile() {
               {Userdata.name && <p>{Userdata.name}</p>}
               {Userdata.bio && <p>{Userdata.bio}</p>}
               { Userdata.role && <p>{Userdata.role}</p>}
-              {Userdata.socialmidealinks?.length > 0 ? 
+              { Userdata.socialmedialinks && <a target='_blank' href={Userdata.socialmedialinks} className='text-blue-600 hover:text-blue-500 hover:border-b hover:border-blue-500'>{Userdata.socialmedialinks.slice(0, 30)}..</a>}
               
-              Userdata.socialmedialinks.map((link , index) => <a href={link} key={index}>{link}</a>)
-              
-              : null}
               {Userdata.location && <p className='flex items-center gap-[10px]'><LocationOnOutlinedIcon />{Userdata.location}</p>}
               {Userdata.joinedon && <p className='flex items-center gap-[20px]'><DateRangeOutlinedIcon />{Userdata.joinedon}</p>}
             </div>
