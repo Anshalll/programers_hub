@@ -429,8 +429,9 @@ def authgoogle():
             
 
             createuser = database.ExecuteQuery("INSERT INTO registers (email , username , name , type) VALUES (%s , %s , %s , %s)" , (userinfo_response["email"] , username, userinfo_response["name"]  , "google",))
-
+            print(username)
             session["username"] = username
+            print(session["username"])
             session["type"] = "google"
             if createuser != 1:
                 return jsonify(error="An error occurred!"), 400   
@@ -450,9 +451,10 @@ def authgoogle():
 @app.route("/api/updateinfo", methods=["POST"])
 def updateinfo():
     try: 
-
+        if "username" not in session:
+            return jsonify(logged=False), 401
         data = request.get_json()
-   
+      
         reqfields = [{"name": "username", "value": "Username"}]
         checkfields = CheckFields(reqfields, data)
         if checkfields["error"]:
@@ -511,6 +513,9 @@ def updateinfo():
 @app.route("/api/searchusers", methods=["POST"])
 def search_users():
     try:
+        if "username" not in session:
+            return jsonify(logged=False), 401
+    
         data = request.get_json()
         search_term = data.get("search")
         if not search_term:
@@ -524,7 +529,7 @@ def search_users():
             WHERE r.username LIKE %s
         """
         users = database.ExecuteQuery(query, (f"{search_term}%",))
-
+        database.close_cursor()
         return jsonify(users=users, success=True), 200
 
     except Exception as e:
@@ -534,7 +539,8 @@ def search_users():
 @app.route("/api/sendstatic/<path:filename>", methods=["GET"])
 def send_static(filename):
     try:
-        
+
+ 
         return send_from_directory(os.path.join(os.getcwd(), "static/uploads"), filename)
     except Exception as e:
         print("Error:", e)
@@ -544,7 +550,7 @@ def send_static(filename):
 @app.route("/api/uploadimages", methods=["POST"])
 def uploadfiles():
     try:
-
+ 
         def deleteFiles(filepath):
             os.remove(filepath)
 
@@ -589,20 +595,30 @@ def uploadfiles():
 
 @app.route("/api/getuser" , methods=["POST"])
 def getuser():
-    data = request.get_json()
-    username = data.get("username")
-    if  username.strip() == "":
-        return jsonify(error="Username is required!"), 400
+    try:
+       
+        if "username" not in session:
+            return jsonify(logged=False), 401
+        data = request.get_json()
+        username = data.get("username")
+        
+        if  username.strip() == "":
+            return jsonify(error="Username is required!"), 400
 
-    query = "SELECT p.* , r.* from profile p join registers r on r.id = p.id where username = %s"
+        query = "SELECT p.* , r.* from profile p join registers r on r.id = p.id where username = %s"
+        
+        userdata = database.ExecuteQuery(query , (username, ))
+      
+        if len(userdata) == 0:
+            return jsonify(error="An error ocuured"), 400
+
+        database.close_cursor()
+
+        return jsonify(data=userdata ), 200
+    except Exception as e:
+        print(e)
+        return jsonify(error="Internal server error!"), 500
     
-    userdata = database.ExecuteQuery(query , (username, ))
-   
-    if userdata !=1:
-        return jsonify(error="An error ocuured"), 400
-
-    return jsonify(data=userdata ), 200
-
 Deleteotps()
 
 app.run(debug=True , port=8000 , host="0.0.0.0")

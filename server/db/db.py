@@ -30,7 +30,12 @@ class DB:
             return self.cursor.fetchall() 
             
         self.conn.commit()  
-      
+       
         return self.cursor.rowcount      
+    def close_cursor(self):
+        if self.cursor:
+            self.cursor.close()
+           
+            self.cursor = self.conn.cursor(dictionary=True, buffered=True)
 
 database = DB()
