@@ -11,12 +11,13 @@ export default function Profile() {
 
   const { data } = useProfiledata()
 
-  const admin = true
   const [UpdateState, setUpdateState] = useState(false)
   const [Datasend] = useSendDataMutation()
   const [Userdata, setUserdata] = useState({})
   const [Error, setError] = useState("")
   const [LoadingUser , setLoadingUser] = useState(true)
+  const [Admin , setAdmin] = useState(false)
+
 
   useEffect(() => {
       if( Object.keys(data).length > 0){
@@ -57,7 +58,11 @@ export default function Profile() {
             }
             if (res.data) {
               setUserdata(res.data.data[0]);
+              setAdmin(false)
             }
+          }
+          else{
+            setAdmin(true)
           }
          
         }
@@ -91,7 +96,7 @@ export default function Profile() {
             <img className='w-[200px] h-[200px] object-cover rounded-full' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${Userdata.dp}`} alt="" />
           </div>
 
-          <button onClick={() => setUpdateState(true)} className='absolute cursor-pointer hover:bg-green-600 right-[10px] bottom-[7rem] px-[30px] rounded-lg text-white bg-green-500'>Edit</button>
+        {Admin ?   <button onClick={() => setUpdateState(true)} className='absolute cursor-pointer hover:bg-green-600 right-[10px] bottom-[7rem] px-[30px] rounded-lg text-white bg-green-500'>Edit</button> : <></>}
         </div>
         {Error && <p className='text-white p-[3px] bg-[crimson]'>{Error}</p> }
         <div className='flex w-full mt-[20px] px-[20px] flex-col h-[20%]'>
@@ -118,7 +123,7 @@ export default function Profile() {
                 {Userdata && <p className='text-center'>{Userdata.following} <br /> <span>Following</span></p>}
 
               </div>
-              {!admin && <button className='bg-green-500 rounded-lg  p-[7px]'>Follow</button>}
+              {!Admin && <button className='bg-green-500 rounded-lg  p-[7px]'>Follow</button>}
             </div>
 
 

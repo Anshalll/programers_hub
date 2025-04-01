@@ -521,7 +521,7 @@ def search_users():
         if not search_term:
             return jsonify(error="Search term is required!"), 400
 
-        # Query to fetch user details
+    
         query = """
             SELECT p.*, r.username, r.name 
             FROM profile p 
@@ -540,12 +540,12 @@ def search_users():
 def send_static(filename):
     try:
 
+     
  
         return send_from_directory(os.path.join(os.getcwd(), "static/uploads"), filename)
     except Exception as e:
         print("Error:", e)
         return jsonify(error="Internal server error!"), 500
-
 
 @app.route("/api/uploadimages", methods=["POST"])
 def uploadfiles():
@@ -592,7 +592,6 @@ def uploadfiles():
         print("Error:", e)
         return jsonify(error="Internal server error!"), 500
 
-
 @app.route("/api/getuser" , methods=["POST"])
 def getuser():
     try:
@@ -618,7 +617,44 @@ def getuser():
     except Exception as e:
         print(e)
         return jsonify(error="Internal server error!"), 500
-    
+
+@app.route("/api/deleteimage", methods=["POST"])
+def delete_images():
+    try:
+        if "username" not in session:
+            return jsonify(logged=False), 401
+
+        data = request.get_json()
+        image_type = data.get("type")
+
+        if image_type not in ["dp", "bg"]:
+            return jsonify(error="Invalid image type! Must be 'dp' or 'bg'."), 400
+
+        username = session["username"]
+
+        query = "SELECT r.id,  p.dp, p.bg FROM profile p JOIN registers r ON p.id = r.id WHERE r.username = %s"
+        user_data = database.ExecuteQuery(query, (username,))
+     
+        if len(user_data) == 0:
+            return jsonify(error="User not found!"), 404
+
+        if image_type == "dp" and user_data[0]["dp"] != "defaultdp.jpg":
+            dp_path = os.path.join(os.getcwd(), "static/uploads/dp", user_data[0]["dp"])
+            if os.path.exists(dp_path):
+                os.remove(dp_path)
+            database.ExecuteQuery("UPDATE profile SET dp = %s WHERE id = %s", ("defaultdp.jpg", user_data[0]["id"]))
+        elif image_type == "bg" and user_data[0]["bg"] != "defaultbg.jpg":
+            bg_path = os.path.join(os.getcwd(), "static/uploads/bg", user_data[0]["bg"])
+            if os.path.exists(bg_path):
+                os.remove(bg_path)
+            database.ExecuteQuery("UPDATE profile SET bg = %s WHERE id = %s", ("defaultbg.jpg", user_data[0]["id"]))
+
+        return jsonify(message=f"{image_type.upper()} image deleted successfully!", success=True), 200
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify(error="Internal server error!"), 500
+
 Deleteotps()
 
 app.run(debug=True , port=8000 , host="0.0.0.0")
