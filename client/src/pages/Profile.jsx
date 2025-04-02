@@ -86,17 +86,17 @@ export default function Profile() {
       Object.keys(Userdata).length > 0 &&
       <div className='flex flex-col bg-white h-screen max-w-[1800px] overflow-y-auto p-[20px]'>
 
-        <div className='w-full  relative h-[300px]'>
+        <div className='w-full  relative h-[250px]'>
 
           <div className='w-full h-[200px]'>
             <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/bg/${Userdata.bg}`} alt="" className='object-cover h-full w-full rounded-lg' />
 
           </div>
-          <div className='w-max  h-max  absolute top-[30%]'>
-            <img className='w-[200px] h-[200px] object-cover rounded-full' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${Userdata.dp}`} alt="" />
+          <div className='w-max  h-max  absolute top-[40%]'>
+            <img className='w-[150px] h-[150px] p-[3px]  bg-white object-cover rounded-full' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${Userdata.dp}`} alt="" />
           </div>
 
-        {Admin ?   <button onClick={() => setUpdateState(true)} className='absolute cursor-pointer hover:bg-green-600 right-[10px] bottom-[7rem] px-[30px] rounded-lg text-white bg-green-500'>Edit</button> : <></>}
+        {Admin ?   <button onClick={() => setUpdateState(true)} className='absolute cursor-pointer hover:bg-green-600 right-[10px] bottom-[4rem] px-[30px] rounded-lg text-white bg-green-500'>Edit</button> : <></>}
         </div>
         {Error && <p className='text-white p-[3px] bg-[crimson]'>{Error}</p> }
         <div className='flex w-full mt-[20px] px-[20px] flex-col h-[20%]'>

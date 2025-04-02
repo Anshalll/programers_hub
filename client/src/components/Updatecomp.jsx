@@ -121,7 +121,7 @@ export default function Updatecomp({ data, setUpdateState }) {
   return (
     <div className='flex flex-col bg-white h-screen max-w-[1800px] overflow-y-auto p-[20px]'>
 
-      <div className='w-full  relative h-[300px]'>
+      <div className='w-full  relative h-[250px]'>
 
         <div className='w-full flex  h-[200px]'>
           <img src={Bg} alt="" className='object-cover h-full w-full rounded-lg' />
@@ -137,8 +137,8 @@ export default function Updatecomp({ data, setUpdateState }) {
 
           </div>
         </div>
-        <div className='w-max  h-max  flex absolute top-[30%]'>
-          <img className='w-[200px] h-[200px] object-cover rounded-full' src={Dp} alt="" />
+        <div className='w-max  h-max  flex absolute top-[40%]'>
+          <img className='w-[150px] h-[150px] p-[3px]  object-cover rounded-full' src={Dp} alt="" />
           <input type="file" onChange={(e) => HandleDpupload(e)} ref={Dpref} className='absolute hidden w-full h-full ' />
 
 
@@ -153,7 +153,7 @@ export default function Updatecomp({ data, setUpdateState }) {
 
         </div>
 
-        <button onClick={() => setUpdateState(false)} className='absolute hover:bg-red-700 cursor-pointer right-[10px] bottom-[7rem] px-[30px] rounded-lg text-white bg-[crimson]'>Cancel</button>
+        <button onClick={() => setUpdateState(false)} className='absolute hover:bg-red-700 cursor-pointer right-[10px] bottom-[4rem] px-[30px] rounded-lg text-white bg-[crimson]'>Cancel</button>
 
       </div>
 
@@ -166,7 +166,7 @@ export default function Updatecomp({ data, setUpdateState }) {
             <input name='role' type='text' placeholder='Role' className='border-2 border-gray-300 px-[10px] rounded-lg py-[3px]' onChange={(e) => setRole(e.target.value)} value={Role} />
             <input name='location' type="text" placeholder='Location' className='border-2 border-gray-300 px-[10px] rounded-lg py-[3px]' onChange={(e) => setLocation(e.target.value)} value={Location} />
             <input name='socialmedialinks' type="text" placeholder='Enter link' className='border-2 border-gray-300 px-[10px] rounded-lg py-[3px]' onChange={(e) => setSocialMediaLinks(e.target.value)} value={SocialMediaLinks} />
-            
+
             {Error && <p className='text-red-500'>{Error}</p>}
             <button onClick={() => HandleProfileSave()} className="bg-green-500  hover:bg-green-600 cursor-pointer text-white py-[3px] px-[30px] rounded-lg">Save</button>
           </div>

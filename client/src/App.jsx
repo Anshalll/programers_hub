@@ -7,6 +7,7 @@ import ProtectedRoutes from "./ProtectedRoutes.jsx";
 import { useAuthSlice } from "./hooks/useAuthSlice.js";
 import Loading from "./components/Loading.jsx";
 import {setudata} from './redux/userdata/slice.js'
+import CreatePost from "./pages/CreatePost.jsx";
 
 export default function App() {
 
@@ -53,6 +54,7 @@ export default function App() {
             <Route element={<ProtectedRoutes user={auth} />} >
 
               <Route path="/profile" element={<Profile />} />
+              <Route path="/createpost" element={<CreatePost />} />
 
 
             </Route>
