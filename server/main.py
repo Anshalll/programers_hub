@@ -33,9 +33,15 @@ def index():
     
     if "username" in session:
         
-        query = "SELECT p.* , r.* from profile p join registers r on r.id = p.id where username = %s"
+        query = """
+        SELECT p.* , r.id , r.username, r.email , r.name  from profile p
+        join registers r on r.id = p.id 
+        where username = %s
+        
+      """
         userdata = database.ExecuteQuery(query , (session["username"], ))
-    
+        userposts = database.ExecuteQuery("SELECT * FROM posts where belongsto = %s" , (userdata[0]["id"] ,))
+        userdata.append(userposts)
         if len(userdata) == 0:
             return jsonify(error="An error ocuured"), 400
              

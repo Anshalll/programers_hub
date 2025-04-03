@@ -1,10 +1,10 @@
 import { useState } from "react";
-import Sample from '../sample.json'
+import {useProfiledata} from '../hooks/useProfiledata'
 
-const Profiletabs = ({setSelectedPost ,  userPosts, userCommunities }) => {
+const Profiletabs = ({setSelectedPost , userCommunities }) => {
   const [activeTab, setActiveTab] = useState("posts");
 
- 
+  const { post } = useProfiledata()
   
   const HandleSelectedPost = (image) => {
     setSelectedPost(image)
@@ -36,14 +36,14 @@ const Profiletabs = ({setSelectedPost ,  userPosts, userCommunities }) => {
       <div className="mt-4 w-full ">
         {activeTab === "posts" ? (
           <div className="w-full flex items-center justify-center">
-            {Sample.length > 0 ? (
+            {post.length > 0 ? (
             
             <div className="grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2  gap-[20px] w-fulljustify-items-center ">
 
-              {Sample.map((post, index) => (
+              {post.map((post, index) => (
                 
-                <button onClick={() => HandleSelectedPost(post.image)} key={index} className="w-[250px] cursor-pointer h-[300px]">
-                    <img src={post.image} alt="" className="w-full h-full object-cover" />
+                <button onClick={() => HandleSelectedPost(post)} key={index} className="w-[250px] cursor-pointer h-[300px]">
+                    <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${post.filename}`} alt="" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>

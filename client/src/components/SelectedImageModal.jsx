@@ -11,7 +11,6 @@ export default function SelectedImageModal({setSelectedPost,  selectedImage }) {
 
 
 
-  let desc = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem, eos velit suscipit esse sint vel, cumque quibusdam totam assumenda dolorum, nostrum iure inventore autem vero aliquid commodi alias pariatur tempore! Laborum magni maiores doloribus molestias quibusdam saepe assumenda deserunt quos nobis! Error vitae mollitia ipsum sed. Eius, quos reprehenderit. Assumenda rerum officia tenetur totam deserunt earum modi numquam nostrum, doloribus soluta inventore porro. Reprehenderit ullam, nesciunt ratione impedit quis repellendus earum delectus, non dicta vel, dolorum quod eos molestiae id mollitia quibusdam iure voluptate consequuntur similique optio dolor necessitatibus. Cumque illo error ad tempora atque recusandae est vero fugiat numquam."
   
   return (
 
@@ -19,11 +18,11 @@ export default function SelectedImageModal({setSelectedPost,  selectedImage }) {
 
       <div className='w-[50%] h-full'>
 
-        <img src={selectedImage} className="w-full h-[90%] object-cover" alt="" />
+        <img  src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${selectedImage.filename}`} className="w-full h-[90%] object-cover" alt="" />
         <div className='flex mt-[20px] text-white items-center gap-[20px]'>
-          <button className='flex cursor-pointer items-center gap-[3px]'><FavoriteBorderIcon sx={{ fontSize: 16 }} />2.4k</button>
-          <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />140</button>
-          <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />440</button>
+         {  <button className='flex cursor-pointer items-center gap-[3px]'><FavoriteBorderIcon sx={{ fontSize: 16 }} />{selectedImage.hidelikecount !== 1 ?  selectedImage.likes : <></>}</button>}
+          <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />{selectedImage.shares}</button>
+         {selectedImage.allowcomments ?  <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />440</button> : <></>}
           <button><SendOutlinedIcon sx={{ fontSize: 16 }} /></button>
         </div>
       </div>
@@ -32,13 +31,13 @@ export default function SelectedImageModal({setSelectedPost,  selectedImage }) {
 
         <div className='w-full flex border-b border-[#FF6500] items-center h-[30px] justify-between'>
           <button className='cursor-pointer'><MoreVertOutlinedIcon sx={{ fontSize: 16 }} /></button>
-          <button className='cursor-pointer' onClick={() => setSelectedPost("")}><CloseOutlinedIcon sx={{ fontSize: 16 }} /></button>
+          <button className='cursor-pointer' onClick={() => setSelectedPost({})}><CloseOutlinedIcon sx={{ fontSize: 16 }} /></button>
         </div>
         <div className='h-[calc(100%-20px)]  overflow-y-auto flex flex-col gap-[20px]'>
 
-          <p className=''>{desc.slice(0, 200)} <span className='text-[#FF6500]' onClick={() => {}}>more</span> </p>
+        {selectedImage.description.trim() !== "" ?   <p className=''>{selectedImage.description.slice(0, 200)} <span className='text-[#FF6500]' onClick={() => {}}>more</span> </p> : <></>}
 
-          <div className='flex text-[12px]  text-gray-300 flex-col gap-[20px]'>
+         {selectedImage.hidecomments ?  <div className='flex text-[12px]  text-gray-300 flex-col gap-[20px]'>
             <p>Comment 1</p>
             <p>Comment 1</p>
             <p>Comment 1</p>
@@ -49,7 +48,7 @@ export default function SelectedImageModal({setSelectedPost,  selectedImage }) {
             <p>Comment 1</p>
             <p>Comment 1</p>
             <p>Comment 1</p>
-          </div>
+          </div> : <></>}
 
         </div>
 

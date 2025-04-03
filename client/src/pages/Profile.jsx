@@ -20,7 +20,7 @@ export default function Profile() {
   const [Error, setError] = useState("")
   const [LoadingUser , setLoadingUser] = useState(true)
   const [Admin , setAdmin] = useState(false)
-  const [SelectedPost , setSelectedPost] = useState("")
+  const [SelectedPost , setSelectedPost] = useState({})
 
 
   useEffect(() => {
@@ -89,7 +89,7 @@ export default function Profile() {
       {!UpdateState ?
       Object.keys(Userdata).length > 0 &&
         <>
-      {SelectedPost.trim() !== "" ? <div className='w-full z-1 absolute h-full flex items-center justify-center'>
+      {Object.keys(SelectedPost).length > 0 ? <div className='w-full z-1 absolute h-full flex items-center justify-center'>
         <SelectedImageModel setSelectedPost={setSelectedPost} selectedImage={SelectedPost}/>
       </div> : <></> }
 

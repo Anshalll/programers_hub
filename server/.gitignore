@@ -3,8 +3,14 @@ __pycache__/
 servervnv/
 functions/__pycache__/
 db/__pycache__/
-static/*
+
+static/uploads/bg/*
+static/uploads/dp/*
+static/uploads/post/*
+
 !static/uploads/bg/defaultbg.jpg
 !static/uploads/dp/defaultdp.jpg
-!static/uploads/post
-static/uploads/post/*
+
+
+!static/uploads/post/
+

@@ -3,7 +3,8 @@ import {createSlice} from '@reduxjs/toolkit'
 
 let initialState = {
   
-    data : {}
+    data : {},
+    post: []
 }
 
 const userdataSlice = createSlice({
@@ -15,6 +16,9 @@ const userdataSlice = createSlice({
         setudata : (state, action) => {
       
             state.data = action.payload
+        },
+        setuserpost : (state, action) => {
+            state.post = action.payload
         }
     }
     
@@ -22,4 +26,4 @@ const userdataSlice = createSlice({
 
 
 export default userdataSlice.reducer
-export const {setudata} = userdataSlice.actions
+export const {setudata , setuserpost} = userdataSlice.actions
