@@ -42,6 +42,12 @@ export default function CreatePost() {
         } , 3000)
       }
       else{
+        setImagetosend(null)
+        setImage("")
+        setHideLikes(false)
+        setDisableComments(false)
+        setDescription("")
+        setShareTocommunity(false)
         setMessage("Post uploaded!")
         setTimeout(() => {
           setMessage("")

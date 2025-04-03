@@ -9,7 +9,7 @@ def GenerateOTP(length):
 
 def GenerateToken():
     token=""
-    strval = "abcdefghijklmnopqrstuvwxyz@#$%^&*"
+    strval = "1234567890abcdefghijklmnopqrstuvwxyz@#$%^&*"
     for _ in range(0, len(strval)):
         randval = random.choice(strval)
         token+=randval
@@ -21,3 +21,10 @@ def GenerateUsername(name):
         rand_choice = random.choice(string)
         name +=rand_choice
     return name
+
+def GeneratePostToken(length):
+    string = "1234567890ancdefghijklmnopqrstuvwxyz"
+    strval = ""
+    for _ in range(length):
+        strval+= random.choice(string)
+    return strval

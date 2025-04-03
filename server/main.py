@@ -3,7 +3,7 @@ from  flask_cors import CORS
 from db.db import database
 from  functions.CheckRequiredFields import CheckFields
 from functions.PasswordWorks import VerifyPassword , HashPassword , CheckPassword
-from functions.GenerateVals import GenerateOTP , GenerateUsername
+from functions.GenerateVals import GenerateOTP , GenerateUsername , GeneratePostToken
 from functions.SendMail import SendMail
 from functions.CheckForms import CheckRegisterForm
 from functions.GetTime import GetTime
@@ -13,7 +13,7 @@ from functions.VerifyHcaptcha import Verifyhcaptcha
 import os
 import requests
 from functions.CreateProfile import createProfile
-import json
+
 
 app = Flask(__name__)
 CORS(app , supports_credentials=True,   origins=[os.getenv("CLIENTURL") , "http://localhost:5173" , "http://127.0.0.1:5173"])
@@ -675,7 +675,7 @@ def uploadpost():
         getuser = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (session["username"] , ))
         if len(getuser) == 0:
             return jsonify(error="Internal server error") , 500
-        
+
         if data:
             ALLOWED_EXTENTIONS = {".jpg", ".jpeg", ".png", ".gif"}
             if os.path.splitext(data.filename)[1] not in ALLOWED_EXTENTIONS:
@@ -689,9 +689,10 @@ def uploadpost():
                     break
 
             data.save(os.path.abspath(os.path.join(os.getcwd(), "static/uploads/post", new_filename)))
+            token = GeneratePostToken(20)
             database.ExecuteQuery(
-                "INSERT INTO posts (filename, belongsto, description, hidelikecount, allowcomments , likes, shares) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                (new_filename, getuser[0]["id"], description, hide_like_count, hide_comment ,   0 , 0 , )
+                "INSERT INTO posts (filename, belongsto, description, hidelikecount, allowcomments , likes, shares , uniqueid) VALUES (%s, %s, %s, %s, %s, %s, %s , %s)",
+                (new_filename, getuser[0]["id"], description, hide_like_count, hide_comment ,   0 , 0 , token ,  )
             )
 
             return jsonify(message="Post uploaded!", success=True), 200
@@ -702,6 +703,44 @@ def uploadpost():
     except Exception as e:
         print("Error:", e)
         return jsonify(error="Internal server error"), 500
+
+@app.route("/api/deletepost", methods=["POST"])
+def delete_post():
+    try:
+        if "username" not in session:
+            return jsonify(logged=False), 401
+
+        data = request.get_json()
+        unique_id = data.get("uniqueid")
+        
+        if not unique_id:
+            return jsonify(error="Unique ID is required!"), 400
+
+       
+        query = "SELECT * FROM posts WHERE uniqueid = %s"
+        post_data = database.ExecuteQuery(query, (unique_id,))
+
+        if len(post_data) == 0:
+            return jsonify(error="Post not found!"), 404
+
+     
+        getuser = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (session["username"],))
+        if len(getuser) == 0 or post_data[0]["belongsto"] != getuser[0]["id"]:
+            return jsonify(error="Unauthorized action!"), 403
+
+     
+        post_path = os.path.join(os.getcwd(), "static/uploads/post", post_data[0]["filename"])
+        if os.path.exists(post_path):
+            os.remove(post_path)
+
+     
+        database.ExecuteQuery("DELETE FROM posts WHERE uniqueid = %s", (unique_id,))
+
+        return jsonify(message="Post deleted successfully!", success=True), 200
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify(error="Internal server error!"), 500
 
 Deleteotps()
 
