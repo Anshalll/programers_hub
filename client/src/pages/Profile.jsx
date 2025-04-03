@@ -6,6 +6,9 @@ import Layout from '../Layout'
 import Updatecomp from '../components/Updatecomp';
 import { useSendDataMutation } from '../redux/apis/slice';
 import Loading from '../components/Loading';
+import Profiletabs from '../components/Profiletabs';
+import SelectedImageModel from '../components/SelectedImageModal'
+
 
 export default function Profile() {
 
@@ -17,6 +20,7 @@ export default function Profile() {
   const [Error, setError] = useState("")
   const [LoadingUser , setLoadingUser] = useState(true)
   const [Admin , setAdmin] = useState(false)
+  const [SelectedPost , setSelectedPost] = useState("")
 
 
   useEffect(() => {
@@ -84,8 +88,13 @@ export default function Profile() {
 
       {!UpdateState ?
       Object.keys(Userdata).length > 0 &&
-      <div className='flex flex-col bg-white h-screen max-w-[1800px] overflow-y-auto p-[20px]'>
+        <>
+      {SelectedPost.trim() !== "" ? <div className='w-full z-1 absolute h-full flex items-center justify-center'>
+        <SelectedImageModel setSelectedPost={setSelectedPost} selectedImage={SelectedPost}/>
+      </div> : <></> }
 
+      <div className={`flex flex-col  bg-white h-screen max-w-[1500px] overflow-y-auto p-[20px]`}>
+       
         <div className='w-full  relative h-[250px]'>
 
           <div className='w-full h-[200px]'>
@@ -96,10 +105,10 @@ export default function Profile() {
             <img className='w-[150px] h-[150px] p-[3px]  bg-white object-cover rounded-full' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${Userdata.dp}`} alt="" />
           </div>
 
-        {Admin ?   <button onClick={() => setUpdateState(true)} className='absolute cursor-pointer hover:bg-green-600 right-[10px] bottom-[4rem] px-[30px] rounded-lg text-white bg-green-500'>Edit</button> : <></>}
+        {Admin ?   <button onClick={() => setUpdateState(true)} className='absolute cursor-pointer hover:bg-green-600 right-[10px] bottom-[1rem] px-[30px] rounded-lg text-white bg-green-500'>Edit</button> : <></>}
         </div>
         {Error && <p className='text-white p-[3px] bg-[crimson]'>{Error}</p> }
-        <div className='flex w-full mt-[20px] px-[20px] flex-col h-[20%]'>
+        <div className='flex w-full mt-[40px] px-[20px] flex-col h-[20%]'>
 
 
           <div className='flex  items-center justify-between w-full'>
@@ -131,14 +140,18 @@ export default function Profile() {
 
         </div>
 
-
+        <Profiletabs setSelectedPost={setSelectedPost} userPosts={[]} userCommunities={[]}/>
 
       </div>
+
+
+      </>
       
       
       :
 
      <Updatecomp data={data} setUpdateState={setUpdateState}/>
+     
     }
 
     </Layout> : <div className="flex items-center justify-center min-h-screen w-[100vw] bg-black">

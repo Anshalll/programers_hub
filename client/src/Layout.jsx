@@ -9,7 +9,7 @@ export default function Layout({ children }) {
         <Sidebar/>
         </div>
 
-      <div className='flex flex-col h-full w-[80%]'>
+      <div className='flex flex-col relative h-full w-[80%]'>
         <Navbar />
 
         {children}

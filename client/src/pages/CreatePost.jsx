@@ -1,23 +1,62 @@
 import React ,   {useState} from 'react'
 import Layout from '../Layout'
+import { useSendImagedataMutation } from '../redux/apis/slice'
 
 export default function CreatePost() {
 
 
   const [image, setImage] = useState(null);
   const [description, setDescription] = useState("");
-  const [tags, setTags] = useState("");
   const [hideLikes, setHideLikes] = useState(false);
   const [disableComments, setDisableComments] = useState(false);
-
+  const [ShareTocommunity , setShareTocommunity] = useState(false)
+  const [Imagetosend , setImagetosend] = useState(null)
+  const [PostData] = useSendImagedataMutation()
+  const [Error, setError] = useState("")
+  const [Message, setMessage] = useState("")
+  
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setImage(imageUrl);
-    }
+      setImagetosend(file)
+    } 
   };
+
+
+  const handlePostData = async () => {
+    if (Imagetosend !== null) {
+      let formdata = new FormData()
+      formdata.append("post" , Imagetosend)
+      formdata.append("description" , description)
+      formdata.append("hide_like_count" , hideLikes)
+      formdata.append("hide_comment" , disableComments)
+      formdata.append("sharetocommunity" , ShareTocommunity)
+      const response = await PostData({  url: '/uploadpost' , method: "POST" , data: formdata })
+      if (response.error?.data.error) {
+        setError(response.error?.data.error)
+        setTimeout(() => {
+          setError("")
+        } , 3000)
+      }
+      else{
+        setMessage("Post uploaded!")
+        setTimeout(() => {
+          setMessage("")
+        } , 3000)
+      }
+
+    }
+    else{
+      setError("Please select a post to upload!")
+      setTimeout(() => {
+        setError("")
+      } , 3000)
+    }
+  }
+
 
   return (
     <Layout>
@@ -25,17 +64,19 @@ export default function CreatePost() {
     <div className='flex items-center w-full h-full  justify-center'>
 
 
-    <div className="w-[90%]  p-4 h-[90%]  rounded-lg shadow-lg bg-black text-white">
-      <div className='w-full mb-4 flex  items-center justify-between'>
+    <div className="w-[90%] flex flex-col gap-[20px]  p-4 h-[90%]  rounded-lg shadow-lg bg-black text-white">
+      <div className='w-full flex  items-center justify-between'>
 
       <h2 className="  text-[#FF6500]">Create a Post</h2>
       
       </div>
+      {Error &&  <p className='bg-[crimson] rounded-md text-white px-[10px]'>{Error}</p> }
+      {Message &&  <p className='bg-green-500 rounded-md text-white px-[10px]'>{Message}</p> }
       <div className="flex gap-4 h-full w-full">
         {/* Image Upload Section */}
         <div className="w-1/2  h-[90%] rounded-lg flex items-center justify-center p-2 bg-gray-900">
           {image ? (
-            <img src={image} alt="Uploaded" className="w-full h-full object-cover rounded-lg" />
+            <img src={image} alt="Uploaded" className="w-full h-full object-contain rounded-lg" />
           ) : (
               <div className='relative items-center justify-center flex flex-col w-full h-full'>
 
@@ -55,13 +96,7 @@ export default function CreatePost() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           ></textarea>
-          <input
-            type="text"
-            className="w-full bg-gray-900 p-2 mt-2  rounded-lg"
-            placeholder="Add tags (comma separated)"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-          />
+
           <div className="flex flex-col items-center w-full gap-4 mt-3">
             <label className="flex items-center w-full gap-1 cursor-pointer">
               
@@ -89,8 +124,8 @@ export default function CreatePost() {
               <input
                 type="checkbox"
                 className=""
-                checked={disableComments}
-                onChange={() => setDisableComments(!disableComments)}
+                checked={ShareTocommunity}
+                onChange={() => setShareTocommunity(!ShareTocommunity)}
               />
              Share to community
             </label>
@@ -98,7 +133,7 @@ export default function CreatePost() {
           </div>
           <div className='flex items-center gap-[20px]'>
             
-          <button className="mt-4 bg-[#FF6500] text-white px-[30px] py-[5px] rounded-lg ">
+          <button onClick={() => handlePostData()} className="mt-4 bg-[#FF6500] text-white px-[30px] py-[5px] rounded-lg ">
             Post
           </button>
 

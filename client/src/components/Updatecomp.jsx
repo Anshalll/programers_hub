@@ -119,7 +119,7 @@ export default function Updatecomp({ data, setUpdateState }) {
   }
 
   return (
-    <div className='flex flex-col bg-white h-screen max-w-[1800px] overflow-y-auto p-[20px]'>
+    <div className='flex flex-col bg-white h-screen max-w-[1500px] overflow-y-auto p-[20px]'>
 
       <div className='w-full  relative h-[250px]'>
 
@@ -127,7 +127,7 @@ export default function Updatecomp({ data, setUpdateState }) {
           <img src={Bg} alt="" className='object-cover h-full w-full rounded-lg' />
           <div className='flex absolute w-full h-[200px] rounded-lg'>
             <input type="file" onChange={(e) => HanndleBGupload(e)} ref={BGref} className='absolute hidden w-full h-full ' />
-            <div className='flex opacity-[0.5] rounded-lg w-full absolute h-full gap-[10px]  bg-black items-center justify-center'>
+            <div className='flex opacity-[0.5] rounded-lg w-full absolute h-full gap-[10px]  bg-black items-center justify-center'> 
 
               <button onClick={() => BGref.current.click()} className='text-white cursor-pointer'><FileUploadOutlinedIcon /></button>
               {Bg !== `${import.meta.env.VITE_SERVERURL}/api/sendstatic/bg/defaultbg.jpg` && (
@@ -157,7 +157,7 @@ export default function Updatecomp({ data, setUpdateState }) {
 
       </div>
 
-      <div className='flex w-full mt-[20px] px-[20px] flex-col '>
+      <div className='flex w-full mt-[30px] px-[20px] flex-col '>
         <div className='flex  items-center justify-between w-full'>
           <div className='flex flex-col gap-[20px]'>
             <input name='username' type='text' placeholder='Username' className='border-2 border-gray-300 px-[10px] rounded-lg py-[3px]' onChange={(e) => setUsername(e.target.value)} value={Username} />
