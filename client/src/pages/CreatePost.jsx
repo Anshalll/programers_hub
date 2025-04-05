@@ -8,7 +8,7 @@ export default function CreatePost() {
   const [image, setImage] = useState(null);
   const [description, setDescription] = useState("");
   const [hideLikes, setHideLikes] = useState(false);
-  const [disableComments, setDisableComments] = useState(false);
+  const [AllowComments, setAllowComments] = useState(true);
   const [ShareTocommunity , setShareTocommunity] = useState(false)
   const [Imagetosend , setImagetosend] = useState(null)
   const [PostData] = useSendImagedataMutation()
@@ -32,7 +32,7 @@ export default function CreatePost() {
       formdata.append("post" , Imagetosend)
       formdata.append("description" , description)
       formdata.append("hide_like_count" , hideLikes)
-      formdata.append("hide_comment" , disableComments)
+      formdata.append("allow_comments" , AllowComments)
       formdata.append("sharetocommunity" , ShareTocommunity)
       const response = await PostData({  url: '/uploadpost' , method: "POST" , data: formdata })
       if (response.error?.data.error) {
@@ -45,7 +45,7 @@ export default function CreatePost() {
         setImagetosend(null)
         setImage("")
         setHideLikes(false)
-        setDisableComments(false)
+        setAllowComments(true)
         setDescription("")
         setShareTocommunity(false)
         setMessage("Post uploaded!")
@@ -122,10 +122,10 @@ export default function CreatePost() {
               <input
                 type="checkbox"
                 className=""
-                checked={disableComments}
-                onChange={() => setDisableComments(!disableComments)}
+                checked={AllowComments}
+                onChange={() => setAllowComments(!AllowComments)}
               />
-              Disable Comments
+             Allow comments
             </label>
 
             <label className="flex items-center w-full gap-1 cursor-pointer">

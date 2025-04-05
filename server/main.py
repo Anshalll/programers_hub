@@ -671,7 +671,7 @@ def uploadpost():
         data = request.files.get("post")
         description = request.form.get("description", "").strip()
         hide_like_count = request.form.get("hide_like_count", "false").lower() == "true"
-        hide_comment = request.form.get("hide_comment", "false").lower() == "true"
+        hide_comment = request.form.get("allow_comments", "true").lower() == "true"
         getuser = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (session["username"] , ))
         if len(getuser) == 0:
             return jsonify(error="Internal server error") , 500
@@ -704,7 +704,7 @@ def uploadpost():
         print("Error:", e)
         return jsonify(error="Internal server error"), 500
 
-@app.route("/api/deletepost", methods=["POST"])
+@app.route("/api/deletepost", methods=["DELETE"])
 def delete_post():
     try:
         if "username" not in session:
@@ -737,6 +737,42 @@ def delete_post():
         database.ExecuteQuery("DELETE FROM posts WHERE uniqueid = %s", (unique_id,))
 
         return jsonify(message="Post deleted successfully!", success=True), 200
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify(error="Internal server error!"), 500
+
+@app.route("/api/updatepost", methods=["PATCH"])
+def update_post():
+    try:
+        if "username" not in session:
+            return jsonify(logged=False), 401
+
+        data = request.get_json()
+        unique_id = data.get("uniqueid")
+        description = data.get("description", "").strip()
+        hide_like_count = data.get("hide_like_count", "false").lower() == "true"
+        allow_comments = data.get("allow_comments", "true").lower() == "true"
+
+        if not unique_id:
+            return jsonify(error="Unique ID is required!"), 400
+
+        query = "SELECT * FROM posts WHERE uniqueid = %s"
+        post_data = database.ExecuteQuery(query, (unique_id,))
+
+        if len(post_data) == 0:
+            return jsonify(error="Post not found!"), 404
+
+        getuser = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (session["username"],))
+        if len(getuser) == 0 or post_data[0]["belongsto"] != getuser[0]["id"]:
+            return jsonify(error="Unauthorized action!"), 403
+
+        database.ExecuteQuery(
+            "UPDATE posts SET description = %s, hidelikecount = %s, allowcomments = %s WHERE uniqueid = %s",
+            (description, hide_like_count, allow_comments, unique_id , )
+        )
+
+        return jsonify(message="Post updated successfully!", success=True), 200
 
     except Exception as e:
         print("Error:", e)
