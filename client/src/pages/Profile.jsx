@@ -113,7 +113,7 @@ export default function Profile() {
 
           <div className='flex  items-center justify-between w-full'>
 
-            <div className='flex flex-col gap-[20px]'>
+            <div className='flex flex-col gap-[10px]'>
               {Userdata.username && <p>{Userdata.username}</p>}
               {Userdata.name && <p>{Userdata.name}</p>}
               {Userdata.bio && <p>{Userdata.bio}</p>}

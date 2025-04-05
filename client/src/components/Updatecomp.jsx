@@ -153,13 +153,13 @@ export default function Updatecomp({ data, setUpdateState }) {
 
         </div>
 
-        <button onClick={() => setUpdateState(false)} className='absolute hover:bg-red-700 cursor-pointer right-[10px] bottom-[4rem] px-[30px] rounded-lg text-white bg-[crimson]'>Cancel</button>
+        <button onClick={() => setUpdateState(false)} className='absolute hover:bg-red-700 cursor-pointer right-[10px] bottom-[1rem] px-[30px] rounded-lg text-white bg-[crimson]'>Cancel</button>
 
       </div>
 
       <div className='flex w-full mt-[30px] px-[20px] flex-col '>
         <div className='flex  items-center justify-between w-full'>
-          <div className='flex flex-col gap-[20px]'>
+          <div className='flex flex-col gap-[10px]'>
             <input name='username' type='text' placeholder='Username' className='border-2 border-gray-300 px-[10px] rounded-lg py-[3px]' onChange={(e) => setUsername(e.target.value)} value={Username} />
             <input name='name' type='text' placeholder='Name' className='border-2 border-gray-300 px-[10px] rounded-lg py-[3px]' onChange={(e) => setName(e.target.value)} value={Name} />
             <input name='bio' type='text' placeholder='Bio' className='border-2 border-gray-300 px-[10px] rounded-lg py-[3px]' onChange={(e) => setBio(e.target.value)} value={Bio} />

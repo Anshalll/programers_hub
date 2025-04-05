@@ -70,7 +70,7 @@ export default function CreatePost() {
     <div className='flex items-center w-full h-full  justify-center'>
 
 
-    <div className="w-[90%] flex flex-col gap-[20px]  p-4 h-[90%]  rounded-lg shadow-lg bg-black text-white">
+    <div className="w-[70%] flex flex-col gap-[20px]  p-4 h-[80%]  rounded-lg shadow-lg bg-black text-white">
       <div className='w-full flex  items-center justify-between'>
 
       <h2 className="  text-[#FF6500]">Create a Post</h2>
@@ -82,12 +82,15 @@ export default function CreatePost() {
         {/* Image Upload Section */}
         <div className="w-1/2  h-[90%] rounded-lg flex items-center justify-center p-2 bg-gray-900">
           {image ? (
+            <div className='w-[90%] h-[90%] relative'>
+
             <img src={image} alt="Uploaded" className="w-full h-full object-contain rounded-lg" />
+            </div>
           ) : (
               <div className='relative items-center justify-center flex flex-col w-full h-full'>
 
               <span className="text-gray-300">+ Upload Image</span>
-              <input type="file" className="opacity-0 w-full h-full absolute" onChange={handleImageUpload} />
+              <input type="file" className="opacity-0 cursor-pointer w-full h-full absolute" onChange={handleImageUpload} />
               </div>
             
           )}

@@ -11,7 +11,7 @@ const Profiletabs = ({setSelectedPost , userCommunities }) => {
   }
   
   return (
-    <div className="w-full  mt-[11rem] mx-auto p-4">
+    <div className="w-full  mt-[5rem] mx-auto p-4">
       {/* Tab Navigation */}
       <div className="flex border-b">
         <button
