@@ -6,7 +6,7 @@ from functions.PasswordWorks import VerifyPassword , HashPassword , CheckPasswor
 from functions.GenerateVals import GenerateOTP , GenerateUsername , GeneratePostToken
 from functions.SendMail import SendMail
 from functions.CheckForms import CheckRegisterForm
-from functions.GetTime import GetTime
+from functions.GetTime import GetTime , GetMonthdate
 from functions.Deleteotps import Deleteotps
 from  functions.jwtstring import Generatejwt
 from functions.VerifyHcaptcha import Verifyhcaptcha
@@ -673,6 +673,7 @@ def uploadpost():
         hide_like_count = request.form.get("hide_like_count", "false").lower() == "true"
         hide_comment = request.form.get("allow_comments", "true").lower() == "true"
         getuser = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (session["username"] , ))
+
         if len(getuser) == 0:
             return jsonify(error="Internal server error") , 500
 
@@ -691,8 +692,8 @@ def uploadpost():
             data.save(os.path.abspath(os.path.join(os.getcwd(), "static/uploads/post", new_filename)))
             token = GeneratePostToken(20)
             database.ExecuteQuery(
-                "INSERT INTO posts (filename, belongsto, description, hidelikecount, allowcomments , likes, shares , uniqueid) VALUES (%s, %s, %s, %s, %s, %s, %s , %s)",
-                (new_filename, getuser[0]["id"], description, hide_like_count, hide_comment ,   0 , 0 , token ,  )
+                "INSERT INTO posts (filename, belongsto, description, hidelikecount, allowcomments , likes, shares , uniqueid , dateposted) VALUES (%s, %s, %s, %s, %s, %s, %s , %s , %s)",
+                (new_filename, getuser[0]["id"], description, hide_like_count, hide_comment ,   0 , 0 , token , GetMonthdate() , )
             )
 
             return jsonify(message="Post uploaded!", success=True), 200
@@ -778,6 +779,57 @@ def update_post():
         print("Error:", e)
         return jsonify(error="Internal server error!"), 500
 
+
+@app.route("/api/postcomment" , methods=["POST"])
+def post_comment():
+    try: 
+
+        if "username" not in session:
+            return jsonify(logged=False) , 200
+
+        data = request.get_json()
+        comment = data.get("comment")
+        postid = data.get("postid" , None)
+  
+        if comment.strip() == "" or  postid is  None:
+            return jsonify(error="An error occured!") , 400
+        
+        getpost = database.ExecuteQuery("SELECT * FROM posts where uniqueid = %s" , (postid , ))
+
+        if len(getpost) == 0:
+                return jsonify(error="An error occured!") , 400
+        
+        genval = GeneratePostToken(20)
+        createComment = database.ExecuteQuery("INSERT INTO comments (uid , belongsto , likes, message , uniqueid , postedon) VALUES (%s , %s, %s , %s , %s , %s)" , (getpost[0]["belongsto"] , getpost[0]["uniqueid"] , 0 , comment , genval , GetMonthdate()))
+        if createComment != 1:
+            return jsonify(error="Internal server error!"), 500
+        
+        last_insert = database.ExecuteQuery("SELECT * FROM comments WHERE id = LAST_INSERT_ID() AND uniqueid=%s " , (genval,))
+
+     
+        return jsonify(message="Comment posted!" , comment=last_insert) , 200
+
+    except Exception as e:
+        print(e)
+
+        return jsonify(error="Internal server error!"), 500
+
+
+@app.route("/api/getcomments/<postid>/" , methods=["GET"])
+def get_comments(postid):
+    try:
+        data = postid
+    
+        if data: 
+            comments = database.ExecuteQuery("SELECT * FROM comments WHERE belongsto =%s" , (data,))
+            
+            return jsonify(comments=comments), 200
+        else:
+            jsonify(error="Post id is required!"), 400
+    except Exception as e:
+        print(e)
+        return jsonify(error="Internal server error!"), 500
+    
 Deleteotps()
 
 app.run(debug=True , port=8000 , host="0.0.0.0")

@@ -12,8 +12,8 @@ import { useProfiledata } from '../hooks/useProfiledata'
 import { useSendDataMutation } from '../redux/apis/slice';
 import toast, { Toaster } from 'react-hot-toast';
 import UpdatePost from './UpdatePost';
-
-
+import Comments from './Comments';
+import Inputcomment from './Inputcomment';
 export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
 
 
@@ -24,11 +24,19 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
   const Optref = useRef(null)
   const [isOpen, setisOpen] = useState(false)
   const [Update, setUpdate] = useState(false)
+  const [Comment, setComment] = useState("")
+  const  [PostComments, setPostComments] = useState([])
 
   const clipboardcopy = () => toast.success('Copied to clipboard', {
     duration: 2000,
     position: 'top-center'
   });
+
+  const CommetPostError = () => toast.success('An error occured!', {
+    duration: 2000,
+    position: 'top-center'
+  });
+
 
   useEffect(() => {
     const locateuser = new URLSearchParams(window.location.search)
@@ -106,9 +114,25 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
 
   useEffect(() => {
     if (!Update) {
-        setisOpen(false)
+      setisOpen(false)
     }
-  } , [Update])
+  }, [Update])
+
+
+  const HandlePostComment = async () => {
+    const response = await Datasend({ url: "/postcomment", method: "POST" , data: {comment:Comment , postid: selectedImage.uniqueid } })
+
+    if (response.error) {
+      CommetPostError()
+    }
+    if (response.data) {
+        
+     
+      setPostComments((prev) =>  [response.data.comment[0], ...prev])
+      setComment("")
+    }
+    
+  }
 
   return (
 
@@ -117,13 +141,17 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
       <div className='w-[50%] h-full'>
         <Toaster />
         <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${selectedImage.filename}`} className="w-full h-[90%] object-cover" alt="" />
+        <div className='w-full mt-[20px] flex items-center justify-between '>
 
-        <div className='flex mt-[20px] text-white items-center gap-[20px]'>
-          {<button className='flex cursor-pointer items-center gap-[3px]'><FavoriteBorderIcon sx={{ fontSize: 16 }} />{selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>}
-          <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />{selectedImage.shares}</button>
-          {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />440</button> : <></>}
-          <button><SendOutlinedIcon sx={{ fontSize: 16 }} /></button>
+          <div className='flex  text-white items-center gap-[20px]'>
+            {<button className='flex cursor-pointer items-center gap-[3px]'><FavoriteBorderIcon sx={{ fontSize: 16 }} />{selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>}
+            <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />{selectedImage.shares}</button>
+            {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />440</button> : <></>}
+            <button><SendOutlinedIcon sx={{ fontSize: 16 }} /></button>
+          </div>
+          <p className='text-gray-300  text-[10px]'>{selectedImage.dateposted}</p>
         </div>
+
       </div>
 
       {!Update ? <div className='flex flex-col  text-white w-[50%] h-full gap-[20px]'>
@@ -143,33 +171,14 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
         </div>
         <div className='h-[calc(100%-20px)]  overflow-y-auto flex flex-col gap-[20px]'>
 
-          {selectedImage.description.trim() !== "" ? <p>{Desc}...{(selectedImage.description.length > 200 && Desc.length <= 200) ? <span className='text-[#FF6500] cursor-pointer' onClick={() => MoreDesc()}>more</span> : selectedImage.description.length > 200 && Desc.length > 200 ? <span className='text-[#FF6500] cursor-pointer' onClick={() => LessDesc()}>less</span> : <></>} </p> : <></>}
+          {selectedImage.description.trim() !== "" ? <p className='rounded-b-2 p-[10px] shadow-lg bg-gray-900'>{Desc}{(selectedImage.description.length > 200 && Desc.length <= 200) ? <span className='text-[#FF6500] cursor-pointer' onClick={() => MoreDesc()}>more</span> : selectedImage.description.length > 200 && Desc.length > 200 ? <span className='text-[#FF6500] cursor-pointer' onClick={() => LessDesc()}>less</span> : <></>} </p> : <></>}
 
-          {selectedImage.allowcomments === 1 ? <div className='flex text-[12px]  text-gray-300 flex-col gap-[20px]'>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-            <p>Comment 1</p>
-          </div> : <></>}
-
+          {selectedImage.allowcomments === 1 ? <Comments setComments={setPostComments} Comments={PostComments} SelectedImage={selectedImage}/> : <></>}
         </div>
+        <Inputcomment placeholder={"Comment something..."} HandlePostComment={HandlePostComment} Text={Comment} setText={setComment}/>
 
 
-      </div> : <UpdatePost setSelectedPost={setSelectedPost} SelectedPost={selectedImage} setUpdate={setUpdate}/>
+      </div> : <UpdatePost setSelectedPost={setSelectedPost} SelectedPost={selectedImage} setUpdate={setUpdate} />
       }
     </div>
 

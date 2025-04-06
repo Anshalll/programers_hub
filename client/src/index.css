@@ -1,6 +1,8 @@
 @import "tailwindcss";
+
 :root{
     background-color: #0B192C;
+ 
 }
 
 .itsjust{
@@ -29,3 +31,5 @@ input[type=number] {
 button{
   cursor: pointer;
 }
+
+/* Create a CSS file (e.g., EmojiPickerStyles.css) */
