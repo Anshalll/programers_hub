@@ -146,9 +146,10 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
           <div className='flex  text-white items-center gap-[20px]'>
             {<button className='flex cursor-pointer items-center gap-[3px]'><FavoriteBorderIcon sx={{ fontSize: 16 }} />{selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>}
             <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />{selectedImage.shares}</button>
-            {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />440</button> : <></>}
+            {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />{PostComments.length}</button> : <></>}
             <button><SendOutlinedIcon sx={{ fontSize: 16 }} /></button>
           </div>
+
           <p className='text-gray-300  text-[10px]'>{selectedImage.dateposted}</p>
         </div>
 

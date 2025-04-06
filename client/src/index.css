@@ -32,4 +32,8 @@ button{
   cursor: pointer;
 }
 
+
+.Scroller::-webkit-scrollbar {
+  display: none;
+}
 /* Create a CSS file (e.g., EmojiPickerStyles.css) */

@@ -803,8 +803,9 @@ def post_comment():
         createComment = database.ExecuteQuery("INSERT INTO comments (uid , belongsto , likes, message , uniqueid , postedon) VALUES (%s , %s, %s , %s , %s , %s)" , (getpost[0]["belongsto"] , getpost[0]["uniqueid"] , 0 , comment , genval , GetMonthdate()))
         if createComment != 1:
             return jsonify(error="Internal server error!"), 500
-        
-        last_insert = database.ExecuteQuery("SELECT * FROM comments WHERE id = LAST_INSERT_ID() AND uniqueid=%s " , (genval,))
+
+
+        last_insert = database.ExecuteQuery("SELECT  c.*, r.username, p.dp FROM comments c INNER JOIN registers r on r.id = c.uid INNER JOIN profile p on p.id = c.uid WHERE c.id =  LAST_INSERT_ID()  AND uniqueid=%s " , (genval,))
 
      
         return jsonify(message="Comment posted!" , comment=last_insert) , 200
@@ -821,8 +822,8 @@ def get_comments(postid):
         data = postid
     
         if data: 
-            comments = database.ExecuteQuery("SELECT * FROM comments WHERE belongsto =%s" , (data,))
-            
+            comments = database.ExecuteQuery("SELECT  c.*, r.username, p.dp FROM comments c INNER JOIN registers r on r.id = c.uid INNER JOIN profile p on p.id = c.uid WHERE belongsto = %s" , (data,))
+        
             return jsonify(comments=comments), 200
         else:
             jsonify(error="Post id is required!"), 400
