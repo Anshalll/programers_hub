@@ -435,7 +435,7 @@ def authgoogle():
             
 
             createuser = database.ExecuteQuery("INSERT INTO registers (email , username , name , type) VALUES (%s , %s , %s , %s)" , (userinfo_response["email"] , username, userinfo_response["name"]  , "google",))
-            print(username)
+         
             session["username"] = username
             print(session["username"])
             session["type"] = "google"
@@ -822,13 +822,67 @@ def get_comments(postid):
         data = postid
     
         if data: 
-            comments = database.ExecuteQuery("SELECT  c.*, r.username, p.dp FROM comments c INNER JOIN registers r on r.id = c.uid INNER JOIN profile p on p.id = c.uid WHERE belongsto = %s" , (data,))
-        
+            comments = database.ExecuteQuery("SELECT  c.*, r.username, p.dp , l.likedby FROM comments c INNER JOIN registers r on r.id = c.uid LEFT JOIN profile p on p.id = c.uid LEFT JOIN comment_likes l on l.likedby = c.uid WHERE belongsto = %s" , (data,))
+       
             return jsonify(comments=comments), 200
         else:
             jsonify(error="Post id is required!"), 400
     except Exception as e:
         print(e)
+        return jsonify(error="Internal server error!"), 500
+
+@app.route("/api/likecomment", methods=["POST"])
+def like_comment():
+    try:
+        if "username" not in session:
+            return jsonify(logged=False), 401
+
+        data = request.get_json()
+        comment_type = data.get("type")
+        comment_id = data.get("id")
+        action = data.get("action")
+
+        if not comment_type or not comment_id or not action:
+            return jsonify(error="Type, Comment ID, and Action are required!"), 400
+
+        if comment_type not in ["comment", "reply"]:
+            return jsonify(error="Invalid type! Must be 'comment' or 'reply'."), 400
+
+        if action not in ["like", "unlike"]:
+            return jsonify(error="Invalid action! Must be 'like' or 'unlike'."), 400
+
+        table = "comments" if comment_type == "comment" else "replies"
+
+        query = f"SELECT * FROM {table} WHERE uniqueid = %s"
+        comment_data = database.ExecuteQuery(query, (comment_id,))
+    
+        if len(comment_data) == 0:
+            return jsonify(error=f"{comment_type.capitalize()} not found!"), 404
+
+        if action == "like":
+            update_query = f"UPDATE {table} SET likes = likes + 1 WHERE uniqueid = %s"
+            database.ExecuteQuery(update_query, (comment_id,))
+            checkLiked = database.ExecuteQuery(
+                "SELECT * FROM comment_likes WHERE likedby = %s AND commentid = %s",
+                (comment_data[0]["uid"], comment_id)
+            )
+            if len(checkLiked) == 0:
+                database.ExecuteQuery(
+                    "INSERT INTO comment_likes (likedby, commentid) VALUES (%s, %s)",
+                    (comment_data[0]["uid"], comment_id)
+                )
+        elif action == "unlike":
+            update_query = f"UPDATE {table} SET likes = likes - 1 WHERE uniqueid = %s AND likes > 0"
+            database.ExecuteQuery(update_query, (comment_id,))
+            database.ExecuteQuery(
+                "DELETE FROM comment_likes WHERE likedby = %s AND commentid = %s",
+                (comment_data[0]["uid"], comment_id)
+            )
+
+        return jsonify(message=f"{comment_type.capitalize()} {action}d successfully!", success=True), 200
+
+    except Exception as e:
+        print("Error:", e)
         return jsonify(error="Internal server error!"), 500
     
 Deleteotps()

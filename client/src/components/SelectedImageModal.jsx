@@ -32,7 +32,7 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
     position: 'top-center'
   });
 
-  const CommetPostError = () => toast.success('An error occured!', {
+  const CommetPostError = () => toast.error('An error occured!', {
     duration: 2000,
     position: 'top-center'
   });
