@@ -610,10 +610,15 @@ def getuser():
         if  username.strip() == "":
             return jsonify(error="Username is required!"), 400
 
-        query = "SELECT p.* , r.* from profile p join registers r on r.id = p.id where username = %s"
+        query = """
+        SELECT p.* , r.id , r.username, r.email , r.name  from profile p
+        join registers r on r.id = p.id 
+        where username = %s
         
+      """
         userdata = database.ExecuteQuery(query , (username, ))
-      
+        userposts = database.ExecuteQuery("SELECT * FROM posts where belongsto = %s" , (userdata[0]["id"] ,))
+        userdata.append(userposts)
         if len(userdata) == 0:
             return jsonify(error="An error ocuured"), 400
 
@@ -660,7 +665,6 @@ def delete_images():
     except Exception as e:
         print("Error:", e)
         return jsonify(error="Internal server error!"), 500
-
 
 @app.route("/api/uploadpost", methods=["POST"])
 def uploadpost():
@@ -779,7 +783,6 @@ def update_post():
         print("Error:", e)
         return jsonify(error="Internal server error!"), 500
 
-
 @app.route("/api/postcomment" , methods=["POST"])
 def post_comment():
     try: 
@@ -819,11 +822,16 @@ def post_comment():
 @app.route("/api/getcomments/<postid>/" , methods=["GET"])
 def get_comments(postid):
     try:
+        if "username" not in session:
+            return jsonify(logged=False) , 400
+        
         data = postid
-    
+        user = database.ExecuteQuery("SELECT * FROM registers where username = %s" , (session["username"] ,))
+
+
         if data: 
-            comments = database.ExecuteQuery("SELECT  c.*, r.username, p.dp , l.likedby FROM comments c INNER JOIN registers r on r.id = c.uid LEFT JOIN profile p on p.id = c.uid LEFT JOIN comment_likes l on l.likedby = c.uid WHERE belongsto = %s" , (data,))
-       
+            comments = database.ExecuteQuery(f"SELECT  c.*, r.username , r.id, p.dp , l.likedby , l.commentid FROM comments c INNER JOIN registers r on r.id = c.uid LEFT JOIN profile p on p.id = c.uid LEFT JOIN comment_likes l on l.commentid = c.uniqueid AND l.likedby = %s  WHERE belongsto = %s" , (user[0]["id"] ,  data,))
+           
             return jsonify(comments=comments), 200
         else:
             jsonify(error="Post id is required!"), 400
@@ -858,25 +866,26 @@ def like_comment():
     
         if len(comment_data) == 0:
             return jsonify(error=f"{comment_type.capitalize()} not found!"), 404
+        user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (session["username"] , ))
 
         if action == "like":
             update_query = f"UPDATE {table} SET likes = likes + 1 WHERE uniqueid = %s"
             database.ExecuteQuery(update_query, (comment_id,))
             checkLiked = database.ExecuteQuery(
                 "SELECT * FROM comment_likes WHERE likedby = %s AND commentid = %s",
-                (comment_data[0]["uid"], comment_id)
+                (user[0]["id"], comment_id)
             )
             if len(checkLiked) == 0:
                 database.ExecuteQuery(
                     "INSERT INTO comment_likes (likedby, commentid) VALUES (%s, %s)",
-                    (comment_data[0]["uid"], comment_id)
+                    (user[0]["id"], comment_id)
                 )
         elif action == "unlike":
             update_query = f"UPDATE {table} SET likes = likes - 1 WHERE uniqueid = %s AND likes > 0"
             database.ExecuteQuery(update_query, (comment_id,))
             database.ExecuteQuery(
                 "DELETE FROM comment_likes WHERE likedby = %s AND commentid = %s",
-                (comment_data[0]["uid"], comment_id)
+                (user[0]["id"], comment_id)
             )
 
         return jsonify(message=f"{comment_type.capitalize()} {action}d successfully!", success=True), 200

@@ -12,7 +12,7 @@ import SelectedImageModel from '../components/SelectedImageModal'
 
 export default function Profile() {
 
-  const { data } = useProfiledata()
+  const { data , post } = useProfiledata()
 
   const [UpdateState, setUpdateState] = useState(false)
   const [Datasend] = useSendDataMutation()
@@ -21,14 +21,18 @@ export default function Profile() {
   const [LoadingUser , setLoadingUser] = useState(true)
   const [Admin , setAdmin] = useState(false)
   const [SelectedPost , setSelectedPost] = useState({})
-
+  const [Userposts, setUserposts] = useState([])
 
   useEffect(() => {
       if( Object.keys(data).length > 0){
-
+        
         setUserdata(data)
       }
-  } , [data])
+
+      if (Object.keys(post).length > 0) {
+          setUserposts(post)
+      }
+  } , [data , post])
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -62,6 +66,8 @@ export default function Profile() {
             }
             if (res.data) {
               setUserdata(res.data.data[0]);
+              setUserposts(res.data.data[1])
+           
               setAdmin(false)
             }
           }
@@ -140,7 +146,7 @@ export default function Profile() {
 
         </div>
 
-        <Profiletabs setSelectedPost={setSelectedPost} userPosts={[]} userCommunities={[]}/>
+        <Profiletabs setSelectedPost={setSelectedPost} userPosts={Userposts} userCommunities={[]}/>
 
       </div>
 

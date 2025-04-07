@@ -1,10 +1,10 @@
 import { useState } from "react";
-import {useProfiledata} from '../hooks/useProfiledata'
 
-const Profiletabs = ({setSelectedPost , userCommunities }) => {
+
+const Profiletabs = ({userPosts , setSelectedPost , userCommunities }) => {
   const [activeTab, setActiveTab] = useState("posts");
 
-  const { post } = useProfiledata()
+
   
   const HandleSelectedPost = (image) => {
     setSelectedPost(image)
@@ -36,11 +36,11 @@ const Profiletabs = ({setSelectedPost , userCommunities }) => {
       <div className="mt-4 w-full ">
         {activeTab === "posts" ? (
           <div className="w-full flex items-center justify-center">
-            {post.length > 0 ? (
+            {userPosts.length > 0 ? (
             
             <div className="grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2  gap-[20px] w-fulljustify-items-center ">
 
-              {post.map((post, index) => (
+              {userPosts.map((post, index) => (
                 
                 <button onClick={() => HandleSelectedPost(post)} key={index} className="w-[250px] cursor-pointer h-[300px]">
                     <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${post.filename}`} alt="" className="w-full h-full object-cover" />
