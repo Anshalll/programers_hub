@@ -830,7 +830,7 @@ def get_comments(postid):
 
 
         if data: 
-            comments = database.ExecuteQuery(f"SELECT  c.*, r.username , r.id, p.dp , l.likedby , l.commentid FROM comments c INNER JOIN registers r on r.id = c.uid LEFT JOIN profile p on p.id = c.uid LEFT JOIN comment_likes l on l.commentid = c.uniqueid AND l.likedby = %s  WHERE belongsto = %s" , (user[0]["id"] ,  data,))
+            comments = database.ExecuteQuery(f"SELECT  c.*, r.username , r.id, p.dp , l.likedby , l.commentid FROM comments c INNER JOIN registers r on r.id = c.uid LEFT JOIN profile p on p.id = c.uid LEFT JOIN comment_likes l on l.commentid = c.uniqueid AND l.likedby = %s  WHERE belongsto = %s ORDER BY c.id DESC" , (user[0]["id"] ,  data,))
            
             return jsonify(comments=comments), 200
         else:

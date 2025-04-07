@@ -7,14 +7,15 @@ import {useProfiledata} from '../hooks/useProfiledata'
 import { pink } from '@mui/material/colors';
 import Loading from '../components/Loading'
 import FavoriteIcon from '@mui/icons-material/Favorite';
-
-export default function Comments({ SelectedImage, setComments, Comments }) {
+import {setpostcomments} from '../redux/userdata/slice'
+import { useDispatch } from 'react-redux';
+export default function Comments({ SelectedImage }) {
 
   
-  const { isLoading, error, data } = useFetchDataQuery(`/getcomments/${SelectedImage.uniqueid}/`)
+  const { isLoading, error, data , refetch } = useFetchDataQuery(`/getcomments/${SelectedImage.uniqueid}/`)
   const [Send_data] = useSendDataMutation()
-  const {data : userdata} = useProfiledata()
-
+  const {data : userdata , comments: Comments} = useProfiledata()
+  const dispatch = useDispatch()
 
   const ErrorFetchingComments = () => toast.error("An error occured!", {
     duration: 1500,
@@ -35,11 +36,12 @@ export default function Comments({ SelectedImage, setComments, Comments }) {
       }
 
       if (!isLoading) {
-        setComments(data.comments)
+       refetch()
+       dispatch(setpostcomments(data.comments))
       }
 
     }
-  }, [SelectedImage, isLoading, data, error, setComments])
+  }, [SelectedImage, isLoading, data, error , dispatch , refetch])
 
   const HandleCommentLike = async (type , id , action) =>{
 
@@ -61,7 +63,7 @@ export default function Comments({ SelectedImage, setComments, Comments }) {
           findings.likedby = null
         }
         
-        setComments(coms)
+        dispatch(setpostcomments(coms))
        
       
       }

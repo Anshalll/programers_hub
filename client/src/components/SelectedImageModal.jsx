@@ -8,24 +8,26 @@ import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import ModeEditOutlinedIcon from '@mui/icons-material/ModeEditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
-import { useProfiledata } from '../hooks/useProfiledata'
+import { useProfiledata  } from '../hooks/useProfiledata'
 import { useSendDataMutation } from '../redux/apis/slice';
 import toast, { Toaster } from 'react-hot-toast';
 import UpdatePost from './UpdatePost';
+import {setpostcomments} from '../redux/userdata/slice'
 import Comments from './Comments';
 import Inputcomment from './Inputcomment';
+import { useDispatch } from 'react-redux';
 export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
 
 
   const [Desc, setDesc] = useState("")
-  const { data } = useProfiledata()
+  const { data , comments } = useProfiledata()
   const [isAdmin, setisAdmin] = useState(false)
   const [Datasend] = useSendDataMutation()
   const Optref = useRef(null)
   const [isOpen, setisOpen] = useState(false)
   const [Update, setUpdate] = useState(false)
   const [Comment, setComment] = useState("")
-  const  [PostComments, setPostComments] = useState([])
+  const dispatch = useDispatch()
 
   const clipboardcopy = () => toast.success('Copied to clipboard', {
     duration: 2000,
@@ -127,8 +129,8 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
     }
     if (response.data) {
         
-     
-      setPostComments((prev) =>  [response.data.comment[0], ...prev])
+      dispatch(setpostcomments([response.data.comment[0], ...comments]))
+ 
       setComment("")
     }
     
@@ -146,7 +148,7 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
           <div className='flex  text-white items-center gap-[20px]'>
             {<button className='flex cursor-pointer items-center gap-[3px]'><FavoriteBorderIcon sx={{ fontSize: 16 }} />{selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>}
             <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />{selectedImage.shares}</button>
-            {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />{PostComments.length}</button> : <></>}
+            {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />{comments.length}</button> : <></>}
             <button><SendOutlinedIcon sx={{ fontSize: 16 }} /></button>
           </div>
 
@@ -174,7 +176,7 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
 
           {selectedImage.description.trim() !== "" ? <p className='rounded-b-2 p-[10px] shadow-lg bg-gray-900'>{Desc}{(selectedImage.description.length > 200 && Desc.length <= 200) ? <span className='text-[#FF6500] cursor-pointer' onClick={() => MoreDesc()}>more</span> : selectedImage.description.length > 200 && Desc.length > 200 ? <span className='text-[#FF6500] cursor-pointer' onClick={() => LessDesc()}>less</span> : <></>} </p> : <></>}
 
-          {selectedImage.allowcomments === 1 ? <Comments setComments={setPostComments} Comments={PostComments} SelectedImage={selectedImage}/> : <></>}
+          {selectedImage.allowcomments === 1 ? <Comments  SelectedImage={selectedImage}/> : <></>}
         </div>
         <Inputcomment placeholder={"Comment something..."} HandlePostComment={HandlePostComment} Text={Comment} setText={setComment}/>
 

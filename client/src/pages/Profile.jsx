@@ -8,31 +8,22 @@ import { useSendDataMutation } from '../redux/apis/slice';
 import Loading from '../components/Loading';
 import Profiletabs from '../components/Profiletabs';
 import SelectedImageModel from '../components/SelectedImageModal'
-
-
+import {setudata ,setuserpost} from '../redux/userdata/slice'
+import { useDispatch } from 'react-redux';
 export default function Profile() {
 
   const { data , post } = useProfiledata()
-
+  const dispatch = useDispatch()
   const [UpdateState, setUpdateState] = useState(false)
   const [Datasend] = useSendDataMutation()
-  const [Userdata, setUserdata] = useState({})
+ 
   const [Error, setError] = useState("")
   const [LoadingUser , setLoadingUser] = useState(true)
   const [Admin , setAdmin] = useState(false)
   const [SelectedPost , setSelectedPost] = useState({})
-  const [Userposts, setUserposts] = useState([])
+  
 
-  useEffect(() => {
-      if( Object.keys(data).length > 0){
-        
-        setUserdata(data)
-      }
 
-      if (Object.keys(post).length > 0) {
-          setUserposts(post)
-      }
-  } , [data , post])
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -65,8 +56,8 @@ export default function Profile() {
               setError(res.error.data.error);
             }
             if (res.data) {
-              setUserdata(res.data.data[0]);
-              setUserposts(res.data.data[1])
+              dispatch(setudata(res.data.data[0]));
+              dispatch(setuserpost(res.data.data[1]))
            
               setAdmin(false)
             }
@@ -83,7 +74,7 @@ export default function Profile() {
   
     userget(); 
   
-  }, [data.username, Datasend]);
+  }, [data.username, Datasend , dispatch]);
   
   
 
@@ -93,7 +84,7 @@ export default function Profile() {
 {!LoadingUser  ?     <Layout>
 
       {!UpdateState ?
-      Object.keys(Userdata).length > 0 &&
+      Object.keys(data).length > 0 &&
         <>
       {Object.keys(SelectedPost).length > 0 ? <div className='w-full z-1 absolute h-full flex items-center justify-center'>
         <SelectedImageModel setSelectedPost={setSelectedPost} selectedImage={SelectedPost}/>
@@ -104,11 +95,11 @@ export default function Profile() {
         <div className='w-full  relative h-[250px]'>
 
           <div className='w-full h-[200px]'>
-            <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/bg/${Userdata.bg}`} alt="" className='object-cover h-full w-full rounded-lg' />
+            <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/bg/${data.bg}`} alt="" className='object-cover h-full w-full rounded-lg' />
 
           </div>
           <div className='w-max  h-max  absolute top-[40%]'>
-            <img className='w-[150px] h-[150px] p-[3px]  bg-white object-cover rounded-full' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${Userdata.dp}`} alt="" />
+            <img className='w-[150px] h-[150px] p-[3px]  bg-white object-cover rounded-full' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${data.dp}`} alt="" />
           </div>
 
         {Admin ?   <button onClick={() => setUpdateState(true)} className='absolute cursor-pointer hover:bg-green-600 right-[10px] bottom-[1rem] px-[30px] rounded-lg text-white bg-green-500'>Edit</button> : <></>}
@@ -120,19 +111,19 @@ export default function Profile() {
           <div className='flex  items-center justify-between w-full'>
 
             <div className='flex flex-col gap-[10px]'>
-              {Userdata.username && <p>{Userdata.username}</p>}
-              {Userdata.name && <p>{Userdata.name}</p>}
-              {Userdata.bio && <p>{Userdata.bio}</p>}
-              { Userdata.role && <p>{Userdata.role}</p>}
-              { Userdata.socialmedialinks && <a target='_blank' href={Userdata.socialmedialinks} className='text-blue-600 hover:text-blue-500 hover:border-b hover:border-blue-500'>{Userdata.socialmedialinks.slice(0, 30)}..</a>}
+              {data.username && <p>{data.username}</p>}
+              {data.name && <p>{data.name}</p>}
+              {data.bio && <p>{data.bio}</p>}
+              { data.role && <p>{data.role}</p>}
+              { data.socialmedialinks && <a target='_blank' href={data.socialmedialinks} className='text-blue-600 hover:text-blue-500 hover:border-b hover:border-blue-500'>{data.socialmedialinks.slice(0, 30)}..</a>}
               
-              {Userdata.location && <p className='flex items-center gap-[10px]'><LocationOnOutlinedIcon />{Userdata.location}</p>}
-              {Userdata.joinedon && <p className='flex items-center gap-[20px]'><DateRangeOutlinedIcon />{Userdata.joinedon}</p>}
+              {data.location && <p className='flex items-center gap-[10px]'><LocationOnOutlinedIcon />{data.location}</p>}
+              {data.joinedon && <p className='flex items-center gap-[20px]'><DateRangeOutlinedIcon />{data.joinedon}</p>}
             </div>
             <div className='flex flex-col gap-[20px]'>
               <div className='flex items-center gap-[20px]'>
-                {Userdata && <p className='text-center'>{Userdata.followers} <br /> <span>Followers</span> </p>}
-                {Userdata && <p className='text-center'>{Userdata.following} <br /> <span>Following</span></p>}
+                {data && <p className='text-center'>{data.followers} <br /> <span>Followers</span> </p>}
+                {data && <p className='text-center'>{data.following} <br /> <span>Following</span></p>}
 
               </div>
               {!Admin && <button className='bg-green-500 rounded-lg  p-[7px]'>Follow</button>}
@@ -146,7 +137,7 @@ export default function Profile() {
 
         </div>
 
-        <Profiletabs setSelectedPost={setSelectedPost} userPosts={Userposts} userCommunities={[]}/>
+        <Profiletabs setSelectedPost={setSelectedPost} userPosts={post} userCommunities={[]}/>
 
       </div>
 
