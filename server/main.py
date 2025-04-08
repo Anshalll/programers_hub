@@ -798,12 +798,12 @@ def post_comment():
             return jsonify(error="An error occured!") , 400
         
         getpost = database.ExecuteQuery("SELECT * FROM posts where uniqueid = %s" , (postid , ))
-
+        getuser = database.ExecuteQuery("SELECT * FROM registers where username = %s" , (session["username"],))
         if len(getpost) == 0:
                 return jsonify(error="An error occured!") , 400
         
         genval = GeneratePostToken(20)
-        createComment = database.ExecuteQuery("INSERT INTO comments (uid , belongsto , likes, message , uniqueid , postedon) VALUES (%s , %s, %s , %s , %s , %s)" , (getpost[0]["belongsto"] , getpost[0]["uniqueid"] , 0 , comment , genval , GetMonthdate()))
+        createComment = database.ExecuteQuery("INSERT INTO comments (uid , belongsto , likes, message , uniqueid , postedon) VALUES (%s , %s, %s , %s , %s , %s)" , (getuser[0]["id"] , getpost[0]["uniqueid"] , 0 , comment , genval , GetMonthdate()))
         if createComment != 1:
             return jsonify(error="Internal server error!"), 500
 

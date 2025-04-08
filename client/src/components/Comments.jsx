@@ -9,6 +9,7 @@ import Loading from '../components/Loading'
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import {setpostcomments} from '../redux/userdata/slice'
 import { useDispatch } from 'react-redux';
+
 export default function Comments({ SelectedImage }) {
 
   
@@ -90,6 +91,7 @@ export default function Comments({ SelectedImage }) {
             <div className='flex flex-col items-center gap-[3px]'>
               <button className='text-[#FF6500]'><MoreVertIcon sx={{ fontSize: 11 }}/></button>
             {value.likedby !== userdata.id ?   <button onClick={() => HandleCommentLike("comment" , value.uniqueid ,"like")}><FavoriteBorderOutlinedIcon sx={{ fontSize: 11 }} /></button> : <button onClick={() => HandleCommentLike("comment" , value.uniqueid , "unlike")}><FavoriteIcon sx={{ fontSize: 11 , color: pink[500] }} /></button>}
+            {console.log(value.likedby , userdata.id)}
               {value.likes > 0 && <p className='text-white text-[9px]'>{value.likes}</p>}
 
 
