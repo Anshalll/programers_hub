@@ -15,7 +15,10 @@ export default function Inputcomment({ HandlePostComment, Text, setText, placeho
         setText((prev) => prev + e.emoji)
     }
 
-
+    const Action = () => {
+        HandlePostComment()
+        setisEmoji(false)
+    }
 
     return (
         <div className='flex relative w-full items-center border-2 border-gra-300 p-[7px] rounded-full'>
@@ -27,7 +30,7 @@ export default function Inputcomment({ HandlePostComment, Text, setText, placeho
                 <EmojiPicker onEmojiClick={HandleEmoji} width={400} height={400} />
             </div> : <></>}
 
-            <button onClick={() => HandlePostComment()}><SendIcon sx={{ fontSize: 16 }} /></button>
+            <button onClick={() => Action()}><SendIcon sx={{ fontSize: 16 }} /></button>
         </div>
     )
 }

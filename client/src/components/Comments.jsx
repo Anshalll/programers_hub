@@ -25,15 +25,11 @@ export default function Comments({ SelectedImage }) {
   const [isOpenCommentop, setisOpenCommentop] = useState({ isOpen: false, id: null })
 
 
-  const ErrorFetchingComments = () => toast.error("An error occured!", {
+  const ErrorAction = () => toast.error("An error occured!", {
     duration: 1500,
     position: 'top-center'
   });
 
-  const Errordeletingcomment = () => toast.error("An error occured!", {
-    duration: 1500,
-    position: 'top-center'
-  });
 
 
   const CommentDeleted = () => toast.success("Comment deleted!", {
@@ -53,11 +49,31 @@ export default function Comments({ SelectedImage }) {
       CommentDeleted()
     }
     else{
-      Errordeletingcomment()
+      ErrorAction()
     }
 
 
 
+  }
+
+  const PinComment = async (commentid , action , postid) => {
+      const response = await Send_data({ url: "/pincomment", method: "POST", data: { commentid, action , postid } })
+      if (response.data) {
+        
+        let coms = JSON.parse(JSON.stringify(Comments))
+        let findings = coms.find((e) => e.uniqueid === commentid)
+        if (action === "pin") {
+          findings.pinned = true
+        }
+        if (action === "unpin") {
+          findings.pinned = false
+        }
+        dispatch(setpostcomments(coms))
+        setisOpenCommentop({ isOpen: false, id: null })
+      }
+      else{
+        ErrorAction()
+      }
   }
   
 
@@ -100,16 +116,10 @@ export default function Comments({ SelectedImage }) {
   }
 
 
-  const ErrorWhileLiking = () => toast.error("An error occured!", {
-    duration: 1500,
-    position: 'top-center'
-  });
-
-
   useEffect(() => {
     if (SelectedImage.allowcomments === 1) {
       if (error) {
-        ErrorFetchingComments()
+        ErrorAction()
       }
 
       if (!isLoading) {
@@ -124,7 +134,7 @@ export default function Comments({ SelectedImage }) {
 
     const response = await Send_data({ url: "/likecomment", method: "POST", data: { type, id, action } })
     if (response.error) {
-      ErrorWhileLiking()
+      ErrorAction()
     }
     if (response.data) {
       let coms = JSON.parse(JSON.stringify(Comments))
@@ -164,12 +174,25 @@ export default function Comments({ SelectedImage }) {
                   alt=''
                 />
                 <div className='flex flex-col gap-[3px] w-full'>
+                  <div className='flex items-center justify-between w-full'>
+              
+
                   <a
                     className='text-[9px] text-gray-300'
                     href={`${import.meta.env.VITE_CLIENTLOCAL}/profile?user=${value.username}`}
                   >
                     {value.username}
                   </a>
+
+                  <div className='flex items-center gap-[5px]'>
+                    {value.pinned == 1 &&  <i className='text-[9px] text-gray-300'>Pinned</i> }
+
+                    </div>
+
+
+                  </div>
+
+
                   <p className='text-[10px]'>{value.message}</p>
                   <div className='w-full flex items-center gap-[10px]'>
                     <button className='text-[9px] text-gray-300 font-light'>
@@ -192,9 +215,12 @@ export default function Comments({ SelectedImage }) {
                       {isOpenCommentop.isOpen && index === isOpenCommentop.id ? (
                         <div className='absolute w-[60px] flex flex-col gap-[10px] p-[7px] bg-gray-800 rounded-md right-[20px] text-[9px] text-white'>
                           {isAdmin && (
-                            <button   className='flex items-center gap-[3px]'>
+                          value.pinned == 0 ?   <button onClick={() => PinComment(value.uniqueid, "pin" , SelectedImage.uniqueid)}  className='flex items-center gap-[3px]'>
                               <PushPinIcon sx={{ fontSize: 10 }} /> Pin
+                            </button> : <button onClick={() => PinComment(value.uniqueid, "unpin" , SelectedImage.uniqueid)}  className='flex items-center gap-[3px]'>
+                              <PushPinIcon sx={{ fontSize: 10 }} /> Unpin
                             </button>
+
                           )}
                           {(isAdmin || value.uid === userdata.id) && (
                             <button onClick={() => HandleCommentDelete(value.uniqueid , userdata.id)}  className='flex text-[crimson] items-center gap-[3px]'>

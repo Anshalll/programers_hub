@@ -862,7 +862,7 @@ def get_comments(postid):
 
 
         if data: 
-            comments = database.ExecuteQuery(f"SELECT  c.*, r.username , r.id, p.dp , l.likedby , l.commentid FROM comments c INNER JOIN registers r on r.id = c.uid LEFT JOIN profile p on p.id = c.uid LEFT JOIN comment_likes l on l.commentid = c.uniqueid AND l.likedby = %s  WHERE belongsto = %s ORDER BY c.id DESC" , (user[0]["id"] ,  data,))
+            comments = database.ExecuteQuery(f"SELECT  c.*, r.username , r.id, p.dp , l.likedby , l.commentid FROM comments c INNER JOIN registers r on r.id = c.uid LEFT JOIN profile p on p.id = c.uid LEFT JOIN comment_likes l on l.commentid = c.uniqueid AND l.likedby = %s  WHERE belongsto = %s ORDER BY c.pinned DESC , c.id DESC " , (user[0]["id"] ,  data,))
            
             return jsonify(comments=comments), 200
         else:
@@ -925,7 +925,56 @@ def like_comment():
     except Exception as e:
         print("Error:", e)
         return jsonify(error="Internal server error!"), 500
-    
+
+
+@app.route("/api/pincomment", methods=["POST"])
+def pin_comment():
+    try:
+        if "username" not in session:
+            return jsonify(logged=False), 401
+
+        data = request.get_json()
+        comment_id = data.get("commentid")
+        action = data.get("action")
+        postid = data.get("postid")
+       
+
+        if not comment_id or not action:
+            return jsonify(error="Comment ID and Action are required!"), 400
+
+        if action not in ["pin", "unpin"]:
+            return jsonify(error="Invalid action! Must be 'pin' or 'unpin'."), 400
+
+        user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (session["username"],))
+        if len(user) == 0:
+            return jsonify(error="An error occurred!"), 400
+        
+        getpost = database.ExecuteQuery("SELECT * FROM posts WHERE uniqueid = %s", (postid,))
+
+        if len(getpost) == 0:
+            return jsonify(error="An error occurred!"), 400
+
+        if action == "pin" and user[0]["id"] == getpost[0]["belongsto"]:
+            database.ExecuteQuery(
+                "UPDATE comments SET pinned = 1 WHERE uniqueid = %s ",
+                (comment_id, )
+            )
+        
+        elif action == "unpin" and user[0]["id"] == getpost[0]["belongsto"]:
+            database.ExecuteQuery(
+                "UPDATE comments SET pinned = 0 WHERE uniqueid = %s",
+                (comment_id,)
+            )
+        else:
+            return jsonify(error="Unauthorized action!"), 403
+        
+
+        return jsonify(message=f"Comment {action}ned successfully!", success=True), 200
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify(error="Internal server error!"), 500
+
 Deleteotps()
 
 app.run(debug=True , port=8000 , host="0.0.0.0")
