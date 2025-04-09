@@ -783,39 +783,71 @@ def update_post():
         print("Error:", e)
         return jsonify(error="Internal server error!"), 500
 
-@app.route("/api/postcomment" , methods=["POST"])
-def post_comment():
+@app.route("/api/comments" , methods=["POST" , "DELETE"])
+def comments():
     try: 
 
         if "username" not in session:
             return jsonify(logged=False) , 200
-
-        data = request.get_json()
-        comment = data.get("comment")
-        postid = data.get("postid" , None)
-  
-        if comment.strip() == "" or  postid is  None:
-            return jsonify(error="An error occured!") , 400
         
+        data = request.get_json()
+        postid = data.get("postid" , None)
+       
+        if postid is  None:
+            return jsonify(error="An error occured!") , 400
         getpost = database.ExecuteQuery("SELECT * FROM posts where uniqueid = %s" , (postid , ))
+
+
         getuser = database.ExecuteQuery("SELECT * FROM registers where username = %s" , (session["username"],))
         if len(getpost) == 0:
-                return jsonify(error="An error occured!") , 400
+            return jsonify(error="An error occured!") , 400
         
-        genval = GeneratePostToken(20)
-        createComment = database.ExecuteQuery("INSERT INTO comments (uid , belongsto , likes, message , uniqueid , postedon) VALUES (%s , %s, %s , %s , %s , %s)" , (getuser[0]["id"] , getpost[0]["uniqueid"] , 0 , comment , genval , GetMonthdate()))
-        if createComment != 1:
-            return jsonify(error="Internal server error!"), 500
+        if request.method == "POST":
+            comment = data.get("comment")
+            if comment.strip() == "":
+                 return jsonify(error="An error occured!") , 400
+            
+            genval = GeneratePostToken(20)
+            createComment = database.ExecuteQuery("INSERT INTO comments (uid , belongsto , likes, message , uniqueid , postedon) VALUES (%s , %s, %s , %s , %s , %s)" , (getuser[0]["id"] , getpost[0]["uniqueid"] , 0 , comment , genval , GetMonthdate()))
+            if createComment != 1:
+                return jsonify(error="Internal server error!"), 500
 
 
-        last_insert = database.ExecuteQuery("SELECT  c.*, r.username, p.dp FROM comments c INNER JOIN registers r on r.id = c.uid INNER JOIN profile p on p.id = c.uid WHERE c.id =  LAST_INSERT_ID()  AND uniqueid=%s " , (genval,))
+            last_insert = database.ExecuteQuery("SELECT  c.*, r.username, p.dp FROM comments c INNER JOIN registers r on r.id = c.uid INNER JOIN profile p on p.id = c.uid WHERE c.id =  LAST_INSERT_ID()  AND uniqueid=%s " , (genval,))
 
-     
-        return jsonify(message="Comment posted!" , comment=last_insert) , 200
+        
+            return jsonify(message="Comment posted!" , comment=last_insert) , 200
+
+
+        if request.method == "DELETE":
+            comment_id = data.get("commentid")
+            userid = data.get("userid")
+           
+            if comment_id is None or userid is None:
+                return jsonify(error="An error occurred!"), 400
+            
+            getcomment = database.ExecuteQuery("SELECT * FROM comments WHERE uniqueid = %s " , (comment_id ,  ))
+          
+            if len(getcomment) == 0:
+                return jsonify(error="An error occurred!"), 400
+           
+            if userid == getuser[0]["id"] and getpost[0]["belongsto"] == getuser[0]["id"]:
+                
+                database.ExecuteQuery("DELETE FROM comments WHERE uniqueid = %s " , (comment_id , ))
+
+                return jsonify(message="Comment deleted!" , success=True) , 200
+            
+            elif userid == getcomment[0]["uid"]:
+                
+                database.ExecuteQuery("DELETE FROM comments WHERE uniqueid = %s " , (comment_id , ))
+                return jsonify(message="Comment deleted!" , success=True) , 200
+            
+            else:
+                return jsonify(error="Unauthorized action!"), 403
+
+
 
     except Exception as e:
-        print(e)
-
         return jsonify(error="Internal server error!"), 500
 
 

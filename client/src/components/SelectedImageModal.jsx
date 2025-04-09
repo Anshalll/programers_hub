@@ -122,7 +122,7 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
 
 
   const HandlePostComment = async () => {
-    const response = await Datasend({ url: "/postcomment", method: "POST" , data: {comment:Comment , postid: selectedImage.uniqueid } })
+    const response = await Datasend({ url: "/comments", method: "POST" , data: {comment:Comment , postid: selectedImage.uniqueid } })
 
     if (response.error) {
       CommetPostError()
@@ -176,9 +176,9 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
 
           {selectedImage.description.trim() !== "" ? <p className='rounded-b-2 p-[10px] shadow-lg bg-gray-900'>{Desc}{(selectedImage.description.length > 200 && Desc.length <= 200) ? <span className='text-[#FF6500] cursor-pointer' onClick={() => MoreDesc()}>more</span> : selectedImage.description.length > 200 && Desc.length > 200 ? <span className='text-[#FF6500] cursor-pointer' onClick={() => LessDesc()}>less</span> : <></>} </p> : <></>}
 
-          {selectedImage.allowcomments === 1 ? <Comments  SelectedImage={selectedImage}/> : <></>}
+          {selectedImage.allowcomments === 1 ? <Comments  SelectedImage={selectedImage}/> : <></> }
         </div>
-        <Inputcomment placeholder={"Comment something..."} HandlePostComment={HandlePostComment} Text={Comment} setText={setComment}/>
+      {selectedImage.allowcomments === 1 ?   <Inputcomment placeholder={"Comment something..."} HandlePostComment={HandlePostComment} Text={Comment} setText={setComment}/> : <></>}
 
 
       </div> : <UpdatePost setSelectedPost={setSelectedPost} SelectedPost={selectedImage} setUpdate={setUpdate} />
