@@ -40,7 +40,10 @@ def index():
         
       """
         userdata = database.ExecuteQuery(query , (session["username"], ))
-        userposts = database.ExecuteQuery("SELECT * FROM posts where belongsto = %s" , (userdata[0]["id"] ,))
+        userposts = database.ExecuteQuery(
+            "SELECT p.* , lp.uid AS hasliked , lp.pid FROM posts p LEFT JOIN post_likes lp on lp.uid = p.belongsto where belongsto = %s",
+            (userdata[0]["id"],)
+        )
         userdata.append(userposts)
         if len(userdata) == 0:
             return jsonify(error="An error ocuured"), 400
@@ -606,7 +609,7 @@ def getuser():
             return jsonify(logged=False), 401
         data = request.get_json()
         username = data.get("username")
-        
+    
         if  username.strip() == "":
             return jsonify(error="Username is required!"), 400
 
@@ -616,8 +619,13 @@ def getuser():
         where username = %s
         
       """
+        
+        currentuser = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (session["username"] , ))
+        if len(currentuser) == 0:
+            return jsonify(error="An error occurred!"), 400
         userdata = database.ExecuteQuery(query , (username, ))
-        userposts = database.ExecuteQuery("SELECT * FROM posts where belongsto = %s" , (userdata[0]["id"] ,))
+       
+        userposts = database.ExecuteQuery("SELECT p.*, lp.pid , lp.uid AS hasliked FROM posts p LEFT JOIN post_likes lp on lp.uid = %s WHERE p.belongsto = %s" , (currentuser[0]["id"] , userdata[0]["id"]))
         userdata.append(userposts)
         if len(userdata) == 0:
             return jsonify(error="An error ocuured"), 400
@@ -975,6 +983,69 @@ def pin_comment():
         print("Error:", e)
         return jsonify(error="Internal server error!"), 500
 
+
+
+@app.route("/api/likepost" , methods=["POST"])
+def like_post():
+    try:
+        if "username" not in session:
+            return jsonify(logged=False), 401
+
+        data = request.get_json()
+        post_id = data.get("postid")
+        action = data.get("action")
+
+        if not post_id or not action:
+            return jsonify(error="Post ID and Action are required!"), 400
+
+        if action not in ["like", "unlike"]:
+            return jsonify(error="Invalid action! Must be 'like' or 'unlike'."), 400
+
+        user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (session["username"],))
+        if len(user) == 0:
+            return jsonify(error="An error occurred!"), 400
+
+        getpost = database.ExecuteQuery("SELECT * FROM posts WHERE uniqueid = %s", (post_id,))
+
+        if len(getpost) == 0:
+            return jsonify(error="An error occurred!"), 400
+        checkLiked = database.ExecuteQuery(
+                "SELECT * FROM post_likes WHERE uid = %s AND pid = %s",
+                (user[0]["id"], post_id)
+        )
+        if action == "like":
+            
+            if len(checkLiked) == 0:
+                
+                database.ExecuteQuery(
+                    "UPDATE posts SET likes = likes + 1 WHERE uniqueid = %s",
+                    (post_id,)
+                )
+            database.ExecuteQuery(
+                "INSERT INTO post_likes (uid, pid) VALUES (%s, %s)",
+                (user[0]["id"], post_id)
+            )
+        
+        elif action == "unlike":
+
+            if len(checkLiked) > 0:
+                
+                database.ExecuteQuery(
+                    "UPDATE posts SET likes = likes - 1 WHERE uniqueid = %s AND likes > 0",
+                    (post_id,)
+                )
+        
+       
+                database.ExecuteQuery(
+                    "DELETE FROM post_likes WHERE uid = %s AND pid = %s",
+                    (user[0]["id"], post_id)
+                )
+
+        return jsonify(message=f"Post {action}d successfully!", success=True), 200
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify(error="Internal server error!"), 500
 Deleteotps()
 
 app.run(debug=True , port=8000 , host="0.0.0.0")

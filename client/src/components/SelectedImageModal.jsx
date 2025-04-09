@@ -16,6 +16,8 @@ import {setpostcomments} from '../redux/userdata/slice'
 import Comments from './Comments';
 import Inputcomment from './Inputcomment';
 import { useDispatch } from 'react-redux';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+
 export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
 
 
@@ -34,7 +36,7 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
     position: 'top-center'
   });
 
-  const CommetPostError = () => toast.error('An error occured!', {
+  const ErrorAction = () => toast.error('An error occured!', {
     duration: 2000,
     position: 'top-center'
   });
@@ -79,6 +81,26 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
       document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [])
+
+  const HandlePostLike = async (action) => {
+    const response = await Datasend({ url: "/likepost", method: "POST", data: { postid: selectedImage.uniqueid   , action} })
+    if (response.data) {
+      let post = JSON.parse(JSON.stringify(selectedImage))
+      if (action === "like") {
+        post.likes += 1
+        post.hasliked = data.id
+        post.pid = selectedImage.uniqueid
+      }
+      if (action === "unlike") {
+        post.likes -= 1
+        post.hasliked = null
+        post.pid = null
+
+      }
+      console.log(post)
+      setSelectedPost(post)
+    }
+  }
 
   useEffect(() => {
     if (Object.keys(selectedImage).length > 0) {
@@ -125,7 +147,7 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
     const response = await Datasend({ url: "/comments", method: "POST" , data: {comment:Comment , postid: selectedImage.uniqueid } })
 
     if (response.error) {
-      CommetPostError()
+      ErrorAction()
     }
     if (response.data) {
         
@@ -146,7 +168,7 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
         <div className='w-full mt-[20px] flex items-center justify-between '>
 
           <div className='flex  text-white items-center gap-[20px]'>
-            {<button className='flex cursor-pointer items-center gap-[3px]'><FavoriteBorderIcon sx={{ fontSize: 16 }} />{selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>}
+       <button onClick={() => HandlePostLike(selectedImage.hasliked == data.id ? "unlike" : "like")} className='flex cursor-pointer items-center gap-[3px]'> {selectedImage.hasliked === data.id ? <FavoriteIcon sx={{ fontSize: 16 , color: "crimson"}}/> : <FavoriteBorderIcon sx={{ fontSize: 16 }} /> } {selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>
             <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />{selectedImage.shares}</button>
             {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />{comments.length}</button> : <></>}
             <button><SendOutlinedIcon sx={{ fontSize: 16 }} /></button>
