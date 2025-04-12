@@ -40,7 +40,7 @@ export default function Sidebar() {
           `${isActive ? "text-[#FF6500]" : "text-white"} flex items-center gap-[20px]`
         }><Person2OutlinedIcon sx={{ fontSize: 22 }} />Profile</NavLink>
 
-        <NavLink to={"/communities"} className={({ isActive }) =>
+        <NavLink to={"/community"} className={({ isActive }) =>
           `${isActive ? "text-[#FF6500]" : "text-white"} flex items-center gap-[20px]`
         }><ForumOutlinedIcon sx={{ fontSize: 22 }} />Community</NavLink>
 
