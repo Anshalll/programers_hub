@@ -213,7 +213,7 @@ export default function CommunityRanking() {
 
   return (
     <Layout>
-      <div className='flex flex-col gap-[20px] text-[13px] w-full h-[calc(100%-80px)] p-[20px]'>
+      <div className='flex flex-col gap-[20px] text-[13px] w-full h-[100%] p-[20px]'>
         <div className='w-full h-[40px] bg-black flex items-center px-[20px] rounded-full justify-between '>
           <h1 className='text-[#FF6500]'>Community Ranking <MilitaryTechIcon sx={{ fontSize: 16 }} /></h1>
 

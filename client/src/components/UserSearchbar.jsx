@@ -44,9 +44,9 @@ export default function UserSearchbar() {
 
 
     return (
-        <div className=" flex w-[500px] z-[1] relative bg-black h-[50px] rounded-lg">
+        <div className=" flex w-full z-[1] relative text-white bg-gray-900  h-full rounded-lg">
             <input value={SearchedTerm} onChange={(e) => handleSearchedTerm(e.target.value)} type="text" placeholder='Search user' className='outline-none px-[10px] text-[13px] w-full focus:border focus:border-[#FF6500] rounded-lg' />
-        {SearchedTerm.trim() !== "" &&   <div className='absolute w-full max-h-[500px] flex flex-col overflow-y-auto gap-[20px] p-[10px] bg-black rounded-lg top-[52px]'>
+        {SearchedTerm.trim() !== "" &&   <div className='absolute w-full h-[400px] flex flex-col overflow-y-auto gap-[20px]  bg-black rounded-lg top-[52px]'>
                 {(SearchedUsers.length > 0 && !Loading) ? SearchedUsers.map((user, index) => (
                     <a href={`/profile?user=${user.username}`} key={index} className='flex gap-[10px] items-center p-[10px] bg-black hover:bg-gray-800 rounded-lg'>
                         <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${user.dp}`} alt="" className='w-[30px] h-[30px] rounded-full' />

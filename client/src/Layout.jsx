@@ -1,5 +1,4 @@
 import React from 'react'
-import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
 export default function Layout({ children }) {
   return (
@@ -10,8 +9,8 @@ export default function Layout({ children }) {
         </div>
 
       <div className='flex flex-col relative h-full w-[80%]'>
-        <Navbar />
-
+    
+    
         {children}
       </div>
     </div>
