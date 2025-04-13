@@ -12,8 +12,7 @@ import { useDispatch } from 'react-redux';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
-
-export default function Comments({ SelectedImage }) {
+export default function Comments({ SelectedImage  , ReplyState, setReplyState , setReplyUsername }) {
 
   const menuRef = useRef([]);
 
@@ -30,6 +29,15 @@ export default function Comments({ SelectedImage }) {
     position: 'top-center'
   });
 
+ 
+
+  const HandleReply = async (username,  postid) => {
+
+    setReplyState({ isOpen: true, id: postid })
+    setReplyUsername(username)
+
+
+  }
 
 
   const CommentDeleted = () => toast.success("Comment deleted!", {
@@ -157,6 +165,11 @@ export default function Comments({ SelectedImage }) {
 
   }
 
+  const CloseReply = () => {
+    setReplyState({ id: null , isOpen: false })
+    setReplyUsername("")
+  }
+
   return (
     <div className='Scroller flex text-white flex-col gap-[10px] w-full overflow-y-auto h-full'>
       {Comments.length > 0 ? (
@@ -195,13 +208,15 @@ export default function Comments({ SelectedImage }) {
 
                   <p className='text-[10px]'>{value.message}</p>
                   <div className='w-full flex items-center gap-[10px]'>
-                    <button className='text-[9px] text-gray-300 font-light'>
+                  {!ReplyState.isOpen &&     <button onClick={() => HandleReply(value.username, SelectedImage.uniqueid )} className='text-[9px] text-gray-300 font-light'>
                       Reply
-                    </button>
-                    <p className='text-[9px] text-[#FF6500] font-light'>
+                    </button> }
+                    {/* <button onClick={() => CloseReply()} className='hover:text-[#FF6500]'><CloseIcon sx={{ fontSize: 13 }}/></button> */}
+                    <p className='text-[9px]  text-[#FF6500] font-light'>
                       {value.postedon}
                     </p>
                   </div>
+               
                 </div>
                 <div className='flex flex-col items-center gap-[3px]'>
                   {(isAdmin || value.uid === userdata.id) && (

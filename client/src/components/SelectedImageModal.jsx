@@ -17,7 +17,7 @@ import Comments from './Comments';
 import Inputcomment from './Inputcomment';
 import { useDispatch } from 'react-redux';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-
+import Reply from './Reply';
 export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
 
 
@@ -30,6 +30,8 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
   const [Update, setUpdate] = useState(false)
   const [Comment, setComment] = useState("")
   const dispatch = useDispatch()
+  const [ReplyState, setReplyState] = useState({ isOpen: false , id: null  })
+  const [ReplyUsername, setReplyUsername] = useState("")
 
   const clipboardcopy = () => toast.success('Copied to clipboard', {
     duration: 2000,
@@ -143,6 +145,8 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
   }, [Update])
 
 
+
+
   const HandlePostComment = async () => {
     const response = await Datasend({ url: "/comments", method: "POST" , data: {comment:Comment , postid: selectedImage.uniqueid } })
 
@@ -198,9 +202,11 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
 
           {selectedImage.description.trim() !== "" ? <p className='rounded-b-2 p-[10px] shadow-lg bg-gray-900'>{Desc}{(selectedImage.description.length > 200 && Desc.length <= 200) ? <span className='text-[#FF6500] cursor-pointer' onClick={() => MoreDesc()}>more</span> : selectedImage.description.length > 200 && Desc.length > 200 ? <span className='text-[#FF6500] cursor-pointer' onClick={() => LessDesc()}>less</span> : <></>} </p> : <></>}
 
-          {selectedImage.allowcomments === 1 ? <Comments  SelectedImage={selectedImage}/> : <></> }
+          {selectedImage.allowcomments === 1 ? <Comments  SelectedImage={selectedImage} setReplyState={setReplyState} ReplyState={ReplyState} setReplyUsername={setReplyUsername}/> : <></> }
         </div>
-      {selectedImage.allowcomments === 1 ?   <Inputcomment placeholder={"Comment something..."} HandlePostComment={HandlePostComment} Text={Comment} setText={setComment}/> : <></>}
+      {selectedImage.allowcomments === 1 ? (!ReplyState.isOpen?  <Inputcomment placeholder={"Comment something..."} ActionFunction={HandlePostComment} Text={Comment} setText={setComment}/> :
+       <Reply ReplyUsername={ReplyUsername} /> 
+       ) : <></>}
 
 
       </div> : <UpdatePost setSelectedPost={setSelectedPost} SelectedPost={selectedImage} setUpdate={setUpdate} />

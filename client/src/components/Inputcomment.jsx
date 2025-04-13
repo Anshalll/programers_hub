@@ -5,7 +5,7 @@ import EmojiPicker from 'emoji-picker-react';
 import CloseIcon from '@mui/icons-material/Close';
 
 
-export default function Inputcomment({ HandlePostComment, Text, setText, placeholder }) {
+export default function Inputcomment({ ActionFunction, Text, setText, placeholder }) {
 
 
     const [isEmoji, setisEmoji] = useState(false)
@@ -16,7 +16,7 @@ export default function Inputcomment({ HandlePostComment, Text, setText, placeho
     }
 
     const Action = () => {
-        HandlePostComment()
+        ActionFunction()
         setisEmoji(false)
     }
 

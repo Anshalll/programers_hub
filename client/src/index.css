@@ -2,7 +2,6 @@
 
 :root{
     background-color: #0B192C;
- 
 }
 
 .itsjust{
@@ -27,6 +26,8 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+
 
 button{
   cursor: pointer;
