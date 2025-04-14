@@ -868,11 +868,15 @@ def get_comments(postid):
         data = postid
         user = database.ExecuteQuery("SELECT * FROM registers where username = %s" , (session["username"] ,))
 
-
+        getpost = database.ExecuteQuery("SELECT * FROM posts WHERE uniqueid = %s", (data,))
+        if len(getpost) == 0:
+            return jsonify(error="Post not found!"), 404
         if data: 
             comments = database.ExecuteQuery(f"SELECT  c.*, r.username , r.id, p.dp , l.likedby , l.commentid FROM comments c INNER JOIN registers r on r.id = c.uid LEFT JOIN profile p on p.id = c.uid LEFT JOIN comment_likes l on l.commentid = c.uniqueid AND l.likedby = %s  WHERE belongsto = %s ORDER BY c.pinned DESC , c.id DESC " , (user[0]["id"] ,  data,))
-           
-            return jsonify(comments=comments), 200
+
+
+            replies = database.ExecuteQuery("SELECT * FROM comment_replies WHERE pid = %s" , (data,))
+            return jsonify(comments=comments , replies=replies), 200
         else:
             jsonify(error="Post id is required!"), 400
     except Exception as e:
@@ -983,8 +987,6 @@ def pin_comment():
         print("Error:", e)
         return jsonify(error="Internal server error!"), 500
 
-
-
 @app.route("/api/likepost" , methods=["POST"])
 def like_post():
     try:
@@ -1047,5 +1049,46 @@ def like_post():
         print("Error:", e)
         return jsonify(error="Internal server error!"), 500
 Deleteotps()
+
+@app.route("/api/reply" , methods=["POST"])
+def reply_comment():
+    try:
+        if "username" not in session: 
+            return jsonify(logged=False) , 401
+        data =  request.get_json()
+        pid = data.get("pid", None)
+        user = data.get("user" , None)
+        message = data.get("message" , None)
+        cid= data.get("cid" , None)
+
+        if not all([pid, user, message, cid]):
+            return jsonify(error="All fields (pid, user, message, cid) are required!"), 400
+
+        check_pid = database.ExecuteQuery("SELECT * FROM posts WHERE uniqueid = %s", (pid,))
+        if len(check_pid) == 0:
+            return jsonify(error="Post not found!"), 404
+
+        check_cid = database.ExecuteQuery("SELECT * FROM comments WHERE uniqueid = %s", (cid,))
+        if len(check_cid) == 0:
+            return jsonify(error="Comment not found!"), 404
+
+        check_user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (user,))
+        if len(check_user) == 0:
+            return jsonify(error="User not found!"), 404
+
+        
+        reply_id = GeneratePostToken(20)
+        database.ExecuteQuery(
+            "INSERT INTO comment_replies (uid, cid, message, uniqueid, postedon , pid) VALUES (%s, %s, %s, %s, %s , %s)",
+            (check_user[0]["id"], cid, message.strip(), reply_id, GetMonthdate() , pid)
+        )
+        return jsonify(data = "Replied!") , 200
+    
+
+    except  Exception as e:
+        print(e)
+        return jsonify(erro="Internal server error!"), 500
+
+
 
 app.run(debug=True , port=8000 , host="0.0.0.0")

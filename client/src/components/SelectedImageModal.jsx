@@ -30,8 +30,10 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
   const [Update, setUpdate] = useState(false)
   const [Comment, setComment] = useState("")
   const dispatch = useDispatch()
-  const [ReplyState, setReplyState] = useState({ isOpen: false , id: null  })
+  const [ReplyState, setReplyState] = useState({ isOpen: false , id: null , cid: null })
   const [ReplyUsername, setReplyUsername] = useState("")
+
+
 
   const clipboardcopy = () => toast.success('Copied to clipboard', {
     duration: 2000,
@@ -156,10 +158,15 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
     if (response.data) {
         
       dispatch(setpostcomments([response.data.comment[0], ...comments]))
- 
+      
       setComment("")
     }
     
+  }
+
+  const CloseReply = () => {
+    setReplyState({ id: null , isOpen: false , cid: null })
+    setReplyUsername("")
   }
 
   return (
@@ -205,7 +212,7 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
           {selectedImage.allowcomments === 1 ? <Comments  SelectedImage={selectedImage} setReplyState={setReplyState} ReplyState={ReplyState} setReplyUsername={setReplyUsername}/> : <></> }
         </div>
       {selectedImage.allowcomments === 1 ? (!ReplyState.isOpen?  <Inputcomment placeholder={"Comment something..."} ActionFunction={HandlePostComment} Text={Comment} setText={setComment}/> :
-       <Reply ReplyUsername={ReplyUsername} /> 
+       <Reply ReplyState={ReplyState} CloseReply={CloseReply} ReplyUsername={ReplyUsername} /> 
        ) : <></>}
 
 
