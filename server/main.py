@@ -875,7 +875,8 @@ def get_comments(postid):
             comments = database.ExecuteQuery(f"SELECT  c.*, r.username , r.id, p.dp , l.likedby , l.commentid FROM comments c INNER JOIN registers r on r.id = c.uid LEFT JOIN profile p on p.id = c.uid LEFT JOIN comment_likes l on l.commentid = c.uniqueid AND l.likedby = %s  WHERE belongsto = %s ORDER BY c.pinned DESC , c.id DESC " , (user[0]["id"] ,  data,))
 
 
-            replies = database.ExecuteQuery("SELECT cr.* , p.id AS profileid , p.dp FROM comment_replies cr   INNER JOIN profile p on p.id = %s   WHERE cr.pid = %s" , (user[0]["id"] , data, ))
+            replies = database.ExecuteQuery("SELECT  cr.* , p.id AS profileid , p.dp , r.username AS whoReplied , r.id , crl.belongsto AS commentreplylikepid , crl.likedby AS hasliked FROM comment_replies cr INNER JOIN registers r on r.username = cr.username LEFT JOIN profile p on p.id = r.id  LEFT JOIN comment_replylikes crl on crl.likedby = %s  AND crl.belongsto = cr.uniqueid  WHERE cr.pid = %s " , (user[0]["id"] , data, ))
+        
             return jsonify(comments=comments , replies=replies), 200
         
         else:
@@ -891,30 +892,27 @@ def like_comment():
             return jsonify(logged=False), 401
 
         data = request.get_json()
-        comment_type = data.get("type")
         comment_id = data.get("id")
         action = data.get("action")
 
-        if not comment_type or not comment_id or not action:
+        if  not comment_id or not action:
             return jsonify(error="Type, Comment ID, and Action are required!"), 400
 
-        if comment_type not in ["comment", "reply"]:
-            return jsonify(error="Invalid type! Must be 'comment' or 'reply'."), 400
+       
 
         if action not in ["like", "unlike"]:
             return jsonify(error="Invalid action! Must be 'like' or 'unlike'."), 400
 
-        table = "comments" if comment_type == "comment" else "replies"
-
-        query = f"SELECT * FROM {table} WHERE uniqueid = %s"
+       
+        query = "SELECT * FROM comments WHERE uniqueid = %s"
         comment_data = database.ExecuteQuery(query, (comment_id,))
     
         if len(comment_data) == 0:
-            return jsonify(error=f"{comment_type.capitalize()} not found!"), 404
+            return jsonify(error="Comment not found!"), 404
         user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (session["username"] , ))
 
         if action == "like":
-            update_query = f"UPDATE {table} SET likes = likes + 1 WHERE uniqueid = %s"
+            update_query = f"UPDATE comments SET likes = likes + 1 WHERE uniqueid = %s"
             database.ExecuteQuery(update_query, (comment_id,))
             checkLiked = database.ExecuteQuery(
                 "SELECT * FROM comment_likes WHERE likedby = %s AND commentid = %s",
@@ -926,14 +924,14 @@ def like_comment():
                     (user[0]["id"], comment_id)
                 )
         elif action == "unlike":
-            update_query = f"UPDATE {table} SET likes = likes - 1 WHERE uniqueid = %s AND likes > 0"
+            update_query = f"UPDATE comments SET likes = likes - 1 WHERE uniqueid = %s AND likes > 0"
             database.ExecuteQuery(update_query, (comment_id,))
             database.ExecuteQuery(
                 "DELETE FROM comment_likes WHERE likedby = %s AND commentid = %s",
                 (user[0]["id"], comment_id)
             )
 
-        return jsonify(message=f"{comment_type.capitalize()} {action}d successfully!", success=True), 200
+        return jsonify(message="Comment {action} successfull!", success=True), 200
 
     except Exception as e:
         print("Error:", e)
@@ -1100,7 +1098,7 @@ def like_reply():
         data = request.get_json()
         reply_id = data.get("replyid")
         action = data.get("action")
-        comment_id = data.get("commentid")
+        
 
         if not reply_id or not action:
             return jsonify(error="Reply ID and Action are required!"), 400
@@ -1119,7 +1117,7 @@ def like_reply():
             return jsonify(error="Reply not found!"), 404
 
         checkLiked = database.ExecuteQuery(
-                    "SELECT * FROM comment_replylikes WHERE likedby = %s AND replyid = %s",
+                    "SELECT * FROM comment_replylikes WHERE likedby = %s AND belongsto = %s",
                     (user[0]["id"], reply_id)
                 )
 
@@ -1130,21 +1128,21 @@ def like_reply():
                             (reply_id,)
                         )
                 database.ExecuteQuery(
-                            "INSERT INTO comment_replylikes (likedby, replyid , belongsto) VALUES (%s, %s , %s)",
-                            (user[0]["id"], GeneratePostToken(20) , comment_id )
+                            "INSERT INTO comment_replylikes (likedby,   belongsto) VALUES (%s, %s )",
+                            (user[0]["id"],  reply_id )
                         )
-            elif action == "unlike":
+        elif action == "unlike":
                 if len(checkLiked) > 0:
                     database.ExecuteQuery(
                             "UPDATE comment_replies SET likes = likes - 1 WHERE uniqueid = %s AND likes > 0",
                             (reply_id,)
                         )
                     database.ExecuteQuery(
-                            "DELETE FROM reply_likes WHERE likedby = %s AND replyid = %s",
+                            "DELETE FROM comment_replylikes WHERE likedby = %s AND belongsto = %s",
                             (user[0]["id"], reply_id)
                         )
 
-            return jsonify(message=f"Reply {action}d successfully!", success=True), 200
+        return jsonify(message=f"Reply {action}d successfully!", success=True), 200
 
     except Exception as e:
         print("Error:", e)

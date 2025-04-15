@@ -12,6 +12,9 @@ import { useDispatch } from 'react-redux';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { setpostreplies } from '../redux/userdata/slice';
+
+
+
 export default function Comments({ SelectedImage, ReplyState, setReplyState, setReplyUsername }) {
 
   const menuRef = useRef([]);
@@ -139,9 +142,9 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
     }
   }, [SelectedImage, isLoading, data, error, dispatch, refetch])
 
-  const HandleCommentLike = async (type, id, action) => {
+  const HandleCommentLike = async ( id, action) => {
 
-    const response = await Send_data({ url: "/likecomment", method: "POST", data: { type, id, action } })
+    const response = await Send_data({ url: "/likecomment", method: "POST", data: { id, action } })
     if (response.error) {
       ErrorAction()
     }
@@ -167,8 +170,36 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
   }
 
 
-  const HandleReplyLike = async () => {
-    
+  const HandleReplyLike = async ( replyid , action) => {
+    console.log(replyid , action)
+    const response = await Send_data({ url: "/likereply" , method: "POST" , data: { replyid , action} })
+
+
+    if (response.error) {
+      ErrorAction()
+    }
+    if(response.data){
+     
+    const prdata = JSON.parse(JSON.stringify(PostReplies))
+     let findings = prdata.find((e) => e.uniqueid  === replyid)
+     if (action === "like"){
+      findings.likes +=1
+      findings.hasliked = userdata.id
+
+     }
+
+
+     if (action === "unlike"){
+      findings.likes -=1
+      findings.hasliked = null
+
+     }
+
+     dispatch(setpostreplies(prdata))
+
+
+    }
+
   }
 
 
@@ -253,7 +284,7 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
                   {value.likedby !== userdata.id ? (
                     <button
                       onClick={() =>
-                        HandleCommentLike("comment", value.uniqueid, "like")
+                        HandleCommentLike( value.uniqueid, "like")
                       }
                     >
                       <FavoriteBorderOutlinedIcon sx={{ fontSize: 11 }} />
@@ -261,7 +292,7 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
                   ) : (
                     <button
                       onClick={() =>
-                        HandleCommentLike("comment", value.uniqueid, "unlike")
+                        HandleCommentLike( value.uniqueid, "unlike")
                       }
                     >
                       <FavoriteIcon sx={{ fontSize: 11, color: pink[500] }} />
@@ -277,7 +308,7 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
               <div className='flex  flex-col text-[9px] gap-[20px] px-[50px]'>
 
                 {PostReplies.map((replyvalue, index) => (
-                  replyvalue.mentioneduser === value.username && <div key={index} className=''>
+                   <div key={index} className=''>
                     <div className='flex  gap-[10px] w-full'>
                       <img className='w-[20px] h-[20px] rounded-full object-cover' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${replyvalue.dp}`} alt="" />
                       <div className='w-full items-center flex justify-between'>
@@ -287,7 +318,7 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
                           <p> <span className='replyuser p-[2px]'>@{value.username}</span> {replyvalue.username}</p>
                           <p>{replyvalue.message}</p>
                           <div className='w-full flex items-center gap-[10px]'>
-                             <button onClick={() => HandleReplyLike()} className='text-[9px] text-gray-300 font-light'>
+                             <button  className='text-[9px] text-gray-300 font-light'>
                               Reply
                             </button>
 
@@ -305,11 +336,18 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
                           >
                             <MoreVertIcon sx={{ fontSize: 11 }} />
                           </button>
-                          <button
+                        { replyvalue.hasliked === userdata.id ?  <button
+                      onClick={() =>
+                        HandleReplyLike( replyvalue.uniqueid, "unlike")
+                      }
+                    >
+                      <FavoriteIcon sx={{ fontSize: 11, color: pink[500] }} />
+                    </button>
+                     :  <button onClick={() => HandleReplyLike(replyvalue.uniqueid, "like")}
                            
                           >
                             <FavoriteBorderOutlinedIcon sx={{ fontSize: 11 }} />
-                          </button>
+                          </button>}
                           <p className='text-white text-[9px]'>{replyvalue.likes}</p>
                         </div>
 
