@@ -875,8 +875,9 @@ def get_comments(postid):
             comments = database.ExecuteQuery(f"SELECT  c.*, r.username , r.id, p.dp , l.likedby , l.commentid FROM comments c INNER JOIN registers r on r.id = c.uid LEFT JOIN profile p on p.id = c.uid LEFT JOIN comment_likes l on l.commentid = c.uniqueid AND l.likedby = %s  WHERE belongsto = %s ORDER BY c.pinned DESC , c.id DESC " , (user[0]["id"] ,  data,))
 
 
-            replies = database.ExecuteQuery("SELECT * FROM comment_replies WHERE pid = %s" , (data,))
+            replies = database.ExecuteQuery("SELECT cr.* , p.id AS profileid , p.dp FROM comment_replies cr   INNER JOIN profile p on p.id = %s   WHERE cr.pid = %s" , (user[0]["id"] , data, ))
             return jsonify(comments=comments , replies=replies), 200
+        
         else:
             jsonify(error="Post id is required!"), 400
     except Exception as e:
@@ -1090,6 +1091,63 @@ def reply_comment():
         print(e)
         return jsonify(erro="Internal server error!"), 500
 
+@app.route("/api/likereply", methods=["POST"])
+def like_reply():
+    try:
+        if "username" not in session:
+            return jsonify(logged=False), 401
 
+        data = request.get_json()
+        reply_id = data.get("replyid")
+        action = data.get("action")
+        comment_id = data.get("commentid")
+
+        if not reply_id or not action:
+            return jsonify(error="Reply ID and Action are required!"), 400
+
+        if action not in ["like", "unlike"]:
+            return jsonify(error="Invalid action! Must be 'like' or 'unlike'."), 400
+
+        user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (session["username"],))
+        if len(user) == 0:
+            return jsonify(error="An error occurred!"), 400
+
+        query = "SELECT * FROM comment_replies WHERE uniqueid = %s"
+        reply_data = database.ExecuteQuery(query, (reply_id,))
+
+        if len(reply_data) == 0:
+            return jsonify(error="Reply not found!"), 404
+
+        checkLiked = database.ExecuteQuery(
+                    "SELECT * FROM comment_replylikes WHERE likedby = %s AND replyid = %s",
+                    (user[0]["id"], reply_id)
+                )
+
+        if action == "like":
+            if len(checkLiked) == 0:
+                database.ExecuteQuery(
+                            "UPDATE comment_replies SET likes = likes + 1 WHERE uniqueid = %s",
+                            (reply_id,)
+                        )
+                database.ExecuteQuery(
+                            "INSERT INTO comment_replylikes (likedby, replyid , belongsto) VALUES (%s, %s , %s)",
+                            (user[0]["id"], GeneratePostToken(20) , comment_id )
+                        )
+            elif action == "unlike":
+                if len(checkLiked) > 0:
+                    database.ExecuteQuery(
+                            "UPDATE comment_replies SET likes = likes - 1 WHERE uniqueid = %s AND likes > 0",
+                            (reply_id,)
+                        )
+                    database.ExecuteQuery(
+                            "DELETE FROM reply_likes WHERE likedby = %s AND replyid = %s",
+                            (user[0]["id"], reply_id)
+                        )
+
+            return jsonify(message=f"Reply {action}d successfully!", success=True), 200
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify(error="Internal server error!"), 500
 
 app.run(debug=True , port=8000 , host="0.0.0.0")

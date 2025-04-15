@@ -167,6 +167,10 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
   }
 
 
+  const HandleReplyLike = async () => {
+    
+  }
+
 
   return (
     <div className='Scroller flex text-white flex-col gap-[10px] w-full overflow-y-auto h-full'>
@@ -269,13 +273,51 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
                 </div>
 
               </div>
-                
-              <div className='flex flex-col text-[9px] gap-[20px] px-[20px]'>
-                    {PostReplies.map((value, index) => (
-                       <div className=''>
 
-                       </div>
-                    ))}
+              <div className='flex  flex-col text-[9px] gap-[20px] px-[50px]'>
+
+                {PostReplies.map((replyvalue, index) => (
+                  replyvalue.mentioneduser === value.username && <div key={index} className=''>
+                    <div className='flex  gap-[10px] w-full'>
+                      <img className='w-[20px] h-[20px] rounded-full object-cover' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${replyvalue.dp}`} alt="" />
+                      <div className='w-full items-center flex justify-between'>
+
+                        <div className='flex flex-col gap-[10px]'>
+
+                          <p> <span className='replyuser p-[2px]'>@{value.username}</span> {replyvalue.username}</p>
+                          <p>{replyvalue.message}</p>
+                          <div className='w-full flex items-center gap-[10px]'>
+                             <button onClick={() => HandleReplyLike()} className='text-[9px] text-gray-300 font-light'>
+                              Reply
+                            </button>
+
+                            <p className='text-[9px]  text-[#FF6500] font-light'>
+                              {replyvalue.postedon}
+                            </p>
+                          </div>
+
+                        </div>
+
+                        <div className='flex flex-col items-center gap-[3px]'>
+                          <button
+                            
+                            className='text-[#FF6500]'
+                          >
+                            <MoreVertIcon sx={{ fontSize: 11 }} />
+                          </button>
+                          <button
+                           
+                          >
+                            <FavoriteBorderOutlinedIcon sx={{ fontSize: 11 }} />
+                          </button>
+                          <p className='text-white text-[9px]'>{replyvalue.likes}</p>
+                        </div>
+
+                      </div>
+
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ))

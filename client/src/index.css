@@ -2,6 +2,7 @@
 
 :root{
     background-color: #0B192C;
+    --replyusername : rgba(0, 156, 255, 0.66)
 }
 
 .itsjust{
@@ -33,6 +34,9 @@ button{
   cursor: pointer;
 }
 
+.replyuser{
+  background-color: var(--replyusername);
+}
 
 
 .Scroller::-webkit-scrollbar {
