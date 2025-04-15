@@ -270,8 +270,12 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
 
               </div>
                 
-              <div >
+              <div className='flex flex-col text-[9px] gap-[20px] px-[20px]'>
+                    {PostReplies.map((value, index) => (
+                       <div className=''>
 
+                       </div>
+                    ))}
               </div>
             </div>
           ))

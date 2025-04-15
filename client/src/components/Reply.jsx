@@ -11,7 +11,7 @@ export default function Reply({ ReplyUsername, CloseReply, ReplyState }) {
   const HandleReply = async () => {
     if (ReplyMessage.trim() !== "") {
      
-      const response = await DataSend( {url:"reply" , method: "POST" ,  data: { user: ReplyUsername, cid: ReplyState.cid, pid: ReplyState.id  , message: ReplyMessage} })
+      const response = await DataSend( {url:"reply" , method: "POST" ,  data: { mentioneduser: ReplyUsername, cid: ReplyState.cid, pid: ReplyState.id  , message: ReplyMessage} })
 
       
       console.log(response)

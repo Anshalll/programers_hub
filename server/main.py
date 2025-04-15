@@ -1057,11 +1057,11 @@ def reply_comment():
             return jsonify(logged=False) , 401
         data =  request.get_json()
         pid = data.get("pid", None)
-        user = data.get("user" , None)
+        mentioneduser = data.get("mentioneduser" , None)
         message = data.get("message" , None)
         cid= data.get("cid" , None)
 
-        if not all([pid, user, message, cid]):
+        if not all([pid, mentioneduser, message, cid]):
             return jsonify(error="All fields (pid, user, message, cid) are required!"), 400
 
         check_pid = database.ExecuteQuery("SELECT * FROM posts WHERE uniqueid = %s", (pid,))
@@ -1072,15 +1072,16 @@ def reply_comment():
         if len(check_cid) == 0:
             return jsonify(error="Comment not found!"), 404
 
-        check_user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (user,))
+        check_user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (mentioneduser,))
         if len(check_user) == 0:
             return jsonify(error="User not found!"), 404
 
         
         reply_id = GeneratePostToken(20)
         database.ExecuteQuery(
-            "INSERT INTO comment_replies (uid, cid, message, uniqueid, postedon , pid) VALUES (%s, %s, %s, %s, %s , %s)",
-            (check_user[0]["id"], cid, message.strip(), reply_id, GetMonthdate() , pid)
+            "INSERT INTO comment_replies (mentioneduser, cid, message, uniqueid, postedon , pid , username) VALUES (%s, %s, %s, %s, %s , %s , %s" \
+            ")",
+            (mentioneduser, cid, message.strip(), reply_id, GetMonthdate() , pid , session["username"])
         )
         return jsonify(data = "Replied!") , 200
     
