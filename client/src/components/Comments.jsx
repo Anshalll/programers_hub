@@ -142,7 +142,7 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
     }
   }, [SelectedImage, isLoading, data, error, dispatch, refetch])
 
-  const HandleCommentLike = async ( id, action) => {
+  const HandleCommentLike = async (id, action) => {
 
     const response = await Send_data({ url: "/likecomment", method: "POST", data: { id, action } })
     if (response.error) {
@@ -170,32 +170,32 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
   }
 
 
-  const HandleReplyLike = async ( replyid , action) => {
-   
-    const response = await Send_data({ url: "/likereply" , method: "POST" , data: { replyid , action} })
+  const HandleReplyLike = async (replyid, action) => {
+
+    const response = await Send_data({ url: "/likereply", method: "POST", data: { replyid, action } })
 
 
     if (response.error) {
       ErrorAction()
     }
-    if(response.data){
-     
-    const prdata = JSON.parse(JSON.stringify(PostReplies))
-     let findings = prdata.find((e) => e.uniqueid  === replyid)
-     if (action === "like"){
-      findings.likes +=1
-      findings.hasliked = userdata.id
+    if (response.data) {
 
-     }
+      const prdata = JSON.parse(JSON.stringify(PostReplies))
+      let findings = prdata.find((e) => e.uniqueid === replyid)
+      if (action === "like") {
+        findings.likes += 1
+        findings.hasliked = userdata.id
+
+      }
 
 
-     if (action === "unlike"){
-      findings.likes -=1
-      findings.hasliked = null
+      if (action === "unlike") {
+        findings.likes -= 1
+        findings.hasliked = null
 
-     }
+      }
 
-     dispatch(setpostreplies(prdata))
+      dispatch(setpostreplies(prdata))
 
 
     }
@@ -284,7 +284,7 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
                   {value.likedby !== userdata.id ? (
                     <button
                       onClick={() =>
-                        HandleCommentLike( value.uniqueid, "like")
+                        HandleCommentLike(value.uniqueid, "like")
                       }
                     >
                       <FavoriteBorderOutlinedIcon sx={{ fontSize: 11 }} />
@@ -292,7 +292,7 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
                   ) : (
                     <button
                       onClick={() =>
-                        HandleCommentLike( value.uniqueid, "unlike")
+                        HandleCommentLike(value.uniqueid, "unlike")
                       }
                     >
                       <FavoriteIcon sx={{ fontSize: 11, color: pink[500] }} />
@@ -308,17 +308,17 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
               <div className='flex  flex-col text-[9px] gap-[20px] px-[50px]'>
 
                 {PostReplies.map((replyvalue, index) => (
-                   <div key={index} className=''>
+                 replyvalue.cid === value.uniqueid && <div key={index} className=''>
                     <div className='flex  gap-[10px] w-full'>
                       <img className='w-[20px] h-[20px] rounded-full object-cover' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${replyvalue.dp}`} alt="" />
                       <div className='w-full items-center flex justify-between'>
 
                         <div className='flex flex-col gap-[10px]'>
 
-                          <p> <span className='replyuser p-[2px]'>@{replyvalue.mentioneduser}</span> {replyvalue.username}</p>
-                          <p>{replyvalue.message}</p>
+                          <p>  {replyvalue.username}</p>
+                          <p className='flex itme-center gap-[3px]'><span className='replyuser p-[2px]'>@{replyvalue.mentioneduser}</span>{replyvalue.message}</p>
                           <div className='w-full flex items-center gap-[10px]'>
-                             <button onClick={() => HandleReplyState(replyvalue.username, replyvalue.pid, replyvalue.cid )}  className='text-[9px] text-gray-300 font-light'>
+                            <button onClick={() => HandleReplyState(replyvalue.username, replyvalue.pid, replyvalue.cid)} className='text-[9px] text-gray-300 font-light'>
                               Reply
                             </button>
 
@@ -331,23 +331,23 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
 
                         <div className='flex flex-col items-center gap-[3px]'>
                           <button
-                            
+
                             className='text-[#FF6500]'
                           >
                             <MoreVertIcon sx={{ fontSize: 11 }} />
                           </button>
-                        { replyvalue.hasliked === userdata.id ?  <button
-                      onClick={() =>
-                        HandleReplyLike( replyvalue.uniqueid, "unlike")
-                      }
-                    >
-                      <FavoriteIcon sx={{ fontSize: 11, color: pink[500] }} />
-                    </button>
-                     :  <button onClick={() => HandleReplyLike(replyvalue.uniqueid, "like")}
-                           
+                          {replyvalue.hasliked === userdata.id ? <button
+                            onClick={() =>
+                              HandleReplyLike(replyvalue.uniqueid, "unlike")
+                            }
                           >
-                            <FavoriteBorderOutlinedIcon sx={{ fontSize: 11 }} />
-                          </button>}
+                            <FavoriteIcon sx={{ fontSize: 11, color: pink[500] }} />
+                          </button>
+                            : <button onClick={() => HandleReplyLike(replyvalue.uniqueid, "like")}
+
+                            >
+                              <FavoriteBorderOutlinedIcon sx={{ fontSize: 11 }} />
+                            </button>}
                           <p className='text-white text-[9px]'>{replyvalue.likes}</p>
                         </div>
 

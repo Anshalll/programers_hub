@@ -214,7 +214,7 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
           {selectedImage.allowcomments === 1 ? <Comments  SelectedImage={selectedImage} setReplyState={setReplyState} ReplyState={ReplyState} setReplyUsername={setReplyUsername}/> : <></> }
         </div>
       {selectedImage.allowcomments === 1 ? (!ReplyState.isOpen?  <Inputcomment placeholder={"Comment something..."} ActionFunction={HandlePostComment} Text={Comment} setText={setComment}/> :
-       <Reply ReplyState={ReplyState} CloseReply={CloseReply} ReplyUsername={ReplyUsername} /> 
+       <Reply setReplyUsername={setReplyUsername} setReplyState={setReplyState}  ReplyState={ReplyState} CloseReply={CloseReply} ReplyUsername={ReplyUsername} /> 
        ) : <></>}
 
 
