@@ -875,7 +875,7 @@ def get_comments(postid):
             comments = database.ExecuteQuery(f"SELECT  c.*, r.username , r.id, p.dp , l.likedby , l.commentid FROM comments c INNER JOIN registers r on r.id = c.uid LEFT JOIN profile p on p.id = c.uid LEFT JOIN comment_likes l on l.commentid = c.uniqueid AND l.likedby = %s  WHERE belongsto = %s ORDER BY c.pinned DESC , c.id DESC " , (user[0]["id"] ,  data,))
 
 
-            replies = database.ExecuteQuery("SELECT  cr.* , p.id AS profileid , p.dp , r.username AS whoReplied , r.id , crl.belongsto AS commentreplylikepid , crl.likedby AS hasliked FROM comment_replies cr INNER JOIN registers r on r.username = cr.username LEFT JOIN profile p on p.id = r.id  LEFT JOIN comment_replylikes crl on crl.likedby = %s  AND crl.belongsto = cr.uniqueid  WHERE cr.pid = %s " , (user[0]["id"] , data, ))
+            replies = database.ExecuteQuery("SELECT  cr.* , p.id AS profileid , p.dp , r.username AS whoReplied , r.id , crl.belongsto AS commentreplylikepid , crl.likedby AS hasliked FROM comment_replies cr INNER JOIN registers r on r.username = cr.username LEFT JOIN profile p on p.id = r.id  LEFT JOIN comment_replylikes crl on crl.likedby = %s  AND crl.belongsto = cr.uniqueid   WHERE cr.pid = %s ORDER BY cr.id  DESC" , (user[0]["id"] , data, ))
         
             return jsonify(comments=comments , replies=replies), 200
         

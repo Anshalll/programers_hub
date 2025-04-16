@@ -18,11 +18,13 @@ import Inputcomment from './Inputcomment';
 import { useDispatch } from 'react-redux';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import Reply from './Reply';
+
+
 export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
 
 
   const [Desc, setDesc] = useState("")
-  const { data , comments } = useProfiledata()
+  const { data , comments , replies } = useProfiledata()
   const [isAdmin, setisAdmin] = useState(false)
   const [Datasend] = useSendDataMutation()
   const Optref = useRef(null)
@@ -181,7 +183,7 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
           <div className='flex  text-white items-center gap-[20px]'>
        <button onClick={() => HandlePostLike(selectedImage.hasliked == data.id ? "unlike" : "like")} className='flex cursor-pointer items-center gap-[3px]'> {selectedImage.hasliked === data.id ? <FavoriteIcon sx={{ fontSize: 16 , color: "crimson"}}/> : <FavoriteBorderIcon sx={{ fontSize: 16 }} /> } {selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>
             <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />{selectedImage.shares}</button>
-            {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />{comments.length}</button> : <></>}
+            {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />{comments.length + replies.length}</button> : <></>}
             <button><SendOutlinedIcon sx={{ fontSize: 16 }} /></button>
           </div>
 

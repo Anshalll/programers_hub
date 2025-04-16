@@ -171,7 +171,7 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
 
 
   const HandleReplyLike = async ( replyid , action) => {
-    console.log(replyid , action)
+   
     const response = await Send_data({ url: "/likereply" , method: "POST" , data: { replyid , action} })
 
 
@@ -315,10 +315,10 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
 
                         <div className='flex flex-col gap-[10px]'>
 
-                          <p> <span className='replyuser p-[2px]'>@{value.username}</span> {replyvalue.username}</p>
+                          <p> <span className='replyuser p-[2px]'>@{replyvalue.mentioneduser}</span> {replyvalue.username}</p>
                           <p>{replyvalue.message}</p>
                           <div className='w-full flex items-center gap-[10px]'>
-                             <button  className='text-[9px] text-gray-300 font-light'>
+                             <button onClick={() => HandleReplyState(replyvalue.username, replyvalue.pid, replyvalue.cid )}  className='text-[9px] text-gray-300 font-light'>
                               Reply
                             </button>
 
