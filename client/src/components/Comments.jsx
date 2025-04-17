@@ -67,6 +67,13 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
 
   }
 
+
+  const HandleReplyDelete = async (replyid , replypid) => {
+    const response  = await Send_data({ url: "/deletereply" , method: "DELETE" , data: {replyid , replypid} })
+    console.log(response)
+
+  }
+
   const PinComment = async (commentid, action, postid) => {
     const response = await Send_data({ url: "/pincomment", method: "POST", data: { commentid, action, postid } })
     if (response.data) {
@@ -308,7 +315,7 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
               <div className='flex  flex-col text-[9px] gap-[20px] px-[50px]'>
 
                 {PostReplies.map((replyvalue, index) => (
-                 replyvalue.cid === value.uniqueid && <div key={index} className=''>
+                  replyvalue.cid === value.uniqueid && <div key={index} className=''>
                     <div className='flex  gap-[10px] w-full'>
                       <img className='w-[20px] h-[20px] rounded-full object-cover' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${replyvalue.dp}`} alt="" />
                       <div className='w-full items-center flex justify-between'>
@@ -330,12 +337,33 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
                         </div>
 
                         <div className='flex flex-col items-center gap-[3px]'>
-                          <button
+                          {/* {(isAdmin || replyvalue.whoReplied === userdata.username) && */}
+                          
+                          
+                          {/* ( */}
+                            <div className='flex relative' ref={(el) => (menuRef.current[index] = el)}>
+                              <button
+                                onClick={() => HandleCommOpts(index)}
+                                className='text-[#FF6500]'
+                              >
+                                <MoreVertIcon sx={{ fontSize: 11 }} />
+                              </button>
+                              {isOpenCommentop.isOpen && index === isOpenCommentop.id ? (
+                                <div className='absolute w-[60px] flex flex-col gap-[10px] p-[7px] bg-gray-800 rounded-md right-[20px] text-[9px] text-white'>
 
-                            className='text-[#FF6500]'
-                          >
-                            <MoreVertIcon sx={{ fontSize: 11 }} />
-                          </button>
+                               
+                                    <button onClick={() => HandleReplyDelete(replyvalue.uniqueid , replyvalue.pid)} className='flex text-[crimson] items-center gap-[3px]'>
+                                      <DeleteOutlineIcon sx={{ fontSize: 10 }} /> Delete
+                                    </button>
+                               
+                                </div>
+                              ) : null}
+                            </div>
+                          {/* )
+                          
+                          } */}
+
+
                           {replyvalue.hasliked === userdata.id ? <button
                             onClick={() =>
                               HandleReplyLike(replyvalue.uniqueid, "unlike")

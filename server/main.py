@@ -1093,6 +1093,54 @@ def reply_comment():
         print(e)
         return jsonify(erro="Internal server error!"), 500
 
+
+@app.route("/api/deletereply" , methods=["DELETE"])
+def del_reply():
+    try:
+        
+
+        if "username" not in session :
+            return jsonify(logged=False) , 403
+        
+        data = request.get_json()
+        print(data)
+        replyid = data.get("replyid")
+        replypid = data.get("replypid")
+
+        if replyid == None or replypid == None:
+             return jsonify(error="An error occured!") , 400
+        
+        user  = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (session["username"],))
+
+
+        if len(user) == 0:
+            return jsonify(error="An error occured") , 400
+        
+        check_reply = database.ExecuteQuery("SELECT * FROM comment_replies WHERE uniqueid = %s AND pid = %s" , (replyid ,replypid ,  ))
+       
+        if len(check_reply) == 0:
+                return jsonify(error="An error occured!") , 400
+
+        if  check_reply[0]["username"] == session["username"]:
+            
+            return jsonify(data="Reply deleted!"), 200
+    
+        else:
+            get_user_posts = database.ExecuteQuery("SELECT * FROM posts WHERE uniqueid = %s" , (replypid , ))
+            if len(get_user_posts) == 0:
+                return jsonify(error="An error occured!") , 400
+            
+            if get_user_posts[0]["belongsto"] == user[0]["id"]:
+                return jsonify(data="Reply deleted!"), 200
+            else:
+
+                return jsonify(error="Unauthorized action!") , 403
+
+       
+    except Exception as e:
+        print(e)
+        return jsonify(error="Internal server error!") , 500
+
 @app.route("/api/likereply", methods=["POST"])
 def like_reply():
     try:
