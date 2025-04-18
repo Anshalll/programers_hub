@@ -12,7 +12,7 @@ import { useDispatch } from 'react-redux';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { setpostreplies } from '../redux/userdata/slice';
-
+import CommentReplies from './CommentReplies';
 
 
 export default function Comments({ SelectedImage, ReplyState, setReplyState, setReplyUsername }) {
@@ -311,80 +311,7 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
                 </div>
 
               </div>
-
-              <div className='flex  flex-col text-[9px] gap-[20px] px-[50px]'>
-
-                {PostReplies.map((replyvalue, index) => (
-                  replyvalue.cid === value.uniqueid && <div key={index} className=''>
-                    <div className='flex  gap-[10px] w-full'>
-                      <img className='w-[20px] h-[20px] rounded-full object-cover' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${replyvalue.dp}`} alt="" />
-                      <div className='w-full items-center flex justify-between'>
-
-                        <div className='flex flex-col gap-[10px]'>
-
-                          <p>  {replyvalue.username}</p>
-                          <p className='flex itme-center gap-[3px]'><span className='replyuser p-[2px]'>@{replyvalue.mentioneduser}</span>{replyvalue.message}</p>
-                          <div className='w-full flex items-center gap-[10px]'>
-                            <button onClick={() => HandleReplyState(replyvalue.username, replyvalue.pid, replyvalue.cid)} className='text-[9px] text-gray-300 font-light'>
-                              Reply
-                            </button>
-
-                            <p className='text-[9px]  text-[#FF6500] font-light'>
-                              {replyvalue.postedon}
-                            </p>
-                          </div>
-
-                        </div>
-
-                        <div className='flex flex-col items-center gap-[3px]'>
-                          {/* {(isAdmin || replyvalue.whoReplied === userdata.username) && */}
-                          
-                          
-                          {/* ( */}
-                            <div className='flex relative' ref={(el) => (menuRef.current[index] = el)}>
-                              <button
-                                onClick={() => HandleCommOpts(index)}
-                                className='text-[#FF6500]'
-                              >
-                                <MoreVertIcon sx={{ fontSize: 11 }} />
-                              </button>
-                              {isOpenCommentop.isOpen && index === isOpenCommentop.id ? (
-                                <div className='absolute w-[60px] flex flex-col gap-[10px] p-[7px] bg-gray-800 rounded-md right-[20px] text-[9px] text-white'>
-
-                               
-                                    <button onClick={() => HandleReplyDelete(replyvalue.uniqueid , replyvalue.pid)} className='flex text-[crimson] items-center gap-[3px]'>
-                                      <DeleteOutlineIcon sx={{ fontSize: 10 }} /> Delete
-                                    </button>
-                               
-                                </div>
-                              ) : null}
-                            </div>
-                          {/* )
-                          
-                          } */}
-
-
-                          {replyvalue.hasliked === userdata.id ? <button
-                            onClick={() =>
-                              HandleReplyLike(replyvalue.uniqueid, "unlike")
-                            }
-                          >
-                            <FavoriteIcon sx={{ fontSize: 11, color: pink[500] }} />
-                          </button>
-                            : <button onClick={() => HandleReplyLike(replyvalue.uniqueid, "like")}
-
-                            >
-                              <FavoriteBorderOutlinedIcon sx={{ fontSize: 11 }} />
-                            </button>}
-                          <p className='text-white text-[9px]'>{replyvalue.likes}</p>
-                        </div>
-
-                      </div>
-
-                    </div>
-                  </div>
-                ))}
-              </div>
+                <CommentReplies userid={userdata.id} HandleReplyDelete={HandleReplyDelete} HandleReplyLike={HandleReplyLike} HandleReplyState={HandleReplyState} value={value} PostReplies={PostReplies}/>
             </div>
           ))
         )
