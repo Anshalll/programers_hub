@@ -1,7 +1,7 @@
 import React ,   {useState} from 'react'
 import Layout from '../Layout'
 import { useSendImagedataMutation } from '../redux/apis/slice'
-
+import toast, { Toaster } from 'react-hot-toast';
 export default function CreatePost() {
 
 
@@ -12,9 +12,8 @@ export default function CreatePost() {
   const [ShareTocommunity , setShareTocommunity] = useState(false)
   const [Imagetosend , setImagetosend] = useState(null)
   const [PostData] = useSendImagedataMutation()
-  const [Error, setError] = useState("")
-  const [Message, setMessage] = useState("")
-  
+
+
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -24,6 +23,17 @@ export default function CreatePost() {
       setImagetosend(file)
     } 
   };
+
+
+  const ErrorToast = (e) => toast.error(e  , {
+    duration: 1500,
+    position: "top-center"
+  })
+
+  const UploadToast = (e) => toast.success(e  , {
+    duration: 1500,
+    position: "top-center"
+  })
 
 
   const handlePostData = async () => {
@@ -36,10 +46,8 @@ export default function CreatePost() {
       formdata.append("sharetocommunity" , ShareTocommunity)
       const response = await PostData({  url: '/uploadpost' , method: "POST" , data: formdata })
       if (response.error?.data.error) {
-        setError(response.error?.data.error)
-        setTimeout(() => {
-          setError("")
-        } , 3000)
+        ErrorToast(response.error?.data.error)
+
       }
       else{
         setImagetosend(null)
@@ -48,18 +56,14 @@ export default function CreatePost() {
         setAllowComments(true)
         setDescription("")
         setShareTocommunity(false)
-        setMessage("Post uploaded!")
-        setTimeout(() => {
-          setMessage("")
-        } , 3000)
+        UploadToast("Post uploaded!")
+      
       }
 
     }
     else{
-      setError("Please select a post to upload!")
-      setTimeout(() => {
-        setError("")
-      } , 3000)
+      ErrorToast("Please select a post to upload!")
+     
     }
   }
 
@@ -68,7 +72,7 @@ export default function CreatePost() {
     <Layout>
 
     <div className='flex items-center w-full h-full  justify-center'>
-
+    <Toaster/>
 
     <div className="w-[70%] flex flex-col gap-[20px]  p-4 h-[80%]  rounded-lg shadow-lg bg-black text-white">
       <div className='w-full flex  items-center justify-between'>
@@ -76,8 +80,7 @@ export default function CreatePost() {
       <h2 className="  text-[#FF6500]">Create a Post</h2>
       
       </div>
-      {Error &&  <p className='bg-[crimson] rounded-md text-white px-[10px]'>{Error}</p> }
-      {Message &&  <p className='bg-green-500 rounded-md text-white px-[10px]'>{Message}</p> }
+      
       <div className="flex gap-4 h-full w-full">
         {/* Image Upload Section */}
         <div className="w-1/2  h-[90%] rounded-lg flex items-center justify-center p-2 bg-gray-900">

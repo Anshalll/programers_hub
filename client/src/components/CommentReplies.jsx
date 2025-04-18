@@ -55,7 +55,8 @@ export default function CommentReplies({userid , HandleReplyDelete , HandleReply
 
             <div className='flex flex-col gap-[10px]'>
 
-              <p>  {replyvalue.username}</p>
+           <a href={`${import.meta.env.VITE_CLIENTLOCAL}/profile?user=${replyvalue.username}`}> {replyvalue.username} </a> 
+
               <p className='flex itme-center gap-[3px]'><span className='replyuser p-[2px]'>@{replyvalue.mentioneduser}</span>{replyvalue.message}</p>
               <div className='w-full flex items-center gap-[10px]'>
                 <button onClick={() => HandleReplyState(replyvalue.username, replyvalue.pid, replyvalue.cid)} className='text-[9px] text-gray-300 font-light'>

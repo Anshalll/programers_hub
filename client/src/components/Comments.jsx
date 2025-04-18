@@ -32,6 +32,10 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
     position: 'top-center'
   });
 
+  const DeletedReply = () => toast.success("Reply deleted!", {
+    duration: 1500,
+    position: 'top-center'
+  });
 
 
   const HandleReplyState = async (username, postid, cid) => {
@@ -70,7 +74,17 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
 
   const HandleReplyDelete = async (replyid , replypid) => {
     const response  = await Send_data({ url: "/deletereply" , method: "DELETE" , data: {replyid , replypid} })
-    console.log(response)
+    if (response.data) {
+        const reply_data = JSON.parse(JSON.stringify(PostReplies))
+        const  filter_reply = reply_data.filter((e) => e.uniqueid !== replyid)
+        dispatch(setpostreplies(filter_reply))
+        DeletedReply()
+
+      }
+    if (response.error) {
+        ErrorAction()
+
+    }
 
   }
 
