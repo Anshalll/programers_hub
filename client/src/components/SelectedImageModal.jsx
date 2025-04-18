@@ -8,11 +8,11 @@ import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import ModeEditOutlinedIcon from '@mui/icons-material/ModeEditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
-import { useProfiledata  } from '../hooks/useProfiledata'
+import { useProfiledata } from '../hooks/useProfiledata'
 import { useSendDataMutation } from '../redux/apis/slice';
 import toast, { Toaster } from 'react-hot-toast';
 import UpdatePost from './UpdatePost';
-import {setpostcomments} from '../redux/userdata/slice'
+import { setpostcomments } from '../redux/userdata/slice'
 import Comments from './Comments';
 import Inputcomment from './Inputcomment';
 import { useDispatch } from 'react-redux';
@@ -24,7 +24,7 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
 
 
   const [Desc, setDesc] = useState("")
-  const { data , comments , replies } = useProfiledata()
+  const { data, comments, replies } = useProfiledata()
   const [isAdmin, setisAdmin] = useState(false)
   const [Datasend] = useSendDataMutation()
   const Optref = useRef(null)
@@ -32,7 +32,7 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
   const [Update, setUpdate] = useState(false)
   const [Comment, setComment] = useState("")
   const dispatch = useDispatch()
-  const [ReplyState, setReplyState] = useState({ isOpen: false , id: null , cid: null })
+  const [ReplyState, setReplyState] = useState({ isOpen: false, id: null, cid: null })
   const [ReplyUsername, setReplyUsername] = useState("")
 
 
@@ -89,7 +89,7 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
   }, [])
 
   const HandlePostLike = async (action) => {
-    const response = await Datasend({ url: "/likepost", method: "POST", data: { postid: selectedImage.uniqueid   , action} })
+    const response = await Datasend({ url: "/likepost", method: "POST", data: { postid: selectedImage.uniqueid, action } })
     if (response.data) {
       let post = JSON.parse(JSON.stringify(selectedImage))
       if (action === "like") {
@@ -152,22 +152,22 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
 
 
   const HandlePostComment = async () => {
-    const response = await Datasend({ url: "/comments", method: "POST" , data: {comment:Comment , postid: selectedImage.uniqueid } })
+    const response = await Datasend({ url: "/comments", method: "POST", data: { comment: Comment, postid: selectedImage.uniqueid } })
 
     if (response.error) {
       ErrorAction()
     }
     if (response.data) {
-        
+
       dispatch(setpostcomments([response.data.comment[0], ...comments]))
-      
+
       setComment("")
     }
-    
+
   }
 
   const CloseReply = () => {
-    setReplyState({ id: null , isOpen: false , cid: null })
+    setReplyState({ id: null, isOpen: false, cid: null })
     setReplyUsername("")
   }
 
@@ -177,11 +177,11 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
 
       <div className='w-[50%] h-full'>
         <Toaster />
-        <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${selectedImage.filename}`} className="w-full h-[90%] object-cover" alt="" />
+        <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${selectedImage.filename}`} className="w-full h-[90%] object-contain" alt="" />
         <div className='w-full mt-[20px] flex items-center justify-between '>
 
           <div className='flex  text-white items-center gap-[20px]'>
-       <button onClick={() => HandlePostLike(selectedImage.hasliked == data.id ? "unlike" : "like")} className='flex cursor-pointer items-center gap-[3px]'> {selectedImage.hasliked === data.id ? <FavoriteIcon sx={{ fontSize: 16 , color: "crimson"}}/> : <FavoriteBorderIcon sx={{ fontSize: 16 }} /> } {selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>
+            <button onClick={() => HandlePostLike(selectedImage.hasliked == data.id ? "unlike" : "like")} className='flex cursor-pointer items-center gap-[3px]'> {selectedImage.hasliked === data.id ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} {selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>
             <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />{selectedImage.shares}</button>
             {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />{comments.length + replies.length}</button> : <></>}
             <button><SendOutlinedIcon sx={{ fontSize: 16 }} /></button>
@@ -211,11 +211,11 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
 
           {selectedImage.description.trim() !== "" ? <p className='rounded-b-2 p-[10px] shadow-lg bg-gray-900'>{Desc}{(selectedImage.description.length > 200 && Desc.length <= 200) ? <span className='text-[#FF6500] cursor-pointer' onClick={() => MoreDesc()}>more</span> : selectedImage.description.length > 200 && Desc.length > 200 ? <span className='text-[#FF6500] cursor-pointer' onClick={() => LessDesc()}>less</span> : <></>} </p> : <></>}
 
-          {selectedImage.allowcomments === 1 ? <Comments  SelectedImage={selectedImage} setReplyState={setReplyState} ReplyState={ReplyState} setReplyUsername={setReplyUsername}/> : <></> }
+          {selectedImage.allowcomments === 1 ? <Comments SelectedImage={selectedImage} setReplyState={setReplyState} ReplyState={ReplyState} setReplyUsername={setReplyUsername} /> : <></>}
         </div>
-      {selectedImage.allowcomments === 1 ? (!ReplyState.isOpen?  <Inputcomment placeholder={"Comment something..."} ActionFunction={HandlePostComment} Text={Comment} setText={setComment}/> :
-       <Reply setReplyUsername={setReplyUsername} setReplyState={setReplyState}  ReplyState={ReplyState} CloseReply={CloseReply} ReplyUsername={ReplyUsername} /> 
-       ) : <></>}
+        {selectedImage.allowcomments === 1 ? (!ReplyState.isOpen ? <Inputcomment placeholder={"Comment something..."} ActionFunction={HandlePostComment} Text={Comment} setText={setComment} /> :
+          <Reply setReplyUsername={setReplyUsername} setReplyState={setReplyState} ReplyState={ReplyState} CloseReply={CloseReply} ReplyUsername={ReplyUsername} />
+        ) : <></>}
 
 
       </div> : <UpdatePost setSelectedPost={setSelectedPost} SelectedPost={selectedImage} setUpdate={setUpdate} />

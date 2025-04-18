@@ -12,7 +12,9 @@
 .itsjustbtw{
     @apply flex justify-between items-center;
 }
-
+textarea {
+  resize: none;
+}
 .its{
     @apply flex items-center;
 }

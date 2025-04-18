@@ -2,6 +2,10 @@ import React ,   {useState} from 'react'
 import Layout from '../Layout'
 import { useSendImagedataMutation } from '../redux/apis/slice'
 import toast, { Toaster } from 'react-hot-toast';
+import Inputcomment from '../components/Inputcomment';
+
+
+
 export default function CreatePost() {
 
 
@@ -101,13 +105,9 @@ export default function CreatePost() {
 
         {/* Post Details Section */}
         <div className="w-2/3">
-          <textarea
-            className="w-full bg-gray-900 p-2  rounded-lg resize-none"
-            rows="7"
-            placeholder="Write a description..."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          ></textarea>
+        
+
+          <Inputcomment Position={"top-[130px]"} row={5} rounded={"lg"} type={"textarea"} ShowBtn={false} Text={description} setText={setDescription} placeholder={"Write a description..."} />
 
           <div className="flex flex-col items-center w-full gap-4 mt-3">
             <label className="flex items-center w-full gap-1 cursor-pointer">

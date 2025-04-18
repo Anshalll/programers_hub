@@ -5,7 +5,7 @@ import EmojiPicker from 'emoji-picker-react';
 import CloseIcon from '@mui/icons-material/Close';
 
 
-export default function Inputcomment({ ActionFunction, Text, setText, placeholder }) {
+export default function Inputcomment({Position="bottom-[250px]" , row=2, ActionFunction, Text, setText, placeholder, ShowBtn = true, type = "input" , rounded="full"}) {
 
 
     const [isEmoji, setisEmoji] = useState(false)
@@ -21,16 +21,17 @@ export default function Inputcomment({ ActionFunction, Text, setText, placeholde
     }
 
     return (
-        <div className='flex relative w-full items-center border-2 border-gra-300 p-[7px] rounded-full'>
-            {!isEmoji ? <button onClick={() => setisEmoji(true)}><InsertEmoticonIcon sx={{ fontSize: 16 }} /></button> : <button onClick={() => setisEmoji(false)}><CloseIcon sx={{ fontSize: 16 }} /></button>}
+        <div className={`flex ${type === "textarea" ? " flex-col-reverse" : "flex-row"} relative w-full ${type === "textarea" ? "justify-center" : "items-center"} border-2 border-gray-300 p-[7px] rounded-${rounded}`}>
+            {!isEmoji ? <button className='w-max' onClick={() => setisEmoji(true)}><InsertEmoticonIcon sx={{ fontSize: 16 }} /></button> : <button className='w-max' onClick={() => setisEmoji(false)}><CloseIcon sx={{ fontSize: 16 }} /></button>}
 
-            <input onFocus={() => setisEmoji(false)} value={Text} onChange={(e) => setText(e.target.value)} type="text" className='rounded-lg px-[20px] bg-transparent focus:outline-none w-full' placeholder={placeholder} />
-            {isEmoji ? <div className='absolute w-[200px] bottom-[250px] h-[200px]'>
+            {type === "input" ? <input onFocus={() => setisEmoji(false)} value={Text} onChange={(e) => setText(e.target.value)} type="text" className='rounded-lg px-[20px] bg-transparent focus:outline-none w-full' placeholder={placeholder} /> : <textarea className='outline-none' rows={row} placeholder={placeholder} value={Text} onChange={(e) => setText(e.target.value)}></textarea>}
+
+            {isEmoji ? <div className={`absolute w-[200px] ${Position} h-[200px]`}>
 
                 <EmojiPicker onEmojiClick={HandleEmoji} width={400} height={400} />
             </div> : <></>}
 
-            <button onClick={() => Action()}><SendIcon sx={{ fontSize: 16 }} /></button>
+            {ShowBtn && <button onClick={() => Action()}><SendIcon sx={{ fontSize: 16 }} /></button>}
         </div>
     )
 }
