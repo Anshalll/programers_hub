@@ -20,11 +20,11 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import Reply from './Reply';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
-export default function SelectedImageModal({ setselecteduserImage, selecteduserImage }) {
+export default function SelectedImageModal({userPosts:post, setselecteduserImage, selecteduserImage }) {
 
 
   const [Desc, setDesc] = useState("")
-  const { data, comments, replies, post } = useProfiledata()
+  const { data, comments, replies } = useProfiledata()
   const [isAdmin, setisAdmin] = useState(false)
   const [Datasend] = useSendDataMutation()
   const Optref = useRef(null)
@@ -44,7 +44,7 @@ export default function SelectedImageModal({ setselecteduserImage, selecteduserI
   useEffect(() => {
 
     if (selecteduserImage !== null && selecteduserImage >= 0) {
-      console.log(post[selecteduserImage])
+     
       setSelectedPost(post[selecteduserImage])
     }
   }, [selecteduserImage, post])

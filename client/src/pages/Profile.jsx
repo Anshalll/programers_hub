@@ -93,7 +93,7 @@ export default function Profile() {
           Object.keys(data).length > 0 &&
           <>
             {(SelectedPost >= 0 && SelectedPost !== null) ? <div className='w-full z-1 absolute h-full flex items-center justify-center'>
-              <SelectedImageModel setselecteduserImage={setSelectedPost} selecteduserImage={SelectedPost} />
+              <SelectedImageModel userPosts={Userposts}  setselecteduserImage={setSelectedPost} selecteduserImage={SelectedPost} />
             </div> : <></>}
 
             <div className={`flex flex-col  bg-white h-screen max-w-[1500px] overflow-y-auto p-[20px]`}>
