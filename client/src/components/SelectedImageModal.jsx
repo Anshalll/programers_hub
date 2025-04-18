@@ -18,13 +18,13 @@ import Inputcomment from './Inputcomment';
 import { useDispatch } from 'react-redux';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import Reply from './Reply';
-
-
-export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
+export default function SelectedImageModal({ setselecteduserImage, selecteduserImage }) {
 
 
   const [Desc, setDesc] = useState("")
-  const { data, comments, replies } = useProfiledata()
+  const { data, comments, replies, post } = useProfiledata()
   const [isAdmin, setisAdmin] = useState(false)
   const [Datasend] = useSendDataMutation()
   const Optref = useRef(null)
@@ -34,8 +34,20 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
   const dispatch = useDispatch()
   const [ReplyState, setReplyState] = useState({ isOpen: false, id: null, cid: null })
   const [ReplyUsername, setReplyUsername] = useState("")
+  const [selectedImage, setSelectedPost] = useState({})
 
+  const HandlePostClose = () => {
+    setSelectedPost({})
+    setselecteduserImage(null)
+  }
 
+  useEffect(() => {
+
+    if (selecteduserImage !== null && selecteduserImage >= 0) {
+      console.log(post[selecteduserImage])
+      setSelectedPost(post[selecteduserImage])
+    }
+  }, [selecteduserImage, post])
 
   const clipboardcopy = () => toast.success('Copied to clipboard', {
     duration: 2000,
@@ -103,12 +115,13 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
         post.pid = null
 
       }
-      console.log(post)
+
       setSelectedPost(post)
     }
   }
 
   useEffect(() => {
+
     if (Object.keys(selectedImage).length > 0) {
 
 
@@ -171,56 +184,68 @@ export default function SelectedImageModal({ setSelectedPost, selectedImage }) {
     setReplyUsername("")
   }
 
+  const HandleSelectedImage = (index) => {
+    setselecteduserImage(index)
+    console.log(selecteduserImage <= post.length -1)
+  }
+
   return (
+    <>
+      {Object.keys(selectedImage).length > 0 &&  <div className='w-[700px] relative p-[10px] gap-[20px] flex items-center justify-center rounded-lg h-[500px] bg-black'>
 
-    <div className='w-[700px] p-[10px] gap-[20px] flex items-center justify-center rounded-lg h-[500px] bg-black'>
+       {selecteduserImage !== null && selecteduserImage > 0?  <button onClick={() => HandleSelectedImage(selecteduserImage-1)} className="absolute left-[-10px] hover:text-[#FF6500] text-white bg-gray-900 rounded-full"><NavigateBeforeIcon /></button> : <></>}
 
-      <div className='w-[50%] h-full'>
-        <Toaster />
-        <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${selectedImage.filename}`} className="w-full h-[90%] object-contain" alt="" />
-        <div className='w-full mt-[20px] flex items-center justify-between '>
+        <div className='w-[50%] h-full'>
+          <Toaster />
+          <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${selectedImage.filename}`} className="w-full h-[90%] object-contain" alt="" />
+          <div className='w-full mt-[20px] flex items-center justify-between '>
 
-          <div className='flex  text-white items-center gap-[20px]'>
-            <button onClick={() => HandlePostLike(selectedImage.hasliked == data.id ? "unlike" : "like")} className='flex cursor-pointer items-center gap-[3px]'> {selectedImage.hasliked === data.id ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} {selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>
-            <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />{selectedImage.shares}</button>
-            {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />{comments.length + replies.length}</button> : <></>}
-            <button><SendOutlinedIcon sx={{ fontSize: 16 }} /></button>
+            <div className='flex  text-white items-center gap-[20px]'>
+              <button onClick={() => HandlePostLike(selectedImage.hasliked == data.id ? "unlike" : "like")} className='flex cursor-pointer items-center gap-[3px]'> {selectedImage.hasliked === data.id ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} {selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>
+              <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />{selectedImage.shares}</button>
+              {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />{comments.length + replies.length}</button> : <></>}
+              <button><SendOutlinedIcon sx={{ fontSize: 16 }} /></button>
+            </div>
+
+            <p className='text-gray-300  text-[10px]'>{selectedImage.dateposted}</p>
           </div>
 
-          <p className='text-gray-300  text-[10px]'>{selectedImage.dateposted}</p>
         </div>
 
-      </div>
+        {!Update ? <div className='flex flex-col  text-white w-[50%] h-full gap-[20px]'>
+          <div className='w-full flex border-b border-[#FF6500] items-center h-[30px] justify-between'>
+            <div ref={Optref} className='flex flex-col relative'>
 
-      {!Update ? <div className='flex flex-col  text-white w-[50%] h-full gap-[20px]'>
-        <div className='w-full flex border-b border-[#FF6500] items-center h-[30px] justify-between'>
-          <div ref={Optref} className='flex flex-col relative'>
-
-            <button onClick={() => HandleMoreVert()} className='cursor-pointer'><MoreVertOutlinedIcon sx={{ fontSize: 16 }} /></button>
-            {isOpen ? <span className='flex flex-col gap-[10px] rounded-lg w-[100px] absolute top-[20px] bg-gray-800 p-[5px]'>
-              <button onClick={() => CopyLink(selectedImage.filename)} className='hover:text-gray-200 text-[11px] text-white flex w-full items-center gap-[10px]'><InsertLinkIcon sx={{ fontSize: 16 }} />Copy link</button>
+              <button onClick={() => HandleMoreVert()} className='cursor-pointer'><MoreVertOutlinedIcon sx={{ fontSize: 16 }} /></button>
+              {isOpen ? <span className='flex flex-col gap-[10px] rounded-lg w-[100px] absolute top-[20px] bg-gray-800 p-[5px]'>
+                <button onClick={() => CopyLink(selectedImage.filename)} className='hover:text-gray-200 text-[11px] text-white flex w-full items-center gap-[10px]'><InsertLinkIcon sx={{ fontSize: 16 }} />Copy link</button>
 
 
-              {isAdmin ? <button onClick={() => setUpdate(true)} className='hover:text-gray-300 text-[11px] text-white flex w-full items-center gap-[10px]'><ModeEditOutlinedIcon sx={{ fontSize: 16 }} />Edit</button> : <></>}
-              {isAdmin ? <button onClick={() => HandleDeletePost(selectedImage.uniqueid)} className='hover:text-red-700 text-[crimson] text-[11px]  flex w-full items-center gap-[10px]'><DeleteOutlineIcon sx={{ fontSize: 16 }} />Delete</button> : <></>}
-            </span> : <></>}
+                {isAdmin ? <button onClick={() => setUpdate(true)} className='hover:text-gray-300 text-[11px] text-white flex w-full items-center gap-[10px]'><ModeEditOutlinedIcon sx={{ fontSize: 16 }} />Edit</button> : <></>}
+                {isAdmin ? <button onClick={() => HandleDeletePost(selectedImage.uniqueid)} className='hover:text-red-700 text-[crimson] text-[11px]  flex w-full items-center gap-[10px]'><DeleteOutlineIcon sx={{ fontSize: 16 }} />Delete</button> : <></>}
+              </span> : <></>}
+            </div>
+            <button className='cursor-pointer' onClick={() => HandlePostClose()}><CloseOutlinedIcon sx={{ fontSize: 16 }} /></button>
           </div>
-          <button className='cursor-pointer' onClick={() => setSelectedPost({})}><CloseOutlinedIcon sx={{ fontSize: 16 }} /></button>
-        </div>
-        <div className='h-[calc(100%-20px)]  overflow-y-auto flex flex-col gap-[20px]'>
+          <div className='h-[calc(100%-20px)]  overflow-y-auto flex flex-col gap-[20px]'>
 
-          {selectedImage.description.trim() !== "" ? <p className='rounded-b-2 p-[10px] shadow-lg bg-gray-900'>{Desc}{(selectedImage.description.length > 200 && Desc.length <= 200) ? <span className='text-[#FF6500] cursor-pointer' onClick={() => MoreDesc()}>more</span> : selectedImage.description.length > 200 && Desc.length > 200 ? <span className='text-[#FF6500] cursor-pointer' onClick={() => LessDesc()}>less</span> : <></>} </p> : <></>}
+            {selectedImage.description.trim() !== "" ? <p className='rounded-b-2 p-[10px] shadow-lg bg-gray-900'>{Desc}{(selectedImage.description.length > 200 && Desc.length <= 200) ? <span className='text-[#FF6500] cursor-pointer' onClick={() => MoreDesc()}>more</span> : selectedImage.description.length > 200 && Desc.length > 200 ? <span className='text-[#FF6500] cursor-pointer' onClick={() => LessDesc()}>less</span> : <></>} </p> : <></>}
 
-          {selectedImage.allowcomments === 1 ? <Comments SelectedImage={selectedImage} setReplyState={setReplyState} ReplyState={ReplyState} setReplyUsername={setReplyUsername} /> : <></>}
-        </div>
-        {selectedImage.allowcomments === 1 ? (!ReplyState.isOpen ? <Inputcomment placeholder={"Comment something..."} ActionFunction={HandlePostComment} Text={Comment} setText={setComment} /> :
-          <Reply setReplyUsername={setReplyUsername} setReplyState={setReplyState} ReplyState={ReplyState} CloseReply={CloseReply} ReplyUsername={ReplyUsername} />
-        ) : <></>}
+            {selectedImage.allowcomments === 1 ? <Comments SelectedImage={selectedImage} setReplyState={setReplyState} ReplyState={ReplyState} setReplyUsername={setReplyUsername} /> : <></>}
+          </div>
+          {selectedImage.allowcomments === 1 ? (!ReplyState.isOpen ? <Inputcomment placeholder={"Comment something..."} ActionFunction={HandlePostComment} Text={Comment} setText={setComment} /> :
+            <Reply setReplyUsername={setReplyUsername} setReplyState={setReplyState} ReplyState={ReplyState} CloseReply={CloseReply} ReplyUsername={ReplyUsername} />
+          ) : <></>}
 
 
-      </div> : <UpdatePost setSelectedPost={setSelectedPost} SelectedPost={selectedImage} setUpdate={setUpdate} />
-      }
-    </div>
+        </div> : <UpdatePost setSelectedPost={setSelectedPost} SelectedPost={selectedImage} setUpdate={setUpdate} />
+        }
+
+       {(selecteduserImage !== null  &&  selecteduserImage < post.length -1 ) &&  <button onClick={() => HandleSelectedImage(selecteduserImage+1)} className="absolute right-[-10px] hover:text-[#FF6500] text-white bg-gray-900 rounded-full"><NavigateNextIcon /></button>}
+
+
+      </div>}
+    </>
 
   )
 }

@@ -6,6 +6,8 @@ import toast from 'react-hot-toast';
 import CloseIcon from '@mui/icons-material/Close';
 import { useDispatch } from 'react-redux';
 import {setuserpost} from '../redux/userdata/slice'
+import Inputcomment from './Inputcomment';
+
 export default function UpdatePost({setSelectedPost ,  SelectedPost, setUpdate }) {
   const {post} = useProfiledata()
   const [hideLikes, sethideLikes] = useState(SelectedPost.hidelikecount === 0 ? false : true)
@@ -60,7 +62,10 @@ export default function UpdatePost({setSelectedPost ,  SelectedPost, setUpdate }
   return (
     <div className='flex flex-col  text-white w-[50%] h-full gap-[20px]'>
 
-      <textarea onChange={(e) => setDesc(e.target.value)} placeholder='Write a description...' value={Desc} name="description" id="description" rows={5} className='w-full px-[10px] rounded-lg bg-gray-900'></textarea>
+
+      <Inputcomment Position={"top-[130px]"} row={5} rounded={"lg"} type={"textarea"} ShowBtn={false} Text={Desc} setText={setDesc} placeholder={"Write a description..."} />
+
+     
 
       <div className="flex flex-col items-center w-full gap-4 mt-3">
         <label className="flex items-center w-full gap-1 cursor-pointer">

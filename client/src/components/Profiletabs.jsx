@@ -3,11 +3,10 @@ import { useState } from "react";
 
 const Profiletabs = ({userPosts , setSelectedPost , userCommunities }) => {
   const [activeTab, setActiveTab] = useState("posts");
-
-
   
-  const HandleSelectedPost = (image) => {
-    setSelectedPost(image)
+  const HandleSelectedPost = (index) => {
+
+    setSelectedPost(index)
   }
   
   return (
@@ -42,7 +41,7 @@ const Profiletabs = ({userPosts , setSelectedPost , userCommunities }) => {
 
               {userPosts.map((post, index) => (
                 
-                <button onClick={() => HandleSelectedPost(post)} key={index} className="w-[250px] cursor-pointer h-[300px]">
+                <button onClick={() => HandleSelectedPost( index)} key={index} className="w-[250px] cursor-pointer h-[300px]">
                     <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${post.filename}`} alt="" className="w-full h-full object-cover" />
                 </button>
               ))}
