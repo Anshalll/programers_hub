@@ -1103,7 +1103,6 @@ def del_reply():
             return jsonify(logged=False) , 403
         
         data = request.get_json()
-        print(data)
         replyid = data.get("replyid")
         replypid = data.get("replypid")
 
@@ -1122,7 +1121,8 @@ def del_reply():
                 return jsonify(error="An error occured!") , 400
 
         if  check_reply[0]["username"] == session["username"]:
-            
+            database.ExecuteQuery("DELETE FROM comment_replies WHERE id = %s" , (check_reply[0]["id"],))
+
             return jsonify(data="Reply deleted!"), 200
     
         else:
@@ -1131,6 +1131,9 @@ def del_reply():
                 return jsonify(error="An error occured!") , 400
             
             if get_user_posts[0]["belongsto"] == user[0]["id"]:
+
+                database.ExecuteQuery("DELETE FROM comment_replies WHERE id = %s" , (check_reply[0]["id"],))
+
                 return jsonify(data="Reply deleted!"), 200
             else:
 

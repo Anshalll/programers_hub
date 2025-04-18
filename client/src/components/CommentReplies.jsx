@@ -5,7 +5,7 @@ import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlin
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
-export default function CommentReplies({userid , HandleReplyDelete , HandleReplyLike , HandleReplyState ,  PostReplies , value }) {
+export default function CommentReplies({userid , HandleReplyDelete , HandleReplyLike , HandleReplyState ,  PostReplies , value , username , isAdmin}) {
 
   const replyRef = useRef([])
   const [isOpenReply, setisOpenReply] = useState({isOpen: false, id: null})
@@ -70,10 +70,7 @@ export default function CommentReplies({userid , HandleReplyDelete , HandleReply
             </div>
 
             <div className='flex flex-col items-center gap-[3px]'>
-              {/* {(isAdmin || replyvalue.whoReplied === userdata.username) && */}
-              
-              
-              {/* ( */}
+              {(isAdmin || replyvalue.whoReplied === username) && (
                 <div className='flex relative' ref={(el) => (replyRef.current[index] = el)}>
                   <button
                     onClick={() => HandleReplyComp(index)}
@@ -92,9 +89,12 @@ export default function CommentReplies({userid , HandleReplyDelete , HandleReply
                     </div>
                   ) : null}
                 </div>
-              {/* )
+              )
               
-              } */}
+            }
+              
+              
+             
 
 
               {replyvalue.hasliked === userid ? <button

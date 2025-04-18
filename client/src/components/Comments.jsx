@@ -311,7 +311,7 @@ export default function Comments({ SelectedImage, ReplyState, setReplyState, set
                 </div>
 
               </div>
-                <CommentReplies userid={userdata.id} HandleReplyDelete={HandleReplyDelete} HandleReplyLike={HandleReplyLike} HandleReplyState={HandleReplyState} value={value} PostReplies={PostReplies}/>
+                <CommentReplies username={userdata.username} isAdmin={isAdmin} userid={userdata.id} HandleReplyDelete={HandleReplyDelete} HandleReplyLike={HandleReplyLike} HandleReplyState={HandleReplyState} value={value} PostReplies={PostReplies}/>
             </div>
           ))
         )
