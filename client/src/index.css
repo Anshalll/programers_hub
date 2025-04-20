@@ -30,7 +30,15 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 
+.Uploadedimgs:hover .rmuploaded{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50px;
+  right: 0;
+  top: -3px;
 
+}
 
 button{
   cursor: pointer;

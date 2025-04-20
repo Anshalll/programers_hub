@@ -6,7 +6,6 @@ import Inputcomment from '../components/Inputcomment';
 import CreatePostUploaded from '../components/CreatePostUploaded';
 
 
-
 export default function CreatePost() {
 
 
@@ -81,6 +80,18 @@ export default function CreatePost() {
   }
 
 
+
+  const RemovePost = async (index) => {
+   
+    setUploadedArr((prev) => prev.filter((_, key) => key !== index));
+    setImagetosend((prev) => prev.filter((_, key) => key !== index));
+    if (UploadedArr.length === 1) {
+      setActiveImage(null)
+    }
+  }
+ 
+
+
   return (
     <Layout>
 
@@ -98,14 +109,14 @@ export default function CreatePost() {
             {/* Image Upload Section */}
             <div className='flex flex-col gap-[10px] w-1/2 h-full'>
 
-              <div className="w-full h-[450px]  rounded-lg flex items-center justify-center  bg-gray-900">
-                {ActiveImage !== null ? (
-                  <div className='w-[90%] h-[90%] relative'>
-
+              <div className="w-full h-[80%]  rounded-lg flex items-center justify-center  bg-gray-900">
+                {ActiveImage !== null  ? (
+                  <div className='w-[90%] h-[90%] '>
+                     
                     <img src={UploadedArr[ActiveImage]} alt="Uploaded" className="w-full h-full object-contain rounded-lg" />
                   </div>
                 ) : (
-                  <div className='relative items-center justify-center flex flex-col w-full h-full'>
+                  <div className='relative items-center justify-center flex flex-col w-full h-[90%]'>
 
                     <span className="text-gray-300">+ Upload Image</span>
                     <input type="file" className="opacity-0 cursor-pointer w-full h-full absolute" onChange={handleImageUpload} multiple accept="image/png , image/jpeg , image/gif" />
@@ -113,9 +124,9 @@ export default function CreatePost() {
 
                 )}
               </div>
-              {UploadedArr.length > 0 && <div className='w-full h-[20%]'>
+              {UploadedArr.length > 0 && <div className='w-full h-[20%] flex items-center'>
 
-                <CreatePostUploaded ActiveImage={ActiveImage} setActiveImage={setActiveImage} images={UploadedArr} />
+                <CreatePostUploaded RemovePost={RemovePost} ActiveImage={ActiveImage} setActiveImage={setActiveImage} images={UploadedArr} />
               </div>}
             </div>
 
