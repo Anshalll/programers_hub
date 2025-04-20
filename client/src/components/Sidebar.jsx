@@ -9,18 +9,22 @@ import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import { useProfiledata } from '../hooks/useProfiledata'
 import SearchComponent from './SearchComponent';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-
+import { useLocation } from 'react-router-dom';
 
 export default function Sidebar() {
 
   const [isSearchedOpen , setisSearchedOpen] = useState(false)
   const { data } = useProfiledata()
   const [Username, setUsername] = useState("")
+  const location = useLocation()
+
+
   useEffect(() => {
+    
     if (Object.keys(data).length > 0) {
       setUsername(data.username)
     }
-  }, [data, Username])
+  }, [data, Username , location])
 
   return (
     <aside className='flex items-center bg-black  p-[10px] h-[100vh]'>
@@ -42,9 +46,9 @@ export default function Sidebar() {
         >
           <EmailOutlinedIcon sx={{ fontSize: 22 }} /> Messages
         </NavLink>
-        <NavLink to={`/profile?user=${Username}`} className={({ isActive }) =>
-          `${isActive ? "text-[#FF6500]" : "text-white"} flex items-center gap-[20px]`
-        }><Person2OutlinedIcon sx={{ fontSize: 22 }} />Profile</NavLink>
+        <a href={`${import.meta.env.VITE_CLIENTLOCAL}/profile?user=${Username}`} className={
+          `${location.pathname === "/profile" ? "text-[#FF6500]" : "text-white"} flex items-center gap-[20px]`
+        }><Person2OutlinedIcon sx={{ fontSize: 22 }} />Profile</a>
 
         <NavLink to={"/community"} className={({ isActive }) =>
           `${isActive ? "text-[#FF6500]" : "text-white"} flex items-center gap-[20px]`

@@ -13,7 +13,7 @@ from functions.VerifyHcaptcha import Verifyhcaptcha
 import os
 import requests
 from functions.CreateProfile import createProfile
-
+import json
 
 app = Flask(__name__)
 CORS(app , supports_credentials=True,   origins=[os.getenv("CLIENTURL") , "http://localhost:5173" , "http://127.0.0.1:5173"])
@@ -680,7 +680,9 @@ def uploadpost():
         if "username" not in session:
             return jsonify(logged=False), 401
 
-        data = request.files.get("post")
+        data = request.files.getlist("post")
+        files = []
+        
         description = request.form.get("description", "").strip()
         hide_like_count = request.form.get("hide_like_count", "false").lower() == "true"
         hide_comment = request.form.get("allow_comments", "true").lower() == "true"
@@ -689,30 +691,35 @@ def uploadpost():
         if len(getuser) == 0:
             return jsonify(error="Internal server error") , 500
 
-        if data:
-            ALLOWED_EXTENTIONS = {".jpg", ".jpeg", ".png", ".gif"}
-            if os.path.splitext(data.filename)[1] not in ALLOWED_EXTENTIONS:
-                return jsonify(error="Invalid file type for post!"), 400
+        if len(data) > 0:
+            for posts in data: 
 
-            while True:
-                generaterandvals = GenerateOTP(30)
-                new_filename = f"{generaterandvals}{os.path.splitext(data.filename)[1]}"
-                check_existing = database.ExecuteQuery("SELECT * FROM posts WHERE filename = %s", (new_filename,))
-                if len(check_existing) == 0:
-                    break
+                ALLOWED_EXTENTIONS = {".jpg", ".jpeg", ".png", ".gif"}
+                if os.path.splitext(posts.filename)[1] not in ALLOWED_EXTENTIONS:
+                    return jsonify(error="Invalid file type for post!"), 400
 
-            data.save(os.path.abspath(os.path.join(os.getcwd(), "static/uploads/post", new_filename)))
+                while True:
+                    generaterandvals = GenerateOTP(30)
+                    new_filename = f"{generaterandvals}{os.path.splitext(posts.filename)[1]}"
+                    check_existing = database.ExecuteQuery("SELECT * FROM posts WHERE filename = %s", (new_filename,))
+                    if len(check_existing) == 0:
+                        break
+
+                posts.save(os.path.abspath(os.path.join(os.getcwd(), "static/uploads/post", new_filename)))
+                files.append(new_filename)
+
             token = GeneratePostToken(20)
             database.ExecuteQuery(
-                "INSERT INTO posts (filename, belongsto, description, hidelikecount, allowcomments , likes, shares , uniqueid , dateposted) VALUES (%s, %s, %s, %s, %s, %s, %s , %s , %s)",
-                (new_filename, getuser[0]["id"], description, hide_like_count, hide_comment ,   0 , 0 , token , GetMonthdate() , )
-            )
-
-            return jsonify(message="Post uploaded!", success=True), 200
+                        "INSERT INTO posts (filename, belongsto, description, hidelikecount, allowcomments , likes, shares , uniqueid , dateposted) VALUES (%s, %s, %s, %s, %s, %s, %s , %s , %s)",
+                        (json.dumps(files), getuser[0]["id"], description, hide_like_count, hide_comment ,   0 , 0 , token , GetMonthdate() , )
+                    )
+            return jsonify(message="Post uploaded!") , 200 
 
         else:
             return jsonify(error="No post uploaded!"), 400
 
+
+        
     except Exception as e:
         print("Error:", e)
         return jsonify(error="Internal server error"), 500

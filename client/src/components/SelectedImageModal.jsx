@@ -20,7 +20,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import Reply from './Reply';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
-export default function SelectedImageModal({userPosts:post, setselecteduserImage, selecteduserImage }) {
+export default function SelectedImageModal({ userPosts: post, setselecteduserImage, selecteduserImage }) {
 
 
   const [Desc, setDesc] = useState("")
@@ -35,6 +35,8 @@ export default function SelectedImageModal({userPosts:post, setselecteduserImage
   const [ReplyState, setReplyState] = useState({ isOpen: false, id: null, cid: null })
   const [ReplyUsername, setReplyUsername] = useState("")
   const [selectedImage, setSelectedPost] = useState({})
+  const [ActiveIndex, setActiveIndex] = useState(0)
+
 
   const HandlePostClose = () => {
     setSelectedPost({})
@@ -44,7 +46,7 @@ export default function SelectedImageModal({userPosts:post, setselecteduserImage
   useEffect(() => {
 
     if (selecteduserImage !== null && selecteduserImage >= 0) {
-     
+
       setSelectedPost(post[selecteduserImage])
     }
   }, [selecteduserImage, post])
@@ -186,18 +188,33 @@ export default function SelectedImageModal({userPosts:post, setselecteduserImage
 
   const HandleSelectedImage = (index) => {
     setselecteduserImage(index)
-    console.log(selecteduserImage <= post.length -1)
+    console.log(selecteduserImage <= post.length - 1)
   }
 
   return (
     <>
-      {Object.keys(selectedImage).length > 0 &&  <div className='w-[700px] relative p-[10px] gap-[20px] flex items-center justify-center rounded-lg h-[500px] bg-black'>
+      {Object.keys(selectedImage).length > 0 && <div className='w-[800px] relative p-[10px] gap-[20px] flex items-center justify-center rounded-lg h-[600px] bg-black'>
 
-       {selecteduserImage !== null && selecteduserImage > 0?  <button onClick={() => HandleSelectedImage(selecteduserImage-1)} className="absolute left-[-10px] hover:text-[#FF6500] text-white bg-gray-900 rounded-full"><NavigateBeforeIcon /></button> : <></>}
+        {selecteduserImage !== null && selecteduserImage > 0 ? <button onClick={() => HandleSelectedImage(selecteduserImage - 1)} className="absolute left-[-10px] hover:text-[#FF6500] text-white bg-gray-900 rounded-full"><NavigateBeforeIcon /></button> : <></>}
 
         <div className='w-[50%] h-full'>
           <Toaster />
-          <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${selectedImage.filename}`} className="w-full h-[90%] object-contain" alt="" />
+          <div className='flex gap-[10px] items-center w-full h-[90%]'>
+
+            <div className='Scroller w-[15%] flex flex-col gap-[10px] h-[80%] overflow-y-auto'>
+              {JSON.parse(selectedImage.filename).map((value, index) => (
+                <div key={index}>
+
+                  <button onClick={() => setActiveIndex(index)} className={`${ActiveIndex === index ? "border-2 border-[#FF6500]" : ""} w-[50px] h-[50px] rounded-lg object-cover`}>
+                    <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${value}`} className='h-full rounded-lg w-full object-cover' alt="" />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${JSON.parse(selectedImage.filename)[ActiveIndex]}`} className="w-[70%] h-[80%] object-contain" alt="" />
+          </div>
+
           <div className='w-full mt-[20px] flex items-center justify-between '>
 
             <div className='flex  text-white items-center gap-[20px]'>
@@ -241,7 +258,7 @@ export default function SelectedImageModal({userPosts:post, setselecteduserImage
         </div> : <UpdatePost setSelectedPost={setSelectedPost} SelectedPost={selectedImage} setUpdate={setUpdate} />
         }
 
-       {(selecteduserImage !== null  &&  selecteduserImage < post.length -1 ) &&  <button onClick={() => HandleSelectedImage(selecteduserImage+1)} className="absolute right-[-10px] hover:text-[#FF6500] text-white bg-gray-900 rounded-full"><NavigateNextIcon /></button>}
+        {(selecteduserImage !== null && selecteduserImage < post.length - 1) && <button onClick={() => HandleSelectedImage(selecteduserImage + 1)} className="absolute right-[-10px] hover:text-[#FF6500] text-white bg-gray-900 rounded-full"><NavigateNextIcon /></button>}
 
 
       </div>}
