@@ -124,9 +124,13 @@ export default function CreatePost() {
 
                 )}
               </div>
-              {UploadedArr.length > 0 && <div className='w-full h-[20%] flex items-center'>
-
+              {UploadedArr.length > 0 && <div className='w-[80%] h-[20%] flex items-center'>
+                <>
                 <CreatePostUploaded RemovePost={RemovePost} ActiveImage={ActiveImage} setActiveImage={setActiveImage} images={UploadedArr} />
+
+                </>
+
+                
               </div>}
             </div>
 

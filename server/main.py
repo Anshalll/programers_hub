@@ -748,10 +748,13 @@ def delete_post():
         if len(getuser) == 0 or post_data[0]["belongsto"] != getuser[0]["id"]:
             return jsonify(error="Unauthorized action!"), 403
 
+
+
+        for imgs in json.loads(post_data[0]["filename"]):
      
-        post_path = os.path.join(os.getcwd(), "static/uploads/post", post_data[0]["filename"])
-        if os.path.exists(post_path):
-            os.remove(post_path)
+            post_path = os.path.join(os.getcwd(), "static/uploads/post", imgs)
+            if os.path.exists(post_path):
+                os.remove(post_path)
 
      
         database.ExecuteQuery("DELETE FROM posts WHERE uniqueid = %s", (unique_id,))
