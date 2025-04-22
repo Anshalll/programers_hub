@@ -34,8 +34,8 @@ def index():
     if "username" in session:
         
         query = """
-        SELECT p.* , r.id , r.username, r.email , r.name , follower.id AS follower_id , follower.followedby , following.id AS following_id, following.follows from profile p
-        join registers r on r.id = p.id  LEFT JOIN followers follower ON follower.id = r.id LEFT JOIN followings following on following.id = r.id
+        SELECT p.* , r.id , r.username, r.email , r.name , follower.belongsto AS follower_id , follower.followedby , following.belongsto AS following_id, following.follows from profile p
+        join registers r on r.id = p.id  LEFT JOIN followers follower ON follower.belongsto = r.id LEFT JOIN followings following on following.belongsto = r.id 
         where username = %s
         
       """
@@ -1264,7 +1264,7 @@ def follow_unfollow():
 
             elif len(check_followers) > 0:
                 get_followedby = json.loads(check_followers[0]["followedby"])
-                print(get_followedby)
+                
                 if current_user[0]["username"] not in get_followedby:
                     get_followedby.append(current_user[0]["username"])
                     database.ExecuteQuery("UPDATE  followers set followedby = %s WHERE belongsto = %s" ,(json.dumps(get_followedby) , check_user[0]["id"] , ))

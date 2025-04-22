@@ -131,9 +131,9 @@ export default function Profile() {
                   </div>
                   <div className='flex flex-col gap-[20px]'>
                     <div className='flex items-center gap-[20px]'>
-                      {Userdata && <p className='text-center'>{Userdata.followers} <br /> <span>Followers</span> </p>}
-                      {Userdata && <p className='text-center'>{Userdata.following} <br /> <span>Following</span></p>}
-
+                      <p className='text-center'>{Userdata?.followedby ?  JSON.parse(Userdata.followedby).length : "0"} <br /> <span>Followers</span> </p>
+                      <p className='text-center'>{Userdata?.follows ? JSON.parse(Userdata.follows).length : "0"} <br /> <span>Following</span></p>
+                    
                     </div>
                     {!Admin && <FollowUnfollow  username={Userdata.username}/>}
                   </div>
