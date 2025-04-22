@@ -34,16 +34,18 @@ def index():
     if "username" in session:
         
         query = """
-        SELECT p.* , r.id , r.username, r.email , r.name  from profile p
-        join registers r on r.id = p.id 
+        SELECT p.* , r.id , r.username, r.email , r.name , follower.id AS follower_id , follower.followedby , following.id AS following_id, following.follows from profile p
+        join registers r on r.id = p.id  LEFT JOIN followers follower ON follower.id = r.id LEFT JOIN followings following on following.id = r.id
         where username = %s
         
       """
         userdata = database.ExecuteQuery(query , (session["username"], ))
+
         userposts = database.ExecuteQuery(
             "SELECT p.* , lp.uid AS hasliked , lp.pid FROM posts p LEFT JOIN post_likes lp on lp.uid = p.belongsto where belongsto = %s",
             (userdata[0]["id"],)
         )
+        
         userdata.append(userposts)
         if len(userdata) == 0:
             return jsonify(error="An error ocuured"), 400
@@ -1212,5 +1214,72 @@ def like_reply():
     except Exception as e:
         print("Error:", e)
         return jsonify(error="Internal server error!"), 500
+
+@app.route("/api/followunfollow" , methods=["POST"])
+def follow_unfollow():
+    try:
+        if "username" not in session:
+            return jsonify(logged=False) , 403
+        
+        data = request.get_json()
+        user_name = data.get("username")
+        typeaction = data.get("type")
+     
+
+        if user_name.strip() == "" or typeaction.strip()=="": 
+            return jsonify(error="Userid is required!") , 400
+
+        if user_name == session["username"]: 
+            return jsonify(error="An error occured!") , 400
+
+        check_user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (user_name ,))
+        
+      
+        if len(check_user) == 0: 
+            return jsonify(error="User not found!"), 400
+        current_user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (session["username"] , ))
+
+
+        if len(current_user) == 0:
+            return jsonify(error="An error occured!") , 400
+        
+       
+        if typeaction == "follow":
+            
+            check_following = database.ExecuteQuery("SELECT * FROM followings WHERE belongsto = %s" , (current_user[0]["id"],))
+            if len(check_following) == 0: 
+                database.ExecuteQuery("INSERT INTO followings (belongsto , follows) VALUES (%s , %s)" ,(current_user[0]["id"] , json.dumps([check_user[0]["username"]]) ,  ) )
+            elif len(check_following) > 0:
+                get_follows = json.loads(check_following[0]["follows"])
+              
+                if check_user[0]["username"] not in get_follows:
+                    get_follows.append(check_user[0]["username"])
+                    database.ExecuteQuery("UPDATE  followings set follows = %s WHERE belongsto = %s" ,(json.dumps(get_follows) , current_user[0]["id"] , ) )
+
+
+
+            check_followers = database.ExecuteQuery("SELECT * FROM followers WHERE belongsto = %s" , (check_user[0]["id"] , ))
+            if len(check_followers) == 0:
+                database.ExecuteQuery("INSERT INTO followers (belongsto, followedby) VALUES (%s , %s)" , (check_user[0]["id"] , json.dumps([current_user[0]["username"]]) , ))
+
+            elif len(check_followers) > 0:
+                get_followedby = json.loads(check_followers[0]["followedby"])
+                print(get_followedby)
+                if current_user[0]["username"] not in get_followedby:
+                    get_followedby.append(current_user[0]["username"])
+                    database.ExecuteQuery("UPDATE  followers set followedby = %s WHERE belongsto = %s" ,(json.dumps(get_followedby) , check_user[0]["id"] , ))
+
+
+
+            return jsonify(message="successful") , 200
+        
+             
+
+
+    except Exception as e:
+        print(e)
+        return jsonify(error="Internal server error!") , 500
+
+
 
 app.run(debug=True , port=8000 , host="0.0.0.0")

@@ -9,6 +9,7 @@ import Loading from '../components/Loading';
 import Profiletabs from '../components/Profiletabs';
 import SelectedImageModel from '../components/SelectedImageModal'
 import { useDispatch } from 'react-redux';
+import FollowUnfollow from '../components/FollowUnfollow';
 
 export default function Profile() {
 
@@ -84,6 +85,8 @@ export default function Profile() {
 
   }, [data.username, Datasend, dispatch]);
 
+
+
   return (
 
     <>
@@ -132,7 +135,7 @@ export default function Profile() {
                       {Userdata && <p className='text-center'>{Userdata.following} <br /> <span>Following</span></p>}
 
                     </div>
-                    {!Admin && <button className='bg-green-500 rounded-lg  p-[7px]'>Follow</button>}
+                    {!Admin && <FollowUnfollow  username={Userdata.username}/>}
                   </div>
 
 
