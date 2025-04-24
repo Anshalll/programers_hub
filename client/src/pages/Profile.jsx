@@ -10,7 +10,7 @@ import Profiletabs from '../components/Profiletabs';
 import SelectedImageModel from '../components/SelectedImageModal'
 import { useDispatch } from 'react-redux';
 import FollowUnfollow from '../components/FollowUnfollow';
-
+import FollowUnfollowModel from '../components/FollowUnfollowModel'
 export default function Profile() {
 
   const { data, post } = useProfiledata()
@@ -23,6 +23,8 @@ export default function Profile() {
   const [LoadingUser, setLoadingUser] = useState(true)
   const [Admin, setAdmin] = useState(false)
   const [SelectedPost, setSelectedPost] = useState(null)
+  const [TypeModelFollow, setTypeModelFollow] = useState("")
+
 
   useEffect(() => {
     if (Object.keys(data).length > 0) {
@@ -86,6 +88,19 @@ export default function Profile() {
   }, [data.username, Datasend, dispatch]);
 
 
+  const HandleFollowFollowingLists = async (type) => {
+    if (type === "followers" || type === "following") {
+        setTypeModelFollow(type)
+    }
+
+
+  }
+
+
+  const CloseFollowUnfollowModel  = () => {
+    setTypeModelFollow("")
+  }
+
 
   return (
 
@@ -98,6 +113,11 @@ export default function Profile() {
             {(SelectedPost >= 0 && SelectedPost !== null) ? <div className='w-full z-1 absolute h-full flex items-center justify-center'>
               <SelectedImageModel userPosts={Userposts}  setselecteduserImage={setSelectedPost} selecteduserImage={SelectedPost} />
             </div> : <></>}
+
+
+            {TypeModelFollow.trim() !== "" ? <div className='w-full z-1 absolute h-full flex items-center justify-center'>
+                <FollowUnfollowModel type={TypeModelFollow}/>
+            </div> : <></> }
 
             <div className={`flex flex-col  bg-white h-screen max-w-[1500px] overflow-y-auto p-[20px]`}>
 
@@ -127,13 +147,13 @@ export default function Profile() {
                     {Userdata.socialmedialinks && <a target='_blank' href={Userdata.socialmedialinks} className='text-blue-600 hover:text-blue-500 hover:border-b hover:border-blue-500'>{Userdata.socialmedialinks.slice(0, 30)}..</a>}
 
                     {Userdata.location && <p className='flex items-center gap-[10px]'><LocationOnOutlinedIcon />{Userdata.location}</p>}
-                    {Userdata.joinedon && <p className='flex items-center gap-[20px]'><DateRangeOutlinedIcon />{Userdata.joinedon}</p>}
+                    {Userdata.joinedon && <button className='flex items-center gap-[20px]'><DateRangeOutlinedIcon />{Userdata.joinedon}</button>}
                   </div>
                   <div className='flex flex-col gap-[20px]'>
                     <div className='flex items-center gap-[20px]'>
-                      <p className='text-center'>{Userdata?.followedby ?  JSON.parse(Userdata.followedby).length : "0"} <br /> <span>Followers</span> </p>
-                      <p className='text-center'>{Userdata?.follows ? JSON.parse(Userdata.follows).length : "0"} <br /> <span>Following</span></p>
-                    
+                      <button onClick={() => HandleFollowFollowingLists("followers")} className='text-center'>{Userdata?.followedby ?  JSON.parse(Userdata.followedby).length : "0"} <br /> <span>Followers</span> </button>
+                      <button onClick={() => HandleFollowFollowingLists("following")} className='text-center'>{Userdata?.follows ? JSON.parse(Userdata.follows).length : "0"} <br /> <span>Following</span></button>
+
                     </div>
                     {!Admin && <FollowUnfollow  username={Userdata.username}/>}
                   </div>

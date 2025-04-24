@@ -1280,6 +1280,34 @@ def follow_unfollow():
         print(e)
         return jsonify(error="Internal server error!") , 500
 
+@app.route("/api/getfollowers", methods=["GET"])
+def get_followers_following():
+    try:
+        if "username" not in session:
+            return jsonify(logged=False), 401
 
+        user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (session["username"],))
+    
+        if len(user) == 0:
+            return jsonify(error="An error occured!") , 400
+        
+        get_followers_list = database.ExecuteQuery("SELECT * FROM followers WHERE belongsto  = %s" , (user[0]["id"] ,))
+     
+        if len(get_followers_list) == 0:
+            return jsonify(followers=[]) , 200
+        
+        followers_list = json.loads(get_followers_list[0]["followedby"])
+    
+        placeholders = ','.join(['%s'] * len(followers_list))
+       
+        query_get_followers = f"SELECT r.id AS registerId,  r.username , r.name , p.dp , p.id AS ProfileID FROM registers r INNER JOIN profile p on p.id = r.id WHERE username IN ({placeholders})"
+        
+        followers_data = database.ExecuteQuery(query_get_followers , tuple(followers_list))
+        print(followers_data)
+        return jsonify(followers=followers_data), 200
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify(error="Internal server error!"), 500
 
 app.run(debug=True , port=8000 , host="0.0.0.0")
