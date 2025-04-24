@@ -97,9 +97,6 @@ export default function Profile() {
   }
 
 
-  const CloseFollowUnfollowModel  = () => {
-    setTypeModelFollow("")
-  }
 
 
   return (
@@ -116,7 +113,7 @@ export default function Profile() {
 
 
             {TypeModelFollow.trim() !== "" ? <div className='w-full z-1 absolute h-full flex items-center justify-center'>
-                <FollowUnfollowModel type={TypeModelFollow}/>
+                <FollowUnfollowModel type={TypeModelFollow} setTypeModelFollow={setTypeModelFollow}/>
             </div> : <></> }
 
             <div className={`flex flex-col  bg-white h-screen max-w-[1500px] overflow-y-auto p-[20px]`}>
