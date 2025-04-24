@@ -46,7 +46,7 @@ export default function Followers({ setTypeModelFollow }) {
         <div className='Scroller w-full h-[calc(100%-40px)] flex flex-col gap-[20px] overflow-y-auto'>
           {
             FollowersData.map((value, index) => (
-              <div className='flex w-full justify-between items-center'>
+              <div key={index} className='flex w-full justify-between items-center'>
 
                 <a className='flex w-full items-center gap-[10px]' href="" key={index}>
                   <img className='w-[40px] h-[40px] rounded-full object-cover' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${value.dp}`} alt="" />
