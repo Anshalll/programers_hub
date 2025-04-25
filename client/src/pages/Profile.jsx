@@ -24,7 +24,8 @@ export default function Profile() {
   const [Admin, setAdmin] = useState(false)
   const [SelectedPost, setSelectedPost] = useState(null)
   const [TypeModelFollow, setTypeModelFollow] = useState("")
-
+  const [UserFollowers, setUserFollowers] = useState(0)
+  const [UserFollowings, setUserFollowings] = useState(0)
 
   useEffect(() => {
     if (Object.keys(data).length > 0) {
@@ -87,7 +88,19 @@ export default function Profile() {
 
   }, [data.username, Datasend, dispatch]);
 
+  useEffect(() => {
+    if (Object.keys(Userdata).length > 0) {
+        if (Userdata.followedby) {
+          
+          setUserFollowers(JSON.parse(Userdata.followedby).length )
+        }
+        if(Userdata.follows){
 
+          setUserFollowings(JSON.parse(Userdata.follows).length)
+        }
+
+      }
+  } , [Userdata])
   const HandleFollowFollowingLists = async (type) => {
     if (type === "followers" || type === "following") {
         setTypeModelFollow(type)
@@ -148,11 +161,11 @@ export default function Profile() {
                   </div>
                   <div className='flex flex-col gap-[20px]'>
                     <div className='flex items-center gap-[20px]'>
-                      <button onClick={() => HandleFollowFollowingLists("followers")} className='text-center'>{Userdata?.followedby ?  JSON.parse(Userdata.followedby).length : "0"} <br /> <span>Followers</span> </button>
-                      <button onClick={() => HandleFollowFollowingLists("following")} className='text-center'>{Userdata?.follows ? JSON.parse(Userdata.follows).length : "0"} <br /> <span>Following</span></button>
+                      <button onClick={() => HandleFollowFollowingLists("followers")} className='text-center'>{UserFollowers} <br /> <span>Followers</span> </button>
+                      <button onClick={() => HandleFollowFollowingLists("following")} className='text-center'>{UserFollowings} <br /> <span>Following</span></button>
 
                     </div>
-                    {!Admin && <FollowUnfollow  username={Userdata.username}/>}
+                    {!Admin && <FollowUnfollow followerscount={UserFollowers} setUserFollowers={setUserFollowers} username={Userdata.username}/>}
                   </div>
 
 

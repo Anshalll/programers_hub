@@ -1268,10 +1268,27 @@ def follow_unfollow():
                 if current_user[0]["username"] not in get_followedby:
                     get_followedby.append(current_user[0]["username"])
                     database.ExecuteQuery("UPDATE  followers set followedby = %s WHERE belongsto = %s" ,(json.dumps(get_followedby) , check_user[0]["id"] , ))
+            return jsonify(message="successful" , typeaction=typeaction) , 200
+        
+        if typeaction == "unfollow":
+            check_following = database.ExecuteQuery("SELECT * FROM followings WHERE belongsto = %s" , (current_user[0]["id"],))
+            if len(check_following) != 0: 
+                get_arr_followings =  json.loads(check_following[0]["follows"])
+                if user_name in get_arr_followings:
+                    get_arr_followings.remove(user_name)
+
+                database.ExecuteQuery("UPDATE followings SET follows = %s WHERE belongsto = %s" ,(json.dumps(get_arr_followings) , current_user[0]["id"] , ) )
+
+            check_followers = database.ExecuteQuery("SELECT * FROM followers WHERE belongsto = %s" , (check_user[0]["id"] , ))
+
+            if len(check_followers) != 0:
+                get_arr_followers = json.loads(check_followers[0]["followedby"])
+                if session["username"] in get_arr_followers:
+                    get_arr_followers.remove(session["username"])
+                    database.ExecuteQuery("UPDATE followers SET followedby = %s WHERE belongsto = %s" ,(json.dumps(get_arr_followers) , check_user[0]["id"] , ) )
 
 
-
-            return jsonify(message="successful") , 200
+            return jsonify(message="successful" , typeaction=typeaction) , 200
         
              
 
@@ -1281,7 +1298,7 @@ def follow_unfollow():
         return jsonify(error="Internal server error!") , 500
 
 @app.route("/api/getfollowers", methods=["GET"])
-def get_followers_following():
+def get_followers():
     try:
         if "username" not in session:
             return jsonify(logged=False), 401
@@ -1297,18 +1314,20 @@ def get_followers_following():
             return jsonify(followers=[]) , 200
         
         followers_list = json.loads(get_followers_list[0]["followedby"])
-    
+        if not followers_list:
+            return jsonify(followers=[]) , 200
         placeholders = ','.join(['%s'] * len(followers_list))
        
         query_get_followers = f"SELECT r.id AS registerId,  r.username , r.name , p.dp , p.id AS ProfileID FROM registers r INNER JOIN profile p on p.id = r.id WHERE username IN ({placeholders})"
         
         followers_data = database.ExecuteQuery(query_get_followers , tuple(followers_list))
-        print(followers_data)
+ 
         return jsonify(followers=followers_data), 200
 
     except Exception as e:
         print("Error:", e)
         return jsonify(error="Internal server error!"), 500
+    
 @app.route("/api/getfollowings", methods=["GET"])
 def get_followings():
     try:

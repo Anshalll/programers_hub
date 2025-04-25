@@ -38,7 +38,7 @@ export default function Sidebar() {
           <HomeOutlinedIcon sx={{ fontSize: 22 }} /> Home
         </NavLink>
         <button onClick={() => setisSearchedOpen(true)} className='text-white flex items-center gap-[20px]'><SearchOutlinedIcon />Search</button>
-     
+          
         <NavLink to={"/messages"}
           className={({ isActive }) =>
             `${isActive ? "text-[#FF6500]" : "text-white"} flex items-center gap-[20px]`
