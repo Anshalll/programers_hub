@@ -1,33 +1,54 @@
 import React, { useEffect, useState } from 'react'
-import { useFetchDataQuery } from '../redux/apis/slice'
+import { useSendDataMutation } from '../redux/apis/slice'
 import toast, { Toaster } from 'react-hot-toast'
 import Loading from './Loading'
 import CloseIcon from '@mui/icons-material/Close';
+import { useProfiledata } from '../hooks/useProfiledata'
 
-export default function Followings({ setTypeModelFollow }) {
+export default function Followings({ username, setTypeModelFollow }) {
 
   const [FollowingsData, setFollowingsData] = useState([])
   const [UserSearchTerm, setUserSearchTerm] = useState("")
+  const [data, setdata] = useState({})
+  const [isLoading, setisLoading] = useState(false)
+  const { data: userdata } = useProfiledata()
 
   const ErrorFetchingData = () => toast.error("An error occured!", {
     duration: 1500,
     position: 'top-center'
   })
-  const { isLoading, data, error } = useFetchDataQuery("/getfollowings")
+  const [Send_data] = useSendDataMutation()
+
   useEffect(() => {
+    const GetFollowings = async () => {
+      try {
+        setisLoading(true)
+        const response = await Send_data({ url: "/getfollowings", method: "POST", data: { username } })
 
-
-    if (!isLoading) {
-      if (error) {
+        if (response.error) {
+          ErrorFetchingData()
+        }
+        if (response.data?.followings?.length > 0) {
+          setdata(response.data.followings)
+          setFollowingsData(response.data.followings)
+        }
+      } catch (error) {
+        console.error(error)
         ErrorFetchingData()
       }
+      finally {
+        setisLoading(false)
 
-      if (data?.followings?.length > 0) {
-        setFollowingsData(data.followings)
       }
+
+
     }
 
-  }, [isLoading, data, error])
+
+
+    GetFollowings()
+
+  }, [Send_data, username])
 
 
   const CloseFollowUnfollowModel = () => {
@@ -37,14 +58,14 @@ export default function Followings({ setTypeModelFollow }) {
   const UserSearch = (e) => {
     setUserSearchTerm(e.target.value)
     if (e.target.value.trim() === "") {
-      setFollowingsData(data?.followings)
+      setFollowingsData(data)
 
     }
     else {
       let foundings = FollowingsData.filter((vals) => {
         return vals.username?.toLowerCase().includes(e.target.value?.toLowerCase())
       })
-      
+
       setFollowingsData(foundings)
     }
 
@@ -63,7 +84,7 @@ export default function Followings({ setTypeModelFollow }) {
       {isLoading ? <div className='w-full items-center flex justify-center h-[calc(100%-10px)]'>
         <Loading />
       </div> : <>
-        {data?.followings?.length > 0 ? <>
+        {data?.length > 0 ? <>
 
           <input type="text" value={UserSearchTerm} onChange={(e) => UserSearch(e)} placeholder='Search for someone.' className='w-full h-[30px] rounded-lg px-[10px] outline-none border-2 border-gray-300' />
           {FollowingsData.length > 0 ? <div className='Scroller w-full h-[calc(100%-40px)] flex flex-col gap-[20px] overflow-y-auto'>
@@ -79,7 +100,7 @@ export default function Followings({ setTypeModelFollow }) {
                     </div>
                   </a>
 
-                  <button className='border-2 border-white px-[20px] py-[5px] rounded-lg'>Remove</button>
+                  {userdata.username === username ? <button className='border-2 border-white px-[20px] py-[5px] rounded-lg'>Remove</button> : <p>You</p>}
                 </div>
 
 

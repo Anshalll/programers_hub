@@ -616,8 +616,8 @@ def getuser():
             return jsonify(error="Username is required!"), 400
 
         query = """
-        SELECT p.* , r.id , r.username, r.email , r.name  from profile p
-        join registers r on r.id = p.id 
+        SELECT p.* , r.id , r.username, r.email , r.name , follower.belongsto AS follower_id , follower.followedby , following.belongsto AS following_id, following.follows  from profile p
+        join registers r on r.id = p.id LEFT JOIN followers follower on follower.belongsto = r.id LEFT JOIN followings following on following.belongsto = r.id
         where username = %s
         
       """
@@ -1277,7 +1277,11 @@ def follow_unfollow():
                 if user_name in get_arr_followings:
                     get_arr_followings.remove(user_name)
 
-                database.ExecuteQuery("UPDATE followings SET follows = %s WHERE belongsto = %s" ,(json.dumps(get_arr_followings) , current_user[0]["id"] , ) )
+                if len(get_arr_followings) == 0:
+                    database.ExecuteQuery("DELETE FROM followings WHERE belongsto = %s" ,( current_user[0]["id"] , ) )
+                else:
+                    
+                    database.ExecuteQuery("UPDATE followings SET follows = %s WHERE belongsto = %s" ,(json.dumps(get_arr_followings) , current_user[0]["id"] , ) )
 
             check_followers = database.ExecuteQuery("SELECT * FROM followers WHERE belongsto = %s" , (check_user[0]["id"] , ))
 
@@ -1285,6 +1289,9 @@ def follow_unfollow():
                 get_arr_followers = json.loads(check_followers[0]["followedby"])
                 if session["username"] in get_arr_followers:
                     get_arr_followers.remove(session["username"])
+                if len(get_arr_followers) == 0:
+                    database.ExecuteQuery("DELETE FROM followers WHERE belongsto = %s" ,( check_user[0]["id"] , ) )
+                else:
                     database.ExecuteQuery("UPDATE followers SET followedby = %s WHERE belongsto = %s" ,(json.dumps(get_arr_followers) , check_user[0]["id"] , ) )
 
 
@@ -1297,13 +1304,17 @@ def follow_unfollow():
         print(e)
         return jsonify(error="Internal server error!") , 500
 
-@app.route("/api/getfollowers", methods=["GET"])
+@app.route("/api/getfollowers", methods=["POST"])
 def get_followers():
     try:
         if "username" not in session:
             return jsonify(logged=False), 401
-
-        user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (session["username"],))
+        data = request.get_json()
+        user_name = data.get("username")
+        if not user_name or user_name.strip() == "":
+            return jsonify(error="An error occured!") , 400
+        
+        user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (user_name,))
     
         if len(user) == 0:
             return jsonify(error="An error occured!") , 400
@@ -1328,13 +1339,18 @@ def get_followers():
         print("Error:", e)
         return jsonify(error="Internal server error!"), 500
     
-@app.route("/api/getfollowings", methods=["GET"])
+@app.route("/api/getfollowings", methods=["POST"])
 def get_followings():
     try:
         if "username" not in session:
             return jsonify(logged=False), 401
 
-        user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (session["username"],))
+        data = request.get_json()
+        user_name = data.get("username")
+        if not user_name or user_name.strip() == "":
+            return jsonify(error="An error occured!") , 400
+        
+        user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (user_name,))
             
         if len(user) == 0:
             return jsonify(error="An error occurred!"), 400
@@ -1345,7 +1361,8 @@ def get_followings():
            return jsonify(followings=[]), 200
                 
         followings_list = json.loads(get_followings_list[0]["follows"])
-            
+        if not followings_list:
+            return jsonify(followings=[]) , 200   
         placeholders = ','.join(['%s'] * len(followings_list))
                
         query_get_followings = f"SELECT r.id AS registerId, r.username, r.name, p.dp, p.id AS ProfileID FROM registers r INNER JOIN profile p ON p.id = r.id WHERE username IN ({placeholders})"

@@ -27,6 +27,8 @@ export default function Profile() {
   const [UserFollowers, setUserFollowers] = useState(0)
   const [UserFollowings, setUserFollowings] = useState(0)
 
+
+
   useEffect(() => {
     if (Object.keys(data).length > 0) {
 
@@ -48,6 +50,7 @@ export default function Profile() {
   }, [data.username])
 
   useEffect(() => {
+  
     async function userget() {
       if (data.username) {
         const params = new URLSearchParams(window.location.search);
@@ -89,18 +92,19 @@ export default function Profile() {
   }, [data.username, Datasend, dispatch]);
 
   useEffect(() => {
-    if (Object.keys(Userdata).length > 0) {
+    if (Object.keys(Userdata).length > 0 && !LoadingUser) {
         if (Userdata.followedby) {
           
           setUserFollowers(JSON.parse(Userdata.followedby).length )
         }
         if(Userdata.follows){
-
+         
           setUserFollowings(JSON.parse(Userdata.follows).length)
         }
 
       }
-  } , [Userdata])
+  } , [Userdata , LoadingUser])
+
   const HandleFollowFollowingLists = async (type) => {
     if (type === "followers" || type === "following") {
         setTypeModelFollow(type)
@@ -126,7 +130,7 @@ export default function Profile() {
 
 
             {TypeModelFollow.trim() !== "" ? <div className='w-full z-1 absolute h-full flex items-center justify-center'>
-                <FollowUnfollowModel type={TypeModelFollow} setTypeModelFollow={setTypeModelFollow}/>
+                <FollowUnfollowModel username={Userdata.username} type={TypeModelFollow} setTypeModelFollow={setTypeModelFollow}/>
             </div> : <></> }
 
             <div className={`flex flex-col  bg-white h-screen max-w-[1500px] overflow-y-auto p-[20px]`}>

@@ -26,6 +26,7 @@ export default function FollowUnfollow({followerscount  , setUserFollowers ,  us
       udata.follows = JSON.stringify(myFollows)
       setUserdata(udata)
       setUserFollowers(followerscount + 1)
+      setisLoading(false)
     }
     if (response.data?.typeaction && response.data?.typeaction === "unfollow") {
       let udata = JSON.parse(JSON.stringify(Userdata))
@@ -33,9 +34,10 @@ export default function FollowUnfollow({followerscount  , setUserFollowers ,  us
       udata.follows = filtered_data
       setUserdata(udata)
       setUserFollowers(followerscount - 1)
+      setisLoading(false)
 
     }
-    setisLoading(false)
+  
   }
 
   return (

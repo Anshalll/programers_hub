@@ -1,34 +1,56 @@
 import React, { useEffect, useState } from 'react'
-import { useFetchDataQuery } from '../redux/apis/slice'
+import {  useSendDataMutation } from '../redux/apis/slice'
 import toast, { Toaster } from 'react-hot-toast'
 import { useProfiledata } from '../hooks/useProfiledata'
 import Loading from './Loading'
 import CloseIcon from '@mui/icons-material/Close';
-export default function Followers({ setTypeModelFollow }) {
+
+
+export default function Followers({username,  setTypeModelFollow }) {
 
   const [FollowersData, setFollowersData] = useState([])
   const { data: userdata } = useProfiledata()
   const [UserSearchTerm, setUserSearchTerm] = useState("")
+  const [isLoading, setisLoading] = useState(false)
+  const [data, setdata] = useState({  })
 
   const ErrorFetchingData = () => toast.error("An error occured!", {
     duration: 1500,
     position: 'top-center'
   })
-  const { isLoading, data, error } = useFetchDataQuery("/getfollowers")
+
+  const [Send_data] = useSendDataMutation()
+
   useEffect(() => {
+        const GetFollowers = async () => {
+          try {
+            setisLoading(true)
+            const response = await Send_data({ url: "/getfollowers" , method: "POST" , data: {username} })
 
-   
-      if (!isLoading) {
-        if (error) {
-          ErrorFetchingData()
+          if (response.error) {
+            ErrorFetchingData()
+          }
+          if (response.data?.followers?.length > 0) {
+            setdata(response.data.followers)
+            setFollowersData(response.data.followers)
+          }
+          } catch (error) {
+            console.error(error)
+            ErrorFetchingData()
+          }
+          finally{
+            setisLoading(false)
+
+          }
+          
+          
         }
 
-        if (data?.followers?.length > 0) {
-          setFollowersData(data.followers)
-        }
-      }
+
+      
+        GetFollowers()
     
-  }, [ isLoading, data, error])
+  }, [ Send_data , username ])
 
   const CloseFollowUnfollowModel  = () => {
     setTypeModelFollow("")
@@ -38,7 +60,7 @@ export default function Followers({ setTypeModelFollow }) {
   const UserSearch = (e) => {
     setUserSearchTerm(e.target.value)
     if (e.target.value.trim() === "") {
-      setFollowersData(data?.followers)
+      setFollowersData(data)
 
     }
     else {
@@ -63,7 +85,7 @@ export default function Followers({ setTypeModelFollow }) {
        {isLoading ? <div className='w-full items-center flex justify-center h-[calc(100%-10px)]'>
               <Loading />
             </div> : <>
-              {data?.followers?.length > 0 ? <>
+              {data.length > 0 ? <>
       
                 <input type="text" value={UserSearchTerm} onChange={(e) => UserSearch(e)} placeholder='Search for someone.' className='w-full h-[30px] rounded-lg px-[10px] outline-none border-2 border-gray-300' />
                 {FollowersData.length > 0 ? <div className='Scroller w-full h-[calc(100%-40px)] flex flex-col gap-[20px] overflow-y-auto'>
@@ -79,7 +101,14 @@ export default function Followers({ setTypeModelFollow }) {
                           </div>
                         </a>
       
-                        {(userdata.follows && JSON.parse(userdata.follows).includes(value.username)) ? "Following" : <button className='bg-[#FF6500] px-[20px] py-[5px] rounded-lg'>Follow</button>}
+                        {userdata.username !== value.username ?
+                        (<>
+                       
+                        {userdata.follows && JSON.parse(userdata.follows).includes(value.username) ? "Following" : <button className='bg-[#FF6500] px-[20px] py-[5px] rounded-lg'>Follow</button>}
+                        </>)
+                        : 
+                        <p>You</p>
+                        }
                       </div>
 
       
@@ -88,7 +117,7 @@ export default function Followers({ setTypeModelFollow }) {
       
                 </div> : <p className='flex w-full h-[calc(100%-40px)] text-lg font-bold items-center justify-center'>No user found!</p>}
       
-              </> : <p className='flex w-full h-[calc(100%-40px)] text-lg font-bold items-center justify-center'>No followings!</p>}
+              </> : <p className='flex w-full h-[calc(100%-40px)] text-lg font-bold items-center justify-center'>No followers!</p>}
             </>}
 
 
