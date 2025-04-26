@@ -100,7 +100,7 @@ export default function Followings({ username, setTypeModelFollow }) {
                     </div>
                   </a>
 
-                  {userdata.username === username ? <button className='border-2 border-white px-[20px] py-[5px] rounded-lg'>Remove</button> : <p>You</p>}
+                  {userdata.username === value.username ? <p>You</p>  : (JSON.parse(userdata.follows).includes(value.username) ? "Following" : "follow")}
                 </div>
 
 
