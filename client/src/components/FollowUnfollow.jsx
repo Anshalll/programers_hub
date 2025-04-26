@@ -20,7 +20,8 @@ export default function FollowUnfollow({followerscount  , setUserFollowers ,  us
     setisLoading(true)
     const response = await Send_data({ url: "/followunfollow", method: "POST", data: { type, username } })
     if (response.data?.typeaction && response.data?.typeaction === "follow") {
-      let myFollows = JSON.parse(Userdata.follows)
+      
+      let myFollows = Userdata.follows ?  JSON.parse(Userdata.follows) : []
       myFollows.push(username)
       let udata = JSON.parse(JSON.stringify(Userdata))
       udata.follows = JSON.stringify(myFollows)

@@ -93,7 +93,7 @@ export default function Followers({username,  setTypeModelFollow }) {
                     FollowersData.map((value, index) => (
                       <div key={index} className='flex w-full justify-between items-center'>
       
-                        <a className='flex w-full items-center gap-[10px]' href={`${import.meta.env.VITE_CLIENTURL}/profile?user=${value.username}`} key={index}>
+                        <a className='flex w-full items-center gap-[10px]' href={`${import.meta.env.VITE_CLIENTLOCAL}/profile?user=${value.username}`} key={index}>
                           <img className='w-[40px] h-[40px] rounded-full object-cover' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${value.dp}`} alt="" />
                           <div className='flex flex-col gap-[2px]'>
                             <p>{value.username}</p>
@@ -104,7 +104,7 @@ export default function Followers({username,  setTypeModelFollow }) {
                         {userdata.username !== value.username ?
                         (<>
                        
-                        {userdata.follows && JSON.parse(userdata.follows).includes(value.username) ? "Following" : <button className='bg-[#FF6500] px-[20px] py-[5px] rounded-lg'>Follow</button>}
+                        {userdata.follows && JSON.parse(userdata.follows)?.includes(value.username) ? <button className='bg-indigo-500 px-[20px] py-[5px] rounded-lg'>Following</button> : <button className='bg-[#FF6500] px-[20px] py-[5px] rounded-lg'>Follow</button>}
                         </>)
                         : 
                         <p>You</p>

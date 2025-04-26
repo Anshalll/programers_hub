@@ -127,7 +127,7 @@ export default function Profile() {
             {(SelectedPost >= 0 && SelectedPost !== null) ? <div className='w-full z-1 absolute h-full flex items-center justify-center'>
               <SelectedImageModel userPosts={Userposts}  setselecteduserImage={setSelectedPost} selecteduserImage={SelectedPost} />
             </div> : <></>}
-
+              
 
             {TypeModelFollow.trim() !== "" ? <div className='w-full z-1 absolute h-full flex items-center justify-center'>
                 <FollowUnfollowModel username={Userdata.username} type={TypeModelFollow} setTypeModelFollow={setTypeModelFollow}/>
