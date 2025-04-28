@@ -17,7 +17,7 @@ export default function Profile() {
   const dispatch = useDispatch()
   const [UpdateState, setUpdateState] = useState(false)
   const [Datasend] = useSendDataMutation()
-  const [Userdata, setUserdata] = useState([])
+  const [Userdata, setUserdata] = useState({})
   const [Userposts, setUserposts] = useState([])
   const [Error, setError] = useState("")
   const [LoadingUser, setLoadingUser] = useState(true)
@@ -30,12 +30,12 @@ export default function Profile() {
 
 
   useEffect(() => {
-    if (Object.keys(data).length > 0) {
+    if (Object.keys(data).length > 0 && Object.keys(Userdata).length === 0) {
 
       setUserdata(data)
       setUserposts(post)
     }
-  }, [data, post])
+  }, [data, post , Userdata])
 
 
   useEffect(() => {
@@ -92,18 +92,33 @@ export default function Profile() {
   }, [data.username, Datasend, dispatch]);
 
   useEffect(() => {
-    if (Object.keys(Userdata).length > 0 && !LoadingUser) {
-        if (Userdata.followedby) {
-          
-          setUserFollowers(JSON.parse(Userdata.followedby).length )
-        }
-        if(Userdata.follows){
-         
-          setUserFollowings(JSON.parse(Userdata.follows).length)
+
+    if (Admin) {
+        if (data.follows) {
+            setUserFollowings(JSON.parse(data.follows).length)
         }
 
-      }
-  } , [Userdata , LoadingUser])
+        if (data.followedby) {
+          setUserFollowers(JSON.parse(data.followedby).length)
+        }
+    }
+    else{
+      if (Object.keys(Userdata).length > 0 && !LoadingUser) {
+      
+      
+          if (Userdata.followedby) {
+              
+              setUserFollowers(JSON.parse(Userdata.followedby).length )
+            }
+            if(Userdata.follows){
+             
+              setUserFollowings(JSON.parse(Userdata.follows).length)
+            }
+    
+          }
+    }
+   
+  } , [Admin , data , Userdata , LoadingUser ])
 
   const HandleFollowFollowingLists = async (type) => {
     if (type === "followers" || type === "following") {
@@ -128,7 +143,7 @@ export default function Profile() {
               <SelectedImageModel userPosts={Userposts}  setselecteduserImage={setSelectedPost} selecteduserImage={SelectedPost} />
             </div> : <></>}
               
-
+              {console.log(Userdata)}
             {TypeModelFollow.trim() !== "" ? <div className='w-full z-1 absolute h-full flex items-center justify-center'>
                 <FollowUnfollowModel username={Userdata.username} type={TypeModelFollow} setTypeModelFollow={setTypeModelFollow}/>
             </div> : <></> }

@@ -75,7 +75,7 @@ export default function Followers({username,  setTypeModelFollow }) {
   }
 
   return (
-    <div className='w-[400px] h-[500px] p-[20px] flex flex-col gap-[20px] rounded-lg bg-black text-white'>
+    <div className='w-[600px] h-[500px] p-[20px] flex flex-col gap-[20px] rounded-lg bg-black text-white'>
       <div className='flex w-full items-center justify-between h-[10px]'>
         <Toaster />
         <p className='text-md'>Followers</p>
@@ -102,10 +102,10 @@ export default function Followers({username,  setTypeModelFollow }) {
                         </a>
       
                         {userdata.username !== value.username ?
-                        (<>
-                       
-                        {userdata.follows && JSON.parse(userdata.follows)?.includes(value.username) ? <button className='bg-indigo-500 px-[20px] py-[5px] rounded-lg'>Following</button> : <button className='bg-[#FF6500] px-[20px] py-[5px] rounded-lg'>Follow</button>}
-                        </>)
+                        (<div className='flex items-center gap-[10px]'>
+                          {userdata.username === username && <button className='border-2 border-white w-[80px] py-[5px] rounded-lg'>Remove</button> }
+                        {userdata.follows && JSON.parse(userdata.follows)?.includes(value.username) ? <button className='bg-indigo-500 w-[80px] py-[5px] rounded-lg'>Following</button> : <button className='bg-[#FF6500] w-[80px] py-[5px] rounded-lg'>Follow</button>}
+                        </div>)
                         : 
                         <p>You</p>
                         }
