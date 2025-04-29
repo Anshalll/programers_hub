@@ -11,6 +11,8 @@ import SelectedImageModel from '../components/SelectedImageModal'
 import { useDispatch } from 'react-redux';
 import FollowUnfollow from '../components/FollowUnfollow';
 import FollowUnfollowModel from '../components/FollowUnfollowModel'
+
+
 export default function Profile() {
 
   const { data, post } = useProfiledata()
@@ -35,7 +37,7 @@ export default function Profile() {
       setUserdata(data)
       setUserposts(post)
     }
-  }, [data, post , Userdata])
+  }, [data, post, Userdata])
 
 
   useEffect(() => {
@@ -50,7 +52,7 @@ export default function Profile() {
   }, [data.username])
 
   useEffect(() => {
-  
+
     async function userget() {
       if (data.username) {
         const params = new URLSearchParams(window.location.search);
@@ -94,35 +96,48 @@ export default function Profile() {
   useEffect(() => {
 
     if (Admin) {
-        if (data.follows) {
-            setUserFollowings(JSON.parse(data.follows).length)
+      if (data.follows) {
+        setUserFollowings(JSON.parse(data.follows).length)
+      }
+      else {
+        setUserFollowings(0)
+      }
+
+      if (data.followedby) {
+        console.log(JSON.parse(data.followedby).length)
+        setUserFollowers(JSON.parse(data.followedby).length)
+      }
+      else {
+        setUserFollowers(0)
+      }
+    }
+    else {
+      if (Object.keys(Userdata).length > 0 && !LoadingUser) {
+
+
+        if (Userdata.followedby) {
+
+          setUserFollowers(JSON.parse(Userdata.followedby).length)
+        }
+        else {
+          setUserFollowers(0)
+        }
+        if (Userdata.follows) {
+
+          setUserFollowings(JSON.parse(Userdata.follows).length)
+        }
+        else {
+          setUserFollowers(0)
         }
 
-        if (data.followedby) {
-          setUserFollowers(JSON.parse(data.followedby).length)
-        }
+      }
     }
-    else{
-      if (Object.keys(Userdata).length > 0 && !LoadingUser) {
-      
-      
-          if (Userdata.followedby) {
-              
-              setUserFollowers(JSON.parse(Userdata.followedby).length )
-            }
-            if(Userdata.follows){
-             
-              setUserFollowings(JSON.parse(Userdata.follows).length)
-            }
-    
-          }
-    }
-   
-  } , [Admin , data , Userdata , LoadingUser ])
+
+  }, [Admin, data, Userdata, LoadingUser])
 
   const HandleFollowFollowingLists = async (type) => {
     if (type === "followers" || type === "following") {
-        setTypeModelFollow(type)
+      setTypeModelFollow(type)
     }
 
 
@@ -140,13 +155,13 @@ export default function Profile() {
           Object.keys(data).length > 0 &&
           <>
             {(SelectedPost >= 0 && SelectedPost !== null) ? <div className='w-full z-1 absolute h-full flex items-center justify-center'>
-              <SelectedImageModel userPosts={Userposts}  setselecteduserImage={setSelectedPost} selecteduserImage={SelectedPost} />
+              <SelectedImageModel userPosts={Userposts} setselecteduserImage={setSelectedPost} selecteduserImage={SelectedPost} />
             </div> : <></>}
-              
-            
+
+
             {TypeModelFollow.trim() !== "" ? <div className='w-full z-1 absolute h-full flex items-center justify-center'>
-                <FollowUnfollowModel username={Userdata.username} type={TypeModelFollow} setTypeModelFollow={setTypeModelFollow}/>
-            </div> : <></> }
+              <FollowUnfollowModel username={Userdata.username} type={TypeModelFollow} setTypeModelFollow={setTypeModelFollow} />
+            </div> : <></>}
 
             <div className={`flex flex-col  bg-white h-screen max-w-[1500px] overflow-y-auto p-[20px]`}>
 
@@ -184,7 +199,7 @@ export default function Profile() {
                       <button onClick={() => HandleFollowFollowingLists("following")} className='text-center'>{UserFollowings} <br /> <span>Following</span></button>
 
                     </div>
-                    {!Admin && <FollowUnfollow followerscount={UserFollowers} setUserFollowers={setUserFollowers} username={Userdata.username}/>}
+                    {!Admin && <FollowUnfollow followerscount={UserFollowers} setUserFollowers={setUserFollowers} username={Userdata.username} />}
                   </div>
 
 

@@ -15,8 +15,14 @@ function useFollowunfollow(){
         return response
     }
 
+    const RmFollower = async (username) => {
+        const response = await Send_data({ url: "/rmfollower" , method: "PATCH" , data: { username} })
 
-    return {FollowUser , UnfollowUser}
+        return response
+    }
+
+
+    return {FollowUser , UnfollowUser , RmFollower}
 }
 
 

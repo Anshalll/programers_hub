@@ -1374,4 +1374,71 @@ def get_followings():
         print("Error:", e)
         return jsonify(error="Internal server error!"), 500
     
+
+@app.route("/api/rmfollower" , methods=["PATCH"])
+def rmfollower():
+    try: 
+
+        if "username" not in session:
+            return jsonify(logged=False) , 403
+    
+        data = request.get_json()
+        user_name = data.get("username")
+
+        if not user_name or user_name.strip() == "":
+            return jsonify(error="An error occured!") , 400
+
+
+        current_user = database.ExecuteQuery("SELECT * FROM registers where username = %s" , (session["username"],))
+
+
+        if len(current_user) == 0:
+            return jsonify(error="An error occured!") , 400
+        
+        check_user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s" , (user_name , ))
+        if len(check_user) == 0:
+            return jsonify(error="An error occured!") , 400
+        
+        get_followers = database.ExecuteQuery("SELECT * FROM followers WHERE belongsto = %s" , (current_user[0]["id"] , ))
+        if len(get_followers) == 0:
+            return jsonify("An error occured!") , 400
+        
+        else:
+
+            load_followers =  json.loads(get_followers[0]["followedby"])
+         
+            if len(load_followers) > 1 and check_user[0]["username"] in load_followers:
+                load_followers.remove(check_user[0]["username"])
+                database.ExecuteQuery("UPDATE followers SET followedby = %s WHERE belongsto = %s" , (json.dumps(load_followers) , current_user[0]["id"] , ))
+
+            elif len(load_followers) == 1 and check_user[0]["username"] in load_followers:
+                database.ExecuteQuery("DELETE FROM followers WHERE belongsto = %s" , (current_user[0]["id"] , ))
+
+        get_followings  = database.ExecuteQuery("SELECT * FROM followings WHERE belongsto = %s" , (check_user[0]["id"] , ))
+
+        if len(get_followings) == 0:
+            return jsonify("An error occured!") , 400
+        
+        else:
+
+            load_followings =  json.loads(get_followings[0]["follows"])
+         
+            if len(load_followings) >  1 and current_user[0]["username"] in load_followings:
+                load_followings.remove(current_user[0]["username"])
+                database.ExecuteQuery("UPDATE followings SET follows = %s WHERE belongsto = %s" , (json.dumps(load_followings) , check_user[0]["id"] , ))  
+
+
+            if len(load_followings) == 1 and current_user[0]["username"] in load_followings:
+                
+                database.ExecuteQuery("DELETE FROM followings WHERE belongsto = %s" , ( check_user[0]["id"] , ))          
+
+
+        
+        return jsonify(message="User removed!") ,200
+
+
+    except Exception as e:
+        print(e)
+        return jsonify(error="Internal server error!") , 500
+    
 app.run(debug=True , port=8000 , host="0.0.0.0")
