@@ -65,6 +65,7 @@ export default function Followings({ username, setTypeModelFollow }) {
   }
 
   const UserSearch = (e) => {
+    setisLoading(true)
     setUserSearchTerm(e.target.value)
     if (e.target.value.trim() === "") {
       setFollowingsData(data)
@@ -78,11 +79,12 @@ export default function Followings({ username, setTypeModelFollow }) {
       setFollowingsData(foundings)
     }
 
-
+    setisLoading(false)
   }
 
 
   const HandleUnfollowInModel = async (value) => {
+    setisLoading(true)
     const resp = await UnfollowUser(value.username)
     if (resp.error) {
       ErrorFetchingData()
@@ -98,13 +100,15 @@ export default function Followings({ username, setTypeModelFollow }) {
         let parse_data = JSON.parse(JSON.stringify(userdata))
         parse_data.follows = JSON.stringify(follows_data)
         dispatch(setudata(parse_data))
-        
+
       }
 
     }
+    setisLoading(false)
   }
 
   const HandlefollowInModel = async (value, index) => {
+    setisLoading(true)
     const resp = await FollowUser(value.username)
     if (resp.error) {
       ErrorFetchingData()
@@ -139,6 +143,7 @@ export default function Followings({ username, setTypeModelFollow }) {
 
 
     }
+    setisLoading(false)
   }
 
   return (
@@ -154,7 +159,7 @@ export default function Followings({ username, setTypeModelFollow }) {
         <Loading />
       </div> : <>
 
-
+      {data?.length > 0 ? <>
         <input type="text" value={UserSearchTerm} onChange={(e) => UserSearch(e)} placeholder='Search for someone.' className='w-full h-[30px] rounded-lg px-[10px] outline-none border-2 border-gray-300' />
         {FollowingsData.length > 0 ? <div className='Scroller w-full h-[calc(100%-40px)] flex flex-col gap-[20px] overflow-y-auto'>
           {
@@ -192,7 +197,8 @@ export default function Followings({ username, setTypeModelFollow }) {
 
         </div> : <p className='flex w-full h-[calc(100%-40px)] text-lg font-bold items-center justify-center'>No user found!</p>}
 
-
+        </>
+             : <p className='flex w-full h-[calc(100%-40px)] text-lg font-bold items-center justify-center'>No Followings!</p>}
       </>}
     </div>
   )
