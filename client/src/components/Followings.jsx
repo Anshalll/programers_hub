@@ -91,12 +91,14 @@ export default function Followings({ username, setTypeModelFollow }) {
       if (username === value.username) {
        setdata(prevData => prevData.filter(user => user.username !== value.username))
       }
-      if (userdata && userdata.follows) {
+      if (userdata?.follows && JSON.parse(userdata.follows).length > 0) {
         
         let follows_data = JSON.parse(userdata.follows).filter((e) => e !== value.username)
+        
         let parse_data = JSON.parse(JSON.stringify(userdata))
         parse_data.follows = JSON.stringify(follows_data)
         dispatch(setudata(parse_data))
+        
       }
 
     }
@@ -117,9 +119,9 @@ export default function Followings({ username, setTypeModelFollow }) {
       }
 
       if (!userdata.follows) {
-        let follows = JSON.stringify([username])
+        let follows = JSON.stringify([value.username])
         let parse_data = JSON.parse(JSON.stringify(userdata))
-        parse_data.follows = JSON.stringify(follows)
+        parse_data.follows = follows
         dispatch(setudata(parse_data))
 
       }
