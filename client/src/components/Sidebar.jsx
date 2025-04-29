@@ -27,7 +27,7 @@ export default function Sidebar() {
   }, [data, Username , location])
 
   return (
-    <aside className='flex items-center bg-black  p-[10px] h-[100vh]'>
+    <div className=' flex items-center  p-[10px] h-[100vh]'>
     {!isSearchedOpen &&   <div className='h-[80%] flex flex-col gap-[20px]'>
         <p className='text-white'>Social media</p>
         <NavLink to={"/"}
@@ -39,12 +39,12 @@ export default function Sidebar() {
         </NavLink>
         <button onClick={() => setisSearchedOpen(true)} className='text-white flex items-center gap-[20px]'><SearchOutlinedIcon />Search</button>
           
-        <NavLink to={"/messages"}
+        <NavLink to={"/chat"}
           className={({ isActive }) =>
             `${isActive ? "text-[#FF6500]" : "text-white"} flex items-center gap-[20px]`
           }
         >
-          <EmailOutlinedIcon sx={{ fontSize: 22 }} /> Messages
+          <EmailOutlinedIcon sx={{ fontSize: 22 }} /> Chat
         </NavLink>
         <a href={`${import.meta.env.VITE_CLIENTLOCAL}/profile?user=${Username}`} className={
           `${location.pathname === "/profile" ? "text-[#FF6500]" : "text-white"} flex items-center gap-[20px]`
@@ -67,6 +67,6 @@ export default function Sidebar() {
       </div>}
       {isSearchedOpen ?   <SearchComponent  setIsOpenSearch={setisSearchedOpen}/> : <></>}
 
-    </aside>
+    </div>
   )
 }

@@ -1,23 +1,45 @@
 @import "tailwindcss";
 
-:root{
-    background-color: #0B192C;
-    --replyusername : rgba(0, 156, 255, 0.66)
+
+:root {
+  --bg-color: black;
+  --replyusername: rgba(0, 156, 255, 0.66);
+  --darkcomps: #09090b;
+  --bg-cyan: cyan;
 }
 
-.itsjust{
+
+
+
+
+@layer components {
+
+  .itsjust {
     @apply flex justify-center items-center;
+  }
+
+  .itsjustbtw {
+    @apply flex justify-between items-center;
+  }
+
+  .its {
+    @apply flex items-center;
+  }
+
+  .btnorg{
+    background-color: var(--bg-cyan);
+  }
+
+}
+html {
+  background-color: var(--bg-color)
 }
 
-.itsjustbtw{
-    @apply flex justify-between items-center;
-}
 textarea {
   resize: none;
 }
-.its{
-    @apply flex items-center;
-}
+
+
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -25,12 +47,20 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
-/* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
 }
 
-.Uploadedimgs:hover .rmuploaded{
+button {
+  cursor: pointer;
+}
+
+
+.darkcomp {
+  background-color: var(--darkcomps);
+}
+
+.Uploadedimgs:hover .rmuploaded {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -40,11 +70,8 @@ input[type=number] {
 
 }
 
-button{
-  cursor: pointer;
-}
 
-.replyuser{
+.replyuser {
   background-color: var(--replyusername);
 }
 
@@ -52,4 +79,4 @@ button{
 .Scroller::-webkit-scrollbar {
   display: none;
 }
-/* Create a CSS file (e.g., EmojiPickerStyles.css) */
+

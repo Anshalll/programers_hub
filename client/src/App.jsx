@@ -18,6 +18,7 @@ export default function App() {
   const Register = lazy(() => import("./pages/Register.jsx"));
   const Communities = lazy(() => import("./pages/Communities.jsx"));
   const Passwordreset = lazy(() => import("./pages/Passwordreset.jsx"))
+  const Chat = lazy(() => import("./pages/Chat.jsx"))
   
   const Resetpass = lazy(() => import("./pages/Resetpass.jsx"))
   const CommunityRanking = lazy(() => import("./pages/CommunityRanking.jsx"))
@@ -61,6 +62,7 @@ export default function App() {
               <Route path="/createpost" element={<CreatePost />} />
               <Route path="/community" element={<Communities />} />
               <Route path="/rankings/community" element={<CommunityRanking />} />
+              <Route path="/chat" element={<Chat />} />
 
 
             </Route>
