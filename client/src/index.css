@@ -41,6 +41,8 @@ textarea {
 
 
 
+
+
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -59,6 +61,11 @@ button {
 .darkcomp {
   background-color: var(--darkcomps);
 }
+
+.blackcomp {
+  background-color: var(--darkcomps);
+}
+
 
 .Uploadedimgs:hover .rmuploaded {
   display: flex;
