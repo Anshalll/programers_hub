@@ -3,6 +3,7 @@ import DoneAllIcon from '@mui/icons-material/DoneAll';
 import Input from './Inputcomment'
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import InsertPhotoOutlinedIcon from '@mui/icons-material/InsertPhotoOutlined';
+import ChatHeader from './chat/ChatHeader';
 
 export default function ChatMessages({ user }) {
     const [NewMessage, setNewMessage] = useState("")
@@ -55,7 +56,7 @@ export default function ChatMessages({ user }) {
         { seen: false, message: "Talk later?", time: "03:13 am", type: "sender" },
         { seen: true, message: "Sure!", time: "03:14 am", type: "receiver" },
         { seen: true, message: "Bye again!", time: "03:15 am", type: "sender" },
-        { seen: false, message: "Bye!", time: "03:16 am", type: "receiver" }
+        { seen: false, message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis iure praesentium veritatis perspiciatis eius ullam aperiam natus necessitatibus ducimus vitae similique consequatur inventore ea fugiat, nesciunt nulla error velit accusantium. Quisquam ratione iusto inventore reprehenderit ducimus excepturi quasi delectus facilis tenetur beatae? Architecto error libero, vitae aspernatur sunt quam id aliquid recusandae necessitatibus incidunt iure, explicabo iusto! Impedit explicabo molestiae odio modi in alias eius aliquam aspernatur, aliquid amet assumenda ut necessitatibus expedita reiciendis, laudantium sapiente dolorem maiores numquam recusandae nesciunt sequi iste eveniet! Debitis, consectetur? Ipsam rerum, id modi nesciunt debitis perspiciatis officiis eos odio numquam provident recusandae laborum!", time: "03:16 am", type: "receiver" }
     ];
 
     const SendMessage = () => {
@@ -64,26 +65,14 @@ export default function ChatMessages({ user }) {
 
     return (
         <div className='w-full h-full flex-col  '>
-            <div className='h-[80px]  px-[20px] flex items-center darkcomp'>
-                <div className='flex  items-center gap-[10px]'>
-                    <img className='h-[40px] w-[40px] flex rounded-full object-cover' src={user.profilePic} alt="" />
-                    <div className='flex flex-col gap-[5px]'>
 
-                        <p className='text-white'>{user.username}</p>
-                        <p className='text-white'>{user.isOneline ? <span className='text-[chartreuse]'>Online</span> : <span className='text-[crimson]'>Offline</span>}</p>
-                    </div>
-                </div>
-
-
-            </div>
-
-
+            <ChatHeader profilePic={user.profilePic} username={user.username} isOnline={user.isOnline} />
             <div className='Scroller h-[calc(100%-160px)] px-[20px] flex flex-col overflow-y-auto gap-[20px]  w-full'>
                 {Messages.map((item, key) => (
                     <div key={key}>
 
                         <div className={`flex ${item.type === "sender" ? "justify-end" : "justify-start"} w-full`} key={key}>
-                            {item.type === "receiver" && <div className='max-w-[70%] bg-gradient-to-r darkcomp rounded-tl-2xl rounded-tr-md rounded-bl-2xl shadow-lg shadow-cyan-900/60 p-4'>
+                            {item.type === "receiver" && <div className='max-w-[70%] bg-[#00565e]  rounded-tl-md rounded-tr-2xl rounded-br-2xl shadow-lg shadow-cyan-900/30 p-4'>
                                 <p className='text-white'>{item.message}</p>
 
 
@@ -91,14 +80,24 @@ export default function ChatMessages({ user }) {
 
 
                             </div>}
-                            {item.type === "sender" && <div className='max-w-[70%] bg-gradient-to-r darkcomp rounded-tl-2xl rounded-tr-md rounded-bl-2xl shadow-lg shadow-cyan-900/60 p-4'>
-                                <p className='leading-relaxed text-white'>{item.message}</p>
-                                <div className='flex mt-2 gap-[20px] items-center justify-between'>
-                                    <p className='text-xs text-cyan-100/70'>{item.time}</p>
+                            {item.type === "sender" &&
 
-                                    <span className={`${item.seen ? "text-[chartreuse]" : "text-[crimson]"}`}><DoneAllIcon sx={{ fontSize: 14 }} /></span>
-                                </div>
-                            </div>}
+                                <div className='flex flex-col max-w-[70%] h-max items-end gap-[10px] '>
+
+                                    
+                                    <div className='w-full   bg-[#00565e] shadow-lg rounded-tl-2xl rounded-tr-md rounded-bl-2xl  shadow-cyan-900/30 p-4'>
+                                        <p className='leading-relaxed text-white'>{item.message}</p>
+
+                                      
+
+
+                                    </div>
+
+                                    <p className='text-xs flex items-center gap-[7px] text-cyan-100/70'>{item.time} <span className={`${item.seen ? "text-[chartreuse]" : "text-[crimson]"} `}><DoneAllIcon sx={{ fontSize: 14 }} /></span></p>
+                                    
+
+
+                                </div>}
                         </div>
                     </div>
                 ))}

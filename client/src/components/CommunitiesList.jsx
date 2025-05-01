@@ -1,6 +1,7 @@
 import React from 'react'
 
 export default function CommunitiesList() {
+    
     const Data = [
         {
             "username": "John Doe",
@@ -146,15 +147,16 @@ export default function CommunitiesList() {
         }
     ]
 
-  return (
-    <div className=" flex flex-col h-[calc(100vh-60px)] p-[10px] gap-[20px] overflow-y-auto">
+    return (
+        <div className="Scroller flex flex-col h-[calc(100vh-60px)] p-[10px] gap-[20px] overflow-y-auto">
             {Data.map((item, index) => (
                 <div>
 
                     <div key={index} className='w-full relative  h-[70px] flex items-center justify-start gap-[10px] hover:bg-[#1a1a1a] rounded-lg p-[10px] cursor-pointer'>
                         <div className='relative'>
-                            
-                        <img src={item.profilePic} alt="Profile" className='w-[50px] object-cover h-[50px] rounded-full' />
+
+                            <img src={item.profilePic} alt="Profile" className='w-[50px] object-cover h-[50px] rounded-full' />
+                            {item.isOnline && <span className='absolute right-1 border border-black bottom-[2px] rounded-full p-[5px] bg-green-500'></span>}
                         </div>
                         <div className='flex flex-col'>
                             <span className='text-white font-bold'>{item.username}</span>
@@ -170,5 +172,5 @@ export default function CommunitiesList() {
 
             ))}
         </div>
-  )
+    )
 }
