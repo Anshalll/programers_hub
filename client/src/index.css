@@ -30,6 +30,14 @@
     background-color: var(--bg-cyan);
   }
 
+  .btns{
+    @apply bg-gradient-to-r from-cyan-300 to-cyan-500
+  }
+
+  .darkbtns{
+    @apply bg-gradient-to-r from-gray-700 to-gray-900
+  }
+
 }
 html {
   background-color: var(--blackcomp)

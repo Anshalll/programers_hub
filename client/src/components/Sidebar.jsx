@@ -29,7 +29,7 @@ export default function Sidebar() {
   return (
     <div className=' flex items-center  p-[10px] h-[100vh]'>
     {!isSearchedOpen &&   <div className='h-[80%] flex flex-col gap-[20px]'>
-        <p className='text-white'>Social media</p>
+      <p className='text-lg bg-gradient-to-r from-cyan-300 font-bold to-cyan-500 text-transparent bg-clip-text  h-[40px]'>Social media </p>
         <NavLink to={"/"}
           className={({ isActive }) =>
             `${isActive ? "text-[#FF6500]" : "text-white"} flex items-center gap-[20px]`

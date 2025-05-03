@@ -9,17 +9,17 @@ export default function Home() {
   return (
     <Layout>
       <div className='w-full text-white flex h-full p-[20px]'>
-        <div className='flex flex-col w-full gap-[20px] h-full'>
+        <div className='flex flex-col w-full gap-[20px]   h-full'>
           <div className=' w-full  h-[40px]'>
             <Tabs />
           </div>
-          <div className='flex-1 blackcomp flex flex-col gap-[20px] h-[calc(100vh - 40px)] overflow-y-auto'>
+          <div className='Scroller flex-1 blackcomp flex flex-col  items-center gap-[20px] h-[calc(100vh - 40px)] overflow-y-auto'>
 
           <HomeFeed />
           </div>
         </div>
 
-      <div className='w-[25rem] darkcomp h-full'>
+      <div className='w-[25rem] darkcomp h-full '>
 
         <Moments />
       </div>
