@@ -2,7 +2,7 @@
 
 
 :root {
-  --bg-color: black;
+  --blackcomp: black;
   --replyusername: rgba(0, 156, 255, 0.66);
   --darkcomps: #09090b;
   --bg-cyan: cyan;
@@ -32,7 +32,7 @@
 
 }
 html {
-  background-color: var(--bg-color)
+  background-color: var(--blackcomp)
 }
 
 textarea {
@@ -63,7 +63,7 @@ button {
 }
 
 .blackcomp {
-  background-color: var(--darkcomps);
+  background-color: var(--blackcomp);
 }
 
 
