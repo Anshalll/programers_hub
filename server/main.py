@@ -42,7 +42,7 @@ def index():
         userdata = database.ExecuteQuery(query , (session["username"], ))
 
         userposts = database.ExecuteQuery(
-            "SELECT p.* , lp.uid AS hasliked , lp.pid FROM posts p LEFT JOIN post_likes lp on lp.uid = p.belongsto where belongsto = %s",
+            "SELECT p.* , lp.uid AS hasliked , lp.pid FROM posts p LEFT JOIN post_likes lp on lp.uid = p.belongsto AND lp.pid = p.uniqueid where belongsto = %s",
             (userdata[0]["id"],)
         )
         
@@ -1454,7 +1454,7 @@ def get_home_posts():
 
 
 
-        get_posts = database.ExecuteQuery("SELECT po.* , r.id AS registerid , r.username ,p.dp , p.id , postlike.pid  AS postlikeid , postlike.uid AS hasliked FROM posts po INNER JOIN registers r on r.id = po.belongsto LEFT JOIN profile p on p.id = po.belongsto LEFT JOIN post_likes postlike on postlike.pid  = po.uniqueid AND postlike.uid = %s   ORDER BY po.likes DESC LIMIT 100" , (user[0]["id"] , ))
+        get_posts = database.ExecuteQuery("SELECT po.* , r.id AS registerid , r.username ,p.dp , p.id , postlike.pid   , postlike.uid AS hasliked FROM posts po INNER JOIN registers r on r.id = po.belongsto LEFT JOIN profile p on p.id = po.belongsto LEFT JOIN post_likes postlike on postlike.pid  = po.uniqueid AND postlike.uid = %s   ORDER BY po.likes DESC LIMIT 100" , (user[0]["id"] , ))
 
         
         

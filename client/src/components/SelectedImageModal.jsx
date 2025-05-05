@@ -20,6 +20,9 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import Reply from './Reply';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
+import HandlePostLike from '../shared/HandlePostLike';
+
+
 export default function SelectedImageModal({ userPosts: post, setselecteduserImage, selecteduserImage }) {
 
 
@@ -34,12 +37,12 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
   const dispatch = useDispatch()
   const [ReplyState, setReplyState] = useState({ isOpen: false, id: null, cid: null })
   const [ReplyUsername, setReplyUsername] = useState("")
-  const [selectedImage, setSelectedPost] = useState({})
+  const [selectedImage, setSelectedImage] = useState({})
   const [ActiveIndex, setActiveIndex] = useState(0)
 
 
   const HandlePostClose = () => {
-    setSelectedPost({})
+    setSelectedImage({})
     setselecteduserImage(null)
   }
 
@@ -47,7 +50,7 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
 
     if (selecteduserImage !== null && selecteduserImage >= 0) {
 
-      setSelectedPost(post[selecteduserImage])
+      setSelectedImage(post[selecteduserImage])
     }
   }, [selecteduserImage, post])
 
@@ -102,25 +105,6 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
     }
   }, [])
 
-  const HandlePostLike = async (action) => {
-    const response = await Datasend({ url: "/likepost", method: "POST", data: { postid: selectedImage.uniqueid, action } })
-    if (response.data) {
-      let post = JSON.parse(JSON.stringify(selectedImage))
-      if (action === "like") {
-        post.likes += 1
-        post.hasliked = data.id
-        post.pid = selectedImage.uniqueid
-      }
-      if (action === "unlike") {
-        post.likes -= 1
-        post.hasliked = null
-        post.pid = null
-
-      }
-
-      setSelectedPost(post)
-    }
-  }
 
   useEffect(() => {
 
@@ -188,7 +172,7 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
 
   const HandleSelectedImage = (index) => {
     setselecteduserImage(index)
-    console.log(selecteduserImage <= post.length - 1)
+
   }
 
   return (
@@ -218,7 +202,7 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
           <div className='w-full mt-[20px] flex items-center justify-between '>
 
             <div className='flex  text-white items-center gap-[20px]'>
-              <button onClick={() => HandlePostLike(selectedImage.hasliked == data.id ? "unlike" : "like")} className='flex cursor-pointer items-center gap-[3px]'> {selectedImage.hasliked === data.id ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} {selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>
+              <button onClick={() => HandlePostLike(selectedImage.hasliked == data.id ? "unlike" : "like" , Datasend , selectedImage , data , setSelectedImage)} className='flex cursor-pointer items-center gap-[3px]'> {selectedImage.hasliked === data.id ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} {selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>
               <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />{selectedImage.shares}</button>
               {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />{comments.length + replies.length}</button> : <></>}
               <button><SendOutlinedIcon sx={{ fontSize: 16 }} /></button>
@@ -255,7 +239,7 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
           ) : <></>}
 
 
-        </div> : <UpdatePost setSelectedPost={setSelectedPost} SelectedPost={selectedImage} setUpdate={setUpdate} />
+        </div> : <UpdatePost setSelectedPost={setSelectedImage} SelectedPost={selectedImage} setUpdate={setUpdate} />
         }
 
         {(selecteduserImage !== null && selecteduserImage < post.length - 1) && <button onClick={() => HandleSelectedImage(selecteduserImage + 1)} className="absolute right-[-10px] hover:text-[#FF6500] text-white bg-gray-900 rounded-full"><NavigateNextIcon /></button>}
