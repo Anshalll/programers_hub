@@ -33,7 +33,7 @@ export default function HomeFeed() {
     const HandleFeedPostLike = async (type, value) => {
         
        
-        await HandlePostLike(type, Datasend , value , data , setOperationalPost)
+        await HandlePostLike(type, Datasend , value , profiledata , setOperationalPost)
 
         
         
@@ -95,9 +95,9 @@ export default function HomeFeed() {
                 </div>
 
                 <div className='flex items-center justify-between w-full'>
-                
-                        <button onClick={() => HandleFeedPostLike(post.hasliked === data.id ? "unlike" : "like" , post
-                        )} className='flex items-center gap-[5px]'>{post.hasliked  === data.id ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} <span>{post.likes}</span> </button>
+                        {console.log(post.hasliked , profiledata.id)}
+                        <button onClick={() => HandleFeedPostLike(post.hasliked === profiledata.id ? "unlike" : "like" , post
+                        )} className='flex items-center gap-[5px]'>{post.hasliked  === profiledata.id ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} <span>{post.likes}</span> </button>
                         <button><CommentOutlinedIcon sx={{ fontSize: 16 }}/></button>
                         <button><ShareOutlinedIcon sx={{ fontSize: 16 }}/></button>
                         <button><BookmarkBorderOutlinedIcon sx={{ fontSize: 16 }}/></button>
