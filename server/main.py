@@ -42,8 +42,8 @@ def index():
         userdata = database.ExecuteQuery(query , (session["username"], ))
 
         userposts = database.ExecuteQuery(
-            "SELECT p.* , lp.uid AS hasliked , lp.pid FROM posts p LEFT JOIN post_likes lp on lp.uid = p.belongsto where belongsto = %s",
-            (userdata[0]["id"],)
+            "SELECT p.*, postlike.pid , postlike.uid AS hasliked  FROM posts p LEFT JOIN post_likes postlike on postlike.pid = p.uniqueid AND postlike.uid  = %s  where belongsto = %s",
+            (userdata[0]["id"], userdata[0]["id"],)
         )
         
         userdata.append(userposts)

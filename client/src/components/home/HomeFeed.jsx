@@ -61,7 +61,7 @@ export default function HomeFeed() {
                     <div className='w-[100px] flex flex-col gap-[20px]'>
                             {post.filename && JSON.parse(post.filename).map((vals, index) => (
                                 <div className='' key={index}>
-                                    <button onClick={() => setSelectedPost(index)} className={`${SelectedPost === index  && "border-2 border-cyan-500 rounded-lg" }`}><img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${vals}`} className='w-[50px] h-[50px] rounded-lg' alt="" /></button>
+                                    <button onClick={() => setSelectedPost(index)} className={`${SelectedPost === index  && "border-2 border-cyan-500 rounded-lg" }`}><img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${vals}`} className='w-[50px] h-[50px] rounded-lg object-cover' alt="" /></button>
                                 </div>
                             ))}
                     </div>
