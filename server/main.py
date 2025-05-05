@@ -1440,5 +1440,28 @@ def rmfollower():
     except Exception as e:
         print(e)
         return jsonify(error="Internal server error!") , 500
+
+@app.route("/api/gethomepost" , methods=["GET"])
+def get_home_posts():
+    try:
+        if "username" not in session:
+            return jsonify(logged=False), 403
+        
+
+        user = database.ExecuteQuery("SELECT * FROM registers WHERE username = %s", (session["username"],))
+        if len(user) == 0:
+            return jsonify(error="An error occurred!"), 400
+
+
+
+        get_posts = database.ExecuteQuery("SELECT po.* , r.id AS registerid , r.username ,p.dp , p.id , postlike.pid  AS postlikeid , postlike.uid AS hasliked FROM posts po INNER JOIN registers r on r.id = po.belongsto LEFT JOIN profile p on p.id = po.belongsto LEFT JOIN post_likes postlike on postlike.pid  = po.uniqueid AND postlike.uid = %s   ORDER BY po.likes DESC LIMIT 100" , (user[0]["id"] , ))
+
+        
+        
+        return jsonify(posts=get_posts), 200
     
+    except Exception as e:
+        print(e)
+        return jsonify(error="Internal server error!") , 500
+
 app.run(debug=True , port=8000 , host="0.0.0.0")
