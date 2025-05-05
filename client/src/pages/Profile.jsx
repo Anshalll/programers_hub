@@ -33,7 +33,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (Object.keys(data).length > 0 && Object.keys(Userdata).length === 0) {
-
+  
       setUserdata(data)
       setUserposts(post)
     }
@@ -73,6 +73,7 @@ export default function Profile() {
             }
             if (res.data) {
               setUserdata(res.data.data[0])
+             
               setUserposts(res.data.data[1])
 
 
@@ -104,7 +105,7 @@ export default function Profile() {
       }
 
       if (data.followedby) {
-        console.log(JSON.parse(data.followedby).length)
+      
         setUserFollowers(JSON.parse(data.followedby).length)
       }
       else {

@@ -5,30 +5,56 @@ import BookmarkBorderOutlinedIcon from '@mui/icons-material/BookmarkBorderOutlin
 import FollowButton from '../FollowButton'
 import FollowingButton from '../FollowingButton'
 import VerifiedUser from '../../assets/icons/verified.png'
-import { useFetchDataQuery } from '../../redux/apis/slice';
+import { useFetchDataQuery , useSendDataMutation} from '../../redux/apis/slice';
 import Loading from '../Loading';
-import {useProfiledata} from '../../hooks/useProfiledata'
+import {useProfiledata  } from '../../hooks/useProfiledata'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import HandlePostLike from '../../shared/HandlePostLike';
 
 
 export default function HomeFeed() {
+
     const [UserPosts , setUserPosts] = useState([])
     const { data, isLoading, isError } = useFetchDataQuery("/gethomepost")
     const [SelectedPost, setSelectedPost] = useState(0)
+    const [Datasend] = useSendDataMutation()
+    const [OperationalPost, setOperationalPost] = useState({ })
+    const {data : profiledata} = useProfiledata()
 
     useEffect(() => {
         if (!isLoading && !isError) {
-           console.log(data.posts)
+        
            setUserPosts(data.posts)
 
         }
     } , [isLoading, isError, data])
+    
+    const HandleFeedPostLike = async (type, value) => {
+        
+       
+        await HandlePostLike(type, Datasend , value , profiledata , setOperationalPost)
 
+        
+        
 
-    const {data : profiledata} = useProfiledata()
+    }
 
-   
+    useEffect(() => {
+        if (Object.keys(OperationalPost).length > 0) {
+            setUserPosts(prevPosts => {
+                let data = JSON.parse(JSON.stringify(prevPosts))
+                let findings = data.find((vals) => vals.uniqueid === OperationalPost.uniqueid)
+                if (findings) {
+                    findings.hasliked = OperationalPost.hasliked
+                    findings.likes = OperationalPost.likes
+                }
+                return data
+            })
+        }
+    }, [OperationalPost])
+    
+
   return (
     <>
     
@@ -69,8 +95,9 @@ export default function HomeFeed() {
                 </div>
 
                 <div className='flex items-center justify-between w-full'>
-                
-                        <button className='flex items-center gap-[5px]'>{post.hasliked ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} <span>{post.likes}</span> </button>
+                       
+                        <button onClick={() => HandleFeedPostLike(post.hasliked === profiledata.id ? "unlike" : "like" , post
+                        )} className='flex items-center gap-[5px]'>{post.hasliked  === profiledata.id ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} <span>{post.likes}</span> </button>
                         <button><CommentOutlinedIcon sx={{ fontSize: 16 }}/></button>
                         <button><ShareOutlinedIcon sx={{ fontSize: 16 }}/></button>
                         <button><BookmarkBorderOutlinedIcon sx={{ fontSize: 16 }}/></button>
