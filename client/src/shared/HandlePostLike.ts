@@ -15,7 +15,6 @@ const HandlePostLike = async (
   action: string,
   Datasend: Function,
   selectedImage: Post | null,
-  setpostliked:  React.Dispatch<React.SetStateAction<boolean>>,
   data: Data | null,
   
 ) => {
@@ -27,21 +26,21 @@ const HandlePostLike = async (
     method: 'POST',
     data: { postid: selectedImage.uniqueid, action },
   });
-
+  let postlike= false
   if (response.data) {
     let post = JSON.parse(JSON.stringify(selectedImage)); 
     if (action === 'like') {
       post.likes += 1;
-      setpostliked(true)
+      postlike = true
      
     }
     if (action === 'unlike') {
       post.likes -= 1;
+      postlike = false
     
-      setpostliked(false);
     }
  
-    return post; 
+    return {post , postlike }; 
 
   }
 };

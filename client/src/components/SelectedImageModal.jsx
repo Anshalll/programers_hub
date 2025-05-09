@@ -64,7 +64,7 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
   useEffect(() => {
 
     if (selecteduserImage !== null && selecteduserImage >= 0) {
-      console.log(post[selecteduserImage])
+
       setSelectedImage(post[selecteduserImage])
     }
   }, [selecteduserImage, post])
@@ -163,10 +163,11 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
   }, [Update])
 
 
-  const PostLike = async (action , Datasend , selectedImage , setisPostLiked ,  data , setSelectedImage) => {
-    const response = await HandlePostLike(action , Datasend , selectedImage , setisPostLiked , data , setSelectedImage)
-    setSelectedImage(response)
-
+  const PostLike = async (action) => {
+    const { post , postlike } = await HandlePostLike(action , Datasend , selectedImage  , data , setSelectedImage)
+    setSelectedImage(post)
+    setisPostLiked(postlike)
+    
   }
 
   const HandlePostComment = async () => {

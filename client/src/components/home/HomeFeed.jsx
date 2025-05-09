@@ -17,7 +17,7 @@ export default function HomeFeed() {
     const { data, isLoading, isError } = useFetchDataQuery("/gethomepost")
     const [SelectedPost, setSelectedPost] = useState(0)
     const [Datasend] = useSendDataMutation()
-    const [OperationalPost, setOperationalPost] = useState({ })
+   
     const {data : profiledata} = useProfiledata()
 
     useEffect(() => {
@@ -31,27 +31,19 @@ export default function HomeFeed() {
     const HandleFeedPostLike = async (type, value) => {
         
        
-        await HandlePostLike(type, Datasend , value , profiledata , setOperationalPost)
-
-        
-        
-
+    const {post, postlike} =    await HandlePostLike(type, Datasend , value , profiledata )
+    if (post) {
+        setUserPosts((prev) => prev.map((vals) => {
+            if (vals.uniqueid === post.uniqueid) {
+                post.hasliked = postlike ? profiledata.id : null
+                return post
+            } else {
+                return vals
+            }
+        }))
     }
 
-    useEffect(() => {
-        if (Object.keys(OperationalPost).length > 0) {
-            setUserPosts(prevPosts => {
-                let data = JSON.parse(JSON.stringify(prevPosts))
-                let findings = data.find((vals) => vals.uniqueid === OperationalPost.uniqueid)
-                if (findings) {
-                    findings.hasliked = OperationalPost.hasliked
-                    findings.likes = OperationalPost.likes
-                }
-                return data
-            })
-        }
-    }, [OperationalPost])
-    
+}
 
   return (
     <>
