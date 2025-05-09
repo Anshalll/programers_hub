@@ -9,6 +9,7 @@ import ModeEditOutlinedIcon from '@mui/icons-material/ModeEditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import { useProfiledata } from '../hooks/useProfiledata'
+import { skipToken } from '@reduxjs/toolkit/query';
 import { useSendDataMutation , useFetchDataQuery } from '../redux/apis/slice';
 import toast, { Toaster } from 'react-hot-toast';
 import UpdatePost from './UpdatePost';
@@ -39,7 +40,21 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
   const [ReplyUsername, setReplyUsername] = useState("")
   const [selectedImage, setSelectedImage] = useState({})
   const [ActiveIndex, setActiveIndex] = useState(0)
-  const { isLoading, error, data: fetchedpostdata, refetch } = useFetchDataQuery(`/getpostdata/${selectedImage?.uniqueid}/`)
+  const [IsPostLiked, setisPostLiked] = useState(false)
+
+  const { isLoading, error, data: fetchedpostdata, refetch } = useFetchDataQuery(
+    selectedImage?.uniqueid ? `/getpostdata/${selectedImage.uniqueid}/` : skipToken
+  );
+
+
+  useEffect(() => {
+    if(!isLoading && !error && fetchedpostdata) {
+    
+      setisPostLiked(fetchedpostdata.hasliked)
+
+    }
+  } , [isLoading , error , fetchedpostdata])
+
 
   const HandlePostClose = () => {
     setSelectedImage({})
@@ -49,7 +64,7 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
   useEffect(() => {
 
     if (selecteduserImage !== null && selecteduserImage >= 0) {
-
+      console.log(post[selecteduserImage])
       setSelectedImage(post[selecteduserImage])
     }
   }, [selecteduserImage, post])
@@ -148,7 +163,11 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
   }, [Update])
 
 
+  const PostLike = async (action , Datasend , selectedImage , setisPostLiked ,  data , setSelectedImage) => {
+    const response = await HandlePostLike(action , Datasend , selectedImage , setisPostLiked , data , setSelectedImage)
+    setSelectedImage(response)
 
+  }
 
   const HandlePostComment = async () => {
     const response = await Datasend({ url: "/comments", method: "POST", data: { comment: Comment, postid: selectedImage.uniqueid } })
@@ -203,7 +222,7 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
 
             <div className='flex  text-white items-center gap-[20px]'>
 
-              <button onClick={() => HandlePostLike(selectedImage.hasliked == data.id ? "unlike" : "like" , Datasend , selectedImage , data , setSelectedImage)} className='flex cursor-pointer items-center gap-[3px]'> {fetchedpostdata.hasliked  ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} {selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>
+              <button onClick={() => PostLike(IsPostLiked  ? "unlike" : "like" , Datasend , selectedImage , setisPostLiked ,  data , setSelectedImage)} className='flex cursor-pointer items-center gap-[3px]'> {IsPostLiked ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} {selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>
               
               <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />{selectedImage.shares}</button>
           
