@@ -16,7 +16,7 @@ const HandlePostLike = async (
   Datasend: Function,
   selectedImage: Post | null,
   data: Data | null,
-  setSelectedPost: React.Dispatch<React.SetStateAction<Post>>
+  
 ) => {
   if (!selectedImage) return; 
   if (!data) return; 
@@ -26,21 +26,22 @@ const HandlePostLike = async (
     method: 'POST',
     data: { postid: selectedImage.uniqueid, action },
   });
-
+  let postlike= false
   if (response.data) {
     let post = JSON.parse(JSON.stringify(selectedImage)); 
     if (action === 'like') {
       post.likes += 1;
-      post.hasliked = data.id; 
-      post.pid = selectedImage.uniqueid;
+      postlike = true
+     
     }
     if (action === 'unlike') {
       post.likes -= 1;
-      post.hasliked = null;
-      post.pid = null;
+      postlike = false
+    
     }
  
-    setSelectedPost(post); // Update the state
+    return {post , postlike }; 
+
   }
 };
 

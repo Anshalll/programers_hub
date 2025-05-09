@@ -2,8 +2,6 @@ import React, { useEffect , useState} from 'react'
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 import BookmarkBorderOutlinedIcon from '@mui/icons-material/BookmarkBorderOutlined';
-import FollowButton from '../FollowButton'
-import FollowingButton from '../FollowingButton'
 import VerifiedUser from '../../assets/icons/verified.png'
 import { useFetchDataQuery , useSendDataMutation} from '../../redux/apis/slice';
 import Loading from '../Loading';
@@ -11,7 +9,7 @@ import {useProfiledata  } from '../../hooks/useProfiledata'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import HandlePostLike from '../../shared/HandlePostLike';
-
+import FollowUnfollow from '../FollowUnfollow';
 
 export default function HomeFeed() {
 
@@ -19,7 +17,7 @@ export default function HomeFeed() {
     const { data, isLoading, isError } = useFetchDataQuery("/gethomepost")
     const [SelectedPost, setSelectedPost] = useState(0)
     const [Datasend] = useSendDataMutation()
-    const [OperationalPost, setOperationalPost] = useState({ })
+   
     const {data : profiledata} = useProfiledata()
 
     useEffect(() => {
@@ -33,27 +31,19 @@ export default function HomeFeed() {
     const HandleFeedPostLike = async (type, value) => {
         
        
-        await HandlePostLike(type, Datasend , value , profiledata , setOperationalPost)
-
-        
-        
-
+    const {post, postlike} =    await HandlePostLike(type, Datasend , value , profiledata )
+    if (post) {
+        setUserPosts((prev) => prev.map((vals) => {
+            if (vals.uniqueid === post.uniqueid) {
+                post.hasliked = postlike ? profiledata.id : null
+                return post
+            } else {
+                return vals
+            }
+        }))
     }
 
-    useEffect(() => {
-        if (Object.keys(OperationalPost).length > 0) {
-            setUserPosts(prevPosts => {
-                let data = JSON.parse(JSON.stringify(prevPosts))
-                let findings = data.find((vals) => vals.uniqueid === OperationalPost.uniqueid)
-                if (findings) {
-                    findings.hasliked = OperationalPost.hasliked
-                    findings.likes = OperationalPost.likes
-                }
-                return data
-            })
-        }
-    }, [OperationalPost])
-    
+}
 
   return (
     <>
@@ -68,12 +58,11 @@ export default function HomeFeed() {
                         <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${post.dp}`} className='w-[40px] h-[40px] rounded-full object-cover' alt="" />
                         <div className='flex flex-col gap-[1px]'>
                             <p className='flex items-center gap-[10px]'>{post.username} <span>{post.isVerified? <img src={VerifiedUser} className='w-[20px] h-[20px] object-contain' alt="" />  : <></> }</span> </p>
-                            {/* <i className='text-gray-300 text-[12px]'>{JSON.parse(post.followedby).length} followers</i> */}
                             <p className='text-gray-300 text-[12px]'>{post.dateposted}</p>
                         </div>
                     </div>
 
-                    {profiledata.username !== post.username ?(post.isfollowing ?  <FollowingButton/> : <FollowButton />) :  <p>You</p> }
+                    {profiledata.username !== post.username ? <FollowUnfollow   />  :   <p>You</p> }
                 </div>
                 
                 <div className='w-full'>

@@ -42,9 +42,10 @@ def index():
         userdata = database.ExecuteQuery(query , (session["username"], ))
 
         userposts = database.ExecuteQuery(
-            "SELECT p.* , lp.uid AS hasliked , lp.pid FROM posts p LEFT JOIN post_likes lp on lp.uid = p.belongsto where belongsto = %s",
-            (userdata[0]["id"],)
+           "SELECT p.*  from posts p  where p.belongsto = %s" , (userdata[0]["id"] , )
         )
+
+        print(len(userposts))
         
         userdata.append(userposts)
         if len(userdata) == 0:
@@ -627,7 +628,7 @@ def getuser():
             return jsonify(error="An error occurred!"), 400
         userdata = database.ExecuteQuery(query , (username, ))
        
-        userposts = database.ExecuteQuery("SELECT p.*, lp.pid , lp.uid AS hasliked FROM posts p LEFT JOIN post_likes lp on lp.uid = %s WHERE p.belongsto = %s" , (currentuser[0]["id"] , userdata[0]["id"]))
+        userposts = database.ExecuteQuery("SELECT p.* FROM posts p  WHERE p.belongsto = %s" , (userdata[0]["id"] , ))
         userdata.append(userposts)
         if len(userdata) == 0:
             return jsonify(error="An error ocuured"), 400
@@ -871,25 +872,34 @@ def comments():
         return jsonify(error="Internal server error!"), 500
 
 
-@app.route("/api/getcomments/<postid>/" , methods=["GET"])
+@app.route("/api/getpostdata/<postid>/" , methods=["GET"])
 def get_comments(postid):
     try:
         if "username" not in session:
             return jsonify(logged=False) , 400
         
+        hasliked = False
         data = postid
         user = database.ExecuteQuery("SELECT * FROM registers where username = %s" , (session["username"] ,))
 
         getpost = database.ExecuteQuery("SELECT * FROM posts WHERE uniqueid = %s", (data,))
         if len(getpost) == 0:
             return jsonify(error="Post not found!"), 404
+        
+        get_post_likes = database.ExecuteQuery("SELECT * FROM post_likes WHERE pid = %s AND uid = %s", (data, user[0]["id"],))
+        if len(get_post_likes) != 0:    
+            hasliked = True
+            
+      
+
+
         if data: 
             comments = database.ExecuteQuery(f"SELECT  c.*, r.username , r.id, p.dp , l.likedby , l.commentid FROM comments c INNER JOIN registers r on r.id = c.uid LEFT JOIN profile p on p.id = c.uid LEFT JOIN comment_likes l on l.commentid = c.uniqueid AND l.likedby = %s  WHERE belongsto = %s ORDER BY c.pinned DESC , c.id DESC " , (user[0]["id"] ,  data,))
 
 
             replies = database.ExecuteQuery("SELECT  cr.* , p.id AS profileid , p.dp , r.username AS whoReplied , r.id , crl.belongsto AS commentreplylikepid , crl.likedby AS hasliked FROM comment_replies cr INNER JOIN registers r on r.username = cr.username LEFT JOIN profile p on p.id = r.id  LEFT JOIN comment_replylikes crl on crl.likedby = %s  AND crl.belongsto = cr.uniqueid   WHERE cr.pid = %s ORDER BY cr.id  ASC" , (user[0]["id"] , data, ))
         
-            return jsonify(comments=comments , replies=replies), 200
+            return jsonify(comments=comments , replies=replies , hasliked=hasliked), 200
         
         else:
             jsonify(error="Post id is required!"), 400
@@ -1454,7 +1464,7 @@ def get_home_posts():
 
 
 
-        get_posts = database.ExecuteQuery("SELECT po.* , r.id AS registerid , r.username ,p.dp , p.id , postlike.pid   , postlike.uid AS hasliked FROM posts po INNER JOIN registers r on r.id = po.belongsto LEFT JOIN profile p on p.id = po.belongsto LEFT JOIN post_likes postlike on postlike.pid  = po.uniqueid AND postlike.uid = %s   ORDER BY po.likes DESC LIMIT 100" , (user[0]["id"] , ))
+        get_posts = database.ExecuteQuery("SELECT po.* , r.id AS registerid , r.username ,p.dp , p.id , postlike.pid   , postlike.uid AS hasliked , follower.followedby , follower.belongsto FROM posts po INNER JOIN registers r on r.id = po.belongsto LEFT JOIN profile p on p.id = po.belongsto LEFT JOIN post_likes postlike on postlike.pid  = po.uniqueid AND postlike.uid = %s LEFT JOIN followers follower on follower.belongsto = po.belongsto   ORDER BY po.likes DESC LIMIT 100" , (user[0]["id"] , ))
 
         
         

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { useFetchDataQuery, useSendDataMutation } from '../redux/apis/slice'
+import { useSendDataMutation } from '../redux/apis/slice'
 import toast, { Toaster } from 'react-hot-toast';
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -15,11 +15,11 @@ import { setpostreplies } from '../redux/userdata/slice';
 import CommentReplies from './CommentReplies';
 
 
-export default function Comments({ SelectedImage, ReplyState, setReplyState, setReplyUsername }) {
+export default function Comments({error , refetch, data , isLoading ,  SelectedImage, ReplyState, setReplyState, setReplyUsername }) {
 
   const menuRef = useRef([]);
 
-  const { isLoading, error, data, refetch } = useFetchDataQuery(`/getcomments/${SelectedImage.uniqueid}/`)
+
   const [Send_data] = useSendDataMutation()
   const { data: userdata, comments: Comments, replies: PostReplies } = useProfiledata()
   const dispatch = useDispatch()

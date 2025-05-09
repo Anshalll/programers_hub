@@ -9,7 +9,8 @@ import ModeEditOutlinedIcon from '@mui/icons-material/ModeEditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import { useProfiledata } from '../hooks/useProfiledata'
-import { useSendDataMutation } from '../redux/apis/slice';
+import { skipToken } from '@reduxjs/toolkit/query';
+import { useSendDataMutation , useFetchDataQuery } from '../redux/apis/slice';
 import toast, { Toaster } from 'react-hot-toast';
 import UpdatePost from './UpdatePost';
 import { setpostcomments } from '../redux/userdata/slice'
@@ -39,6 +40,20 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
   const [ReplyUsername, setReplyUsername] = useState("")
   const [selectedImage, setSelectedImage] = useState({})
   const [ActiveIndex, setActiveIndex] = useState(0)
+  const [IsPostLiked, setisPostLiked] = useState(false)
+
+  const { isLoading, error, data: fetchedpostdata, refetch } = useFetchDataQuery(
+    selectedImage?.uniqueid ? `/getpostdata/${selectedImage.uniqueid}/` : skipToken
+  );
+
+
+  useEffect(() => {
+    if(!isLoading && !error && fetchedpostdata) {
+    
+      setisPostLiked(fetchedpostdata.hasliked)
+
+    }
+  } , [isLoading , error , fetchedpostdata])
 
 
   const HandlePostClose = () => {
@@ -148,7 +163,12 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
   }, [Update])
 
 
-
+  const PostLike = async (action) => {
+    const { post , postlike } = await HandlePostLike(action , Datasend , selectedImage  , data , setSelectedImage)
+    setSelectedImage(post)
+    setisPostLiked(postlike)
+    
+  }
 
   const HandlePostComment = async () => {
     const response = await Datasend({ url: "/comments", method: "POST", data: { comment: Comment, postid: selectedImage.uniqueid } })
@@ -177,7 +197,7 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
 
   return (
     <>
-      {Object.keys(selectedImage).length > 0 && <div className='w-[800px] relative p-[10px] gap-[20px] flex items-center justify-center rounded-lg h-[600px] bg-black'>
+      {Object.keys(selectedImage).length > 0 && !isLoading && <div className='w-[800px] relative p-[10px] gap-[20px] flex items-center justify-center rounded-lg h-[600px] bg-black'>
 
         {selecteduserImage !== null && selecteduserImage > 0 ? <button onClick={() => HandleSelectedImage(selecteduserImage - 1)} className="absolute left-[-10px] hover:text-[#FF6500] text-white bg-gray-900 rounded-full"><NavigateBeforeIcon /></button> : <></>}
 
@@ -202,13 +222,18 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
           <div className='w-full mt-[20px] flex items-center justify-between '>
 
             <div className='flex  text-white items-center gap-[20px]'>
-              <button onClick={() => HandlePostLike(selectedImage.hasliked == data.id ? "unlike" : "like" , Datasend , selectedImage , data , setSelectedImage)} className='flex cursor-pointer items-center gap-[3px]'> {selectedImage.hasliked === data.id ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} {selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>
+
+              <button onClick={() => PostLike(IsPostLiked  ? "unlike" : "like" , Datasend , selectedImage , setisPostLiked ,  data , setSelectedImage)} className='flex cursor-pointer items-center gap-[3px]'> {IsPostLiked ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} {selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>
+              
               <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />{selectedImage.shares}</button>
+          
+           
               {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />{comments.length + replies.length}</button> : <></>}
               <button><SendOutlinedIcon sx={{ fontSize: 16 }} /></button>
             </div>
 
             <p className='text-gray-300  text-[10px]'>{selectedImage.dateposted}</p>
+
           </div>
 
         </div>
@@ -232,7 +257,7 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
 
             {selectedImage.description.trim() !== "" ? <p className='rounded-b-2 p-[10px] shadow-lg bg-gray-900'>{Desc}{(selectedImage.description.length > 200 && Desc.length <= 200) ? <span className='text-[#FF6500] cursor-pointer' onClick={() => MoreDesc()}>more</span> : selectedImage.description.length > 200 && Desc.length > 200 ? <span className='text-[#FF6500] cursor-pointer' onClick={() => LessDesc()}>less</span> : <></>} </p> : <></>}
 
-            {selectedImage.allowcomments === 1 ? <Comments SelectedImage={selectedImage} setReplyState={setReplyState} ReplyState={ReplyState} setReplyUsername={setReplyUsername} /> : <></>}
+            {selectedImage.allowcomments === 1 ? <Comments error={error} isLoading={isLoading} data={fetchedpostdata} SelectedImage={selectedImage} setReplyState={setReplyState} refetch={refetch} ReplyState={ReplyState} setReplyUsername={setReplyUsername} /> : <></>}
           </div>
           {selectedImage.allowcomments === 1 ? (!ReplyState.isOpen ? <Inputcomment placeholder={"Comment something..."} ActionFunction={HandlePostComment} Text={Comment} setText={setComment} /> :
             <Reply setReplyUsername={setReplyUsername} setReplyState={setReplyState} ReplyState={ReplyState} CloseReply={CloseReply} ReplyUsername={ReplyUsername} />
