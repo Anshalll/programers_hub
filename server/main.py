@@ -890,9 +890,7 @@ def get_comments(postid):
         if len(get_post_likes) != 0:    
             hasliked = True
             
-      
-
-
+    
         if data: 
             comments = database.ExecuteQuery(f"SELECT  c.*, r.username , r.id, p.dp , l.likedby , l.commentid FROM comments c INNER JOIN registers r on r.id = c.uid LEFT JOIN profile p on p.id = c.uid LEFT JOIN comment_likes l on l.commentid = c.uniqueid AND l.likedby = %s  WHERE belongsto = %s ORDER BY c.pinned DESC , c.id DESC " , (user[0]["id"] ,  data,))
 
@@ -1473,5 +1471,7 @@ def get_home_posts():
     except Exception as e:
         print(e)
         return jsonify(error="Internal server error!") , 500
+
+
 
 app.run(debug=True , port=8000 , host="0.0.0.0")

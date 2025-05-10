@@ -12,11 +12,13 @@ import HandlePostLike from '../../shared/HandlePostLike';
 import useFollowunfollow from '../../hooks/useFollowunfollow'
 import { useDispatch } from 'react-redux';
 import { setudata } from '../../redux/userdata/slice';
+import PostComments from './FetchPostComments';
 
 export default function HomeFeed() {
 
     const [UserPosts, setUserPosts] = useState([])
     const { data, isLoading, isError } = useFetchDataQuery("/gethomepost")
+    const [ShowComments, setShowComments] = useState({ isOpen: false, postid: "" })
     const [SelectedPost, setSelectedPost] = useState(0)
     const [Datasend] = useSendDataMutation()
     const { FollowUser, UnfollowUser } = useFollowunfollow()
@@ -79,6 +81,13 @@ export default function HomeFeed() {
         }
         setFollowLoading({  loading: false , user: "" })
     }
+
+    const DisplayComment = (postid) => {
+        setShowComments({ isOpen: true, postid: postid })
+        
+
+    }
+
     return (
         <>
 
@@ -108,13 +117,13 @@ export default function HomeFeed() {
                     </div>
                     <p className='w-full'>{post.description}</p>
                     <div className='w-full h-[300px] flex  '>
-                        <div className='w-[100px] flex flex-col gap-[20px]'>
-                            {post.filename && JSON.parse(post.filename).map((vals, index) => (
+                       { post.filename && JSON.parse(post.filename).length > 1 &&  <div className='w-[100px] flex flex-col gap-[20px]'>
+                            {  JSON.parse(post.filename).map((vals, index) => (
                                 <div className='' key={index}>
                                     <button onClick={() => setSelectedPost(index)} className={`${SelectedPost === index && "border-2 border-cyan-500 rounded-lg"}`}><img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${vals}`} className='w-[50px] h-[50px] rounded-lg object-cover' alt="" /></button>
                                 </div>
                             ))}
-                        </div>
+                        </div>}
                         <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${JSON.parse(post.filename)[SelectedPost]}`} className='rounded-lg object-contain h-full w-full' alt="" />
                     </div>
 
@@ -122,10 +131,13 @@ export default function HomeFeed() {
 
                         <button onClick={() => HandleFeedPostLike(post.hasliked === profiledata.id ? "unlike" : "like", post
                         )} className='flex items-center gap-[5px]'>{post.hasliked === profiledata.id ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} <span>{post.likes}</span> </button>
-                        <button><CommentOutlinedIcon sx={{ fontSize: 16 }} /></button>
+                        <button onClick={() => DisplayComment(post.uniqueid)}><CommentOutlinedIcon sx={{ fontSize: 16 }} /></button>
+
                         <button><ShareOutlinedIcon sx={{ fontSize: 16 }} /></button>
                         <button><BookmarkBorderOutlinedIcon sx={{ fontSize: 16 }} /></button>
                     </div>
+
+                    {ShowComments.isOpen && ShowComments.postid === post.uniqueid ? <PostComments postid={post.uniqueid} /> : <></>}
                 </div>
 
             ))}
