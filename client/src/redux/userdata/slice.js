@@ -5,8 +5,7 @@ let initialState = {
   
     data : {},
     post: [],
-    comments: [],
-    replies: [],
+
 }
 
 const userdataSlice = createSlice({
@@ -22,16 +21,11 @@ const userdataSlice = createSlice({
         setuserpost : (state, action) => {
             state.post = action.payload
         },
-        setpostcomments: (state, action) => {
-            state.comments = action.payload
-        },
-        setpostreplies: (state, action)=> {
-            state.replies = action.payload
-        }
+      
     }
     
 })
 
 
 export default userdataSlice.reducer
-export const {setudata , setuserpost , setpostcomments , setpostreplies} = userdataSlice.actions
+export const {setudata , setuserpost } = userdataSlice.actions

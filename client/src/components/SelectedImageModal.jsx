@@ -13,39 +13,40 @@ import { skipToken } from '@reduxjs/toolkit/query';
 import { useSendDataMutation , useFetchDataQuery } from '../redux/apis/slice';
 import toast, { Toaster } from 'react-hot-toast';
 import UpdatePost from './UpdatePost';
-import { setpostcomments } from '../redux/userdata/slice'
-import Comments from './Comments';
-import Inputcomment from './Inputcomment';
-import { useDispatch } from 'react-redux';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import Reply from './Reply';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import HandlePostLike from '../shared/HandlePostLike';
-
+import Comments from './Comments';
+import { setComments } from '../redux/post/slice';
+import { useDispatch } from 'react-redux';
 
 export default function SelectedImageModal({ userPosts: post, setselecteduserImage, selecteduserImage }) {
 
-
+  const dispatch = useDispatch()
   const [Desc, setDesc] = useState("")
-  const { data, comments, replies } = useProfiledata()
+  const { data  } = useProfiledata()
   const [isAdmin, setisAdmin] = useState(false)
   const [Datasend] = useSendDataMutation()
   const Optref = useRef(null)
   const [isOpen, setisOpen] = useState(false)
   const [Update, setUpdate] = useState(false)
-  const [Comment, setComment] = useState("")
-  const dispatch = useDispatch()
-  const [ReplyState, setReplyState] = useState({ isOpen: false, id: null, cid: null })
-  const [ReplyUsername, setReplyUsername] = useState("")
+
+
   const [selectedImage, setSelectedImage] = useState({})
   const [ActiveIndex, setActiveIndex] = useState(0)
   const [IsPostLiked, setisPostLiked] = useState(false)
 
-  const { isLoading, error, data: fetchedpostdata, refetch } = useFetchDataQuery(
+  const { isLoading, error, data: fetchedpostdata } = useFetchDataQuery(
     selectedImage?.uniqueid ? `/getpostdata/${selectedImage.uniqueid}/` : skipToken
   );
 
+
+  useEffect(() => {
+    if (!isLoading && !error &&  fetchedpostdata?.comments?.length > 0) {
+     dispatch(setComments(fetchedpostdata.comments))
+    }
+  } , [fetchedpostdata , dispatch , isLoading , error])
 
   useEffect(() => {
     if(!isLoading && !error && fetchedpostdata) {
@@ -74,10 +75,6 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
     position: 'top-center'
   });
 
-  const ErrorAction = () => toast.error('An error occured!', {
-    duration: 2000,
-    position: 'top-center'
-  });
 
 
   useEffect(() => {
@@ -170,30 +167,15 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
     
   }
 
-  const HandlePostComment = async () => {
-    const response = await Datasend({ url: "/comments", method: "POST", data: { comment: Comment, postid: selectedImage.uniqueid } })
 
-    if (response.error) {
-      ErrorAction()
-    }
-    if (response.data) {
 
-      dispatch(setpostcomments([response.data.comment[0], ...comments]))
-
-      setComment("")
-    }
-
-  }
-
-  const CloseReply = () => {
-    setReplyState({ id: null, isOpen: false, cid: null })
-    setReplyUsername("")
-  }
 
   const HandleSelectedImage = (index) => {
     setselecteduserImage(index)
 
   }
+
+
 
   return (
     <>
@@ -228,7 +210,8 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
               <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />{selectedImage.shares}</button>
           
            
-              {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />{comments.length + replies.length}</button> : <></>}
+              {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />0</button> : <></>}
+              
               <button><SendOutlinedIcon sx={{ fontSize: 16 }} /></button>
             </div>
 
@@ -257,18 +240,18 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
 
             {selectedImage.description.trim() !== "" ? <p className='rounded-b-2 p-[10px] shadow-lg bg-gray-900'>{Desc}{(selectedImage.description.length > 200 && Desc.length <= 200) ? <span className='text-[#FF6500] cursor-pointer' onClick={() => MoreDesc()}>more</span> : selectedImage.description.length > 200 && Desc.length > 200 ? <span className='text-[#FF6500] cursor-pointer' onClick={() => LessDesc()}>less</span> : <></>} </p> : <></>}
 
-            {selectedImage.allowcomments === 1 ? <Comments error={error} isLoading={isLoading} data={fetchedpostdata} SelectedImage={selectedImage} setReplyState={setReplyState} refetch={refetch} ReplyState={ReplyState} setReplyUsername={setReplyUsername} /> : <></>}
           </div>
-          {selectedImage.allowcomments === 1 ? (!ReplyState.isOpen ? <Inputcomment placeholder={"Comment something..."} ActionFunction={HandlePostComment} Text={Comment} setText={setComment} /> :
-            <Reply setReplyUsername={setReplyUsername} setReplyState={setReplyState} ReplyState={ReplyState} CloseReply={CloseReply} ReplyUsername={ReplyUsername} />
-          ) : <></>}
 
+            
+            {selectedImage.allowcomments === 1 && <Comments comments={fetchedpostdata.comments} postid={selectedImage.uniqueid}/> }
 
         </div> : <UpdatePost setSelectedPost={setSelectedImage} SelectedPost={selectedImage} setUpdate={setUpdate} />
         }
 
         {(selecteduserImage !== null && selecteduserImage < post.length - 1) && <button onClick={() => HandleSelectedImage(selecteduserImage + 1)} className="absolute right-[-10px] hover:text-[#FF6500] text-white bg-gray-900 rounded-full"><NavigateNextIcon /></button>}
 
+
+        
 
       </div>}
     </>

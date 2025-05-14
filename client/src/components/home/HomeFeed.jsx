@@ -12,20 +12,34 @@ import HandlePostLike from '../../shared/HandlePostLike';
 import useFollowunfollow from '../../hooks/useFollowunfollow'
 import { useDispatch } from 'react-redux';
 import { setudata } from '../../redux/userdata/slice';
-import PostComments from './FetchPostComments';
-
+import Comments from '../Comments';
+import { skipToken } from '@reduxjs/toolkit/query';
+import {setComments} from '../../redux/post/slice'
 export default function HomeFeed() {
 
     const [UserPosts, setUserPosts] = useState([])
     const { data, isLoading, isError } = useFetchDataQuery("/gethomepost")
-    const [ShowComments, setShowComments] = useState({ isOpen: false, postid: "" })
+    const [ShowComments, setShowComments] = useState({ isOpen: false, id: ""  })
     const [SelectedPost, setSelectedPost] = useState(0)
     const [Datasend] = useSendDataMutation()
     const { FollowUser, UnfollowUser } = useFollowunfollow()
     const dispatch = useDispatch()
     const { data: profiledata } = useProfiledata()
     const [FollowLoading, setFollowLoading] = useState({ loading: false , user: "" })
+    
 
+
+
+    const { isLoading: isLoadingComments, error, data: fetchedpostdata } = useFetchDataQuery(
+       ShowComments.id ? `/getpostdata/${ShowComments.id}/` : skipToken
+      )
+
+
+    useEffect(() => {
+        if (!isLoadingComments && !error && fetchedpostdata?.comments?.length > 0) {
+            dispatch(setComments(fetchedpostdata.comments))
+        }
+    } , [fetchedpostdata , isLoadingComments , error , dispatch])
     useEffect(() => {
         if (!isLoading && !isError) {
 
@@ -83,7 +97,8 @@ export default function HomeFeed() {
     }
 
     const DisplayComment = (postid) => {
-        setShowComments({ isOpen: true, postid: postid })
+      
+        setShowComments({ isOpen: true, id: postid , cid: null })
         
 
     }
@@ -136,8 +151,7 @@ export default function HomeFeed() {
                         <button><ShareOutlinedIcon sx={{ fontSize: 16 }} /></button>
                         <button><BookmarkBorderOutlinedIcon sx={{ fontSize: 16 }} /></button>
                     </div>
-
-                    {ShowComments.isOpen && ShowComments.postid === post.uniqueid ? <PostComments postid={post.uniqueid} /> : <></>}
+                    {(ShowComments.isOpen && ShowComments.id === post.uniqueid && !isLoadingComments && !error)? <Comments postid={post.uniqueid}/> : <></>}
                 </div>
 
             ))}
