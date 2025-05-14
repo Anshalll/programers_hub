@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux'
 import toast from 'react-hot-toast';
 import { useState } from 'react';
 import {usePostSliceData} from '../hooks/usePostSliceData'
-export default function Comments({  postid }) {
+export default function Comments({  postid , styling}) {
 
   const [Datasend] = useSendDataMutation()
   const dispatch = useDispatch()
@@ -35,8 +35,10 @@ export default function Comments({  postid }) {
 
   return (
 
-    <>
-      {console.log(comments)}
-    </>
+    <div className={styling}>
+      {comments.length > 0 ? comments.map(( value, index) => (
+        <p className='text-white' key={index}>{value.message}</p>
+      )) : <></>}
+    </div>
   )
 }

@@ -18,8 +18,10 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import HandlePostLike from '../shared/HandlePostLike';
 import Comments from './Comments';
-import { setComments } from '../redux/post/slice';
+import { setComments , setReplies } from '../redux/post/slice';
 import { useDispatch } from 'react-redux';
+import {usePostSliceData} from '../hooks/usePostSliceData'
+
 
 export default function SelectedImageModal({ userPosts: post, setselecteduserImage, selecteduserImage }) {
 
@@ -31,7 +33,7 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
   const Optref = useRef(null)
   const [isOpen, setisOpen] = useState(false)
   const [Update, setUpdate] = useState(false)
-
+  const {comments: PostComments, replies: PostReplies} = usePostSliceData()
 
   const [selectedImage, setSelectedImage] = useState({})
   const [ActiveIndex, setActiveIndex] = useState(0)
@@ -46,6 +48,10 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
     if (!isLoading && !error &&  fetchedpostdata?.comments?.length > 0) {
      dispatch(setComments(fetchedpostdata.comments))
     }
+    if (!isLoading && !error &&  fetchedpostdata?.replies?.length > 0) {
+     dispatch(setReplies(fetchedpostdata.replies))
+    }
+
   } , [fetchedpostdata , dispatch , isLoading , error])
 
   useEffect(() => {
@@ -210,7 +216,7 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
               <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />{selectedImage.shares}</button>
           
            
-              {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />0</button> : <></>}
+              {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />{PostComments.length + PostReplies.length}</button> : <></>}
               
               <button><SendOutlinedIcon sx={{ fontSize: 16 }} /></button>
             </div>
@@ -240,10 +246,10 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
 
             {selectedImage.description.trim() !== "" ? <p className='rounded-b-2 p-[10px] shadow-lg bg-gray-900'>{Desc}{(selectedImage.description.length > 200 && Desc.length <= 200) ? <span className='text-[#FF6500] cursor-pointer' onClick={() => MoreDesc()}>more</span> : selectedImage.description.length > 200 && Desc.length > 200 ? <span className='text-[#FF6500] cursor-pointer' onClick={() => LessDesc()}>less</span> : <></>} </p> : <></>}
 
+            {selectedImage.allowcomments === 1 && <Comments comments={fetchedpostdata.comments} postid={selectedImage.uniqueid}/> }
           </div>
 
             
-            {selectedImage.allowcomments === 1 && <Comments comments={fetchedpostdata.comments} postid={selectedImage.uniqueid}/> }
 
         </div> : <UpdatePost setSelectedPost={setSelectedImage} SelectedPost={selectedImage} setUpdate={setUpdate} />
         }
