@@ -106,7 +106,6 @@ export default function HomeFeed() {
 
     }
 
-    const CommentDisplayStyling = " w-full h-full"
 
     return (
         <>
@@ -162,9 +161,11 @@ export default function HomeFeed() {
                         <button><BookmarkBorderOutlinedIcon sx={{ fontSize: 16 }} /></button>
                     </div>
                     {(ShowComments.isOpen && ShowComments.id === post.uniqueid && !isLoadingComments && !error) ?
-                        <div className='w-full bg-black rounded-lg'>
+                        <div className='max-h-[500px] flex-col w-full'>
 
-                            <Comments styling={CommentDisplayStyling} postid={post.uniqueid} />
+                            <p className='font-bold h-[40px]'>Comments</p>
+                            <Comments styling={"w-full h-[calc(100%-40px)]"} postid={post.uniqueid} />
+
                         </div>
 
                         : <></>}

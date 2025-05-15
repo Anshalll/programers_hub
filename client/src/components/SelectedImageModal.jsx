@@ -185,13 +185,13 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
 
   return (
     <>
-      {Object.keys(selectedImage).length > 0 && !isLoading && <div className='w-[800px] relative p-[10px] gap-[20px] flex items-center justify-center rounded-lg h-[600px] bg-black'>
+      {Object.keys(selectedImage).length > 0 && !isLoading && <div className='w-[800px] relative p-[10px] gap-[20px] flex items-center justify-center rounded-lg h-[90%] bg-black'>
 
         {selecteduserImage !== null && selecteduserImage > 0 ? <button onClick={() => HandleSelectedImage(selecteduserImage - 1)} className="absolute left-[-10px] hover:text-[#FF6500] text-white bg-gray-900 rounded-full"><NavigateBeforeIcon /></button> : <></>}
 
         <div className='w-[50%] h-full'>
           <Toaster />
-          <div className='flex gap-[10px] items-center w-full h-[90%]'>
+          <div className='flex gap-[10px] items-center w-full h-[80%]'>
 
             <div className='Scroller w-[15%] flex flex-col gap-[10px] h-[80%] overflow-y-auto'>
               {JSON.parse(selectedImage.filename).map((value, index) => (
@@ -207,9 +207,9 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
             <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${JSON.parse(selectedImage.filename)[ActiveIndex]}`} className="w-[70%] h-[80%] object-contain" alt="" />
           </div>
 
-          <div className='w-full mt-[20px] flex items-center justify-between '>
-
-            <div className='flex  text-white items-center gap-[20px]'>
+          <div className='w-full mt-[20px] h-[20%] flex flex-col items-center justify-between '>
+            {selectedImage.description.trim() !== "" ? <p className='w-full text-white rounded-b-2 p-[10px] shadow-lg bg-gray-900'>{Desc}{(selectedImage.description.length > 200 && Desc.length <= 200) ? <span className='text-[#FF6500] cursor-pointer' onClick={() => MoreDesc()}>more</span> : selectedImage.description.length > 200 && Desc.length > 200 ? <span className='text-[#FF6500] cursor-pointer' onClick={() => LessDesc()}>less</span> : <></>} </p> : <></>}
+            <div className='flex w-full  text-white justify-between items-center gap-[20px]'>
 
               <button onClick={() => PostLike(IsPostLiked  ? "unlike" : "like" , Datasend , selectedImage , setisPostLiked ,  data , setSelectedImage)} className='flex cursor-pointer items-center gap-[3px]'> {IsPostLiked ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} {selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>
               
@@ -221,7 +221,7 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
               <button><SendOutlinedIcon sx={{ fontSize: 16 }} /></button>
             </div>
 
-            <p className='text-gray-300  text-[10px]'>{selectedImage.dateposted}</p>
+            <p className='text-gray-300 w-full text-[10px]'>{selectedImage.dateposted}</p>
 
           </div>
 
@@ -242,11 +242,14 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
             </div>
             <button className='cursor-pointer' onClick={() => HandlePostClose()}><CloseOutlinedIcon sx={{ fontSize: 16 }} /></button>
           </div>
-          <div className='h-[calc(100%-20px)]  overflow-y-auto flex flex-col gap-[20px]'>
+          <div className='h-[calc(100%-20px)] flex flex-col gap-[20px]'>
 
-            {selectedImage.description.trim() !== "" ? <p className='rounded-b-2 p-[10px] shadow-lg bg-gray-900'>{Desc}{(selectedImage.description.length > 200 && Desc.length <= 200) ? <span className='text-[#FF6500] cursor-pointer' onClick={() => MoreDesc()}>more</span> : selectedImage.description.length > 200 && Desc.length > 200 ? <span className='text-[#FF6500] cursor-pointer' onClick={() => LessDesc()}>less</span> : <></>} </p> : <></>}
+            
+            <p className='font-bold h-[40px]'>Comments</p>
 
-            {selectedImage.allowcomments === 1 && <Comments comments={fetchedpostdata.comments} postid={selectedImage.uniqueid}/> }
+            {selectedImage.allowcomments === 1 && <Comments styling={"w-full h-[calc(100%-40px)]"} comments={fetchedpostdata.comments} postid={selectedImage.uniqueid}/> }
+            
+            
           </div>
 
             
