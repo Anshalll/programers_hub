@@ -2,12 +2,56 @@ import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlin
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { usePostSliceData } from '../hooks/usePostSliceData'
 import CommentUserCard from './CommentUserCard';
+import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
+import { useSendDataMutation } from '../redux/apis/slice'
+import {useProfiledata} from '../hooks/useProfiledata'
+import { setReplies } from '../redux/post/slice';
+
+export default function CommentReplies({ value, HandleReply }) {
 
 
-export default function CommentReplies({  value , HandleReply}) {
+  const ErrorAction = () => toast.error('An error occured!', {
+    duration: 2000,
+    position: 'top-center'
+  });
 
-
+  const [Datasend] = useSendDataMutation()
   const { replies } = usePostSliceData()
+  const dispatch = useDispatch()
+  const {data: userdata} = useProfiledata()
+  
+  const HandleReplyLike = async (replyid, action) => {
+
+    const response = await Datasend({ url: "/likereply", method: "POST", data: { replyid, action } })
+
+
+    if (response.error) {
+      ErrorAction()
+    }
+    if (response.data) {
+
+      const prdata = JSON.parse(JSON.stringify(replies))
+      let findings = prdata.find((e) => e.uniqueid === replyid)
+      if (action === "like") {
+        findings.likes += 1
+        findings.hasliked = userdata.id
+
+      }
+
+
+      if (action === "unlike") {
+        findings.likes -= 1
+        findings.hasliked = null
+
+      }
+
+      dispatch(setReplies(prdata))
+
+
+    }
+
+  }
 
   return (
 
@@ -22,7 +66,7 @@ export default function CommentReplies({  value , HandleReply}) {
               <CommentUserCard type={"reply"} value={replyval} />
               <div className='flex w-full items-center px-[40px] gap-[10px]'>
 
-                <p className='text-[11px]  flex items-center gap-[3px]'><span>{replyval.likedby ? <FavoriteIcon sx={{ fontSize: 14 }} className='text-[crimson]' /> : <FavoriteBorderOutlinedIcon sx={{ fontSize: 14 }} />}</span>{replyval.likes}</p>
+                <button onClick={() => HandleReplyLike(replyval.uniqueid , replyval.hasliked ? "unlike" : "like")} className='text-[11px]  flex items-center gap-[3px]'><span>{replyval.hasliked ? <FavoriteIcon sx={{ fontSize: 14 }} className='text-[crimson]' /> : <FavoriteBorderOutlinedIcon sx={{ fontSize: 14 }} />}</span>{replyval.likes}</button>
 
 
                 <button onClick={() => HandleReply(value.username, value.uniqueid)} className='text-gray-200 text-[11px]'>Reply</button>
