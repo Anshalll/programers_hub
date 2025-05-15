@@ -3,16 +3,17 @@ import Inputcomment from './Inputcomment'
 import CloseIcon from '@mui/icons-material/Close';
 import { useSendDataMutation } from '../redux/apis/slice'
 import toast from 'react-hot-toast';
-import { setpostreplies } from '../redux/userdata/slice';
-import { useProfiledata } from '../hooks/useProfiledata'
 import { useDispatch } from 'react-redux';
+import {usePostSliceData} from '../hooks/usePostSliceData'
+import { setReplies   as setpostreplies}  from '../redux/post/slice';
+
 export default function Reply({ setReplyState, ReplyUsername, CloseReply, ReplyState, setReplyUsername }) {
 
   const [ReplyMessage, setReplyMessage] = useState("")
   const [DataSend] = useSendDataMutation()
-  const { replies } = useProfiledata()
+  const {replies} = usePostSliceData()
   const dipatch = useDispatch()
-
+  
 
   const errorToast = () => toast.error("An error occured!", {
 
@@ -29,11 +30,11 @@ export default function Reply({ setReplyState, ReplyUsername, CloseReply, ReplyS
 
 
       if (response.data) {
-        const replydata = JSON.parse(JSON.stringify(replies))
+       
         setReplyMessage("")
         setReplyState({ isOpen: false, id: null })
         setReplyUsername("")
-        dipatch(setpostreplies([...replydata , response.data.replies[0]]))
+        dipatch(setpostreplies([...replies , response.data.replies[0]]))
       }
 
       if (response.error) {

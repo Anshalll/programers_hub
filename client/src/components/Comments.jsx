@@ -10,6 +10,7 @@ import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDown
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
 import Inputcomment from './Inputcomment';
 import { setComments } from '../redux/post/slice';
+import Reply from './Reply';
 export default function Comments({ postid, styling }) {
 
   const [Datasend] = useSendDataMutation()
@@ -17,7 +18,8 @@ export default function Comments({ postid, styling }) {
   const [Comment_text, setComment_text] = useState("")
   const { comments , replies} = usePostSliceData()
   const [isOpenReply, setisOpenReply] = useState(false)
-
+  const [ReplyUser , setReplyUser] = useState("")
+  const [ReplyState, setReplyState] = useState({ isOpen: false, id: null, cid: null })
 
   const ErrorAction = () => toast.error('An error occured!', {
     duration: 2000,
@@ -37,6 +39,16 @@ export default function Comments({ postid, styling }) {
       setComment_text("")
     }
 
+  }
+
+  const HandleReply = (username , cid) => {
+    setReplyState({ isOpen: true, cid:  cid, id: postid })
+    setReplyUser(username)
+  }
+
+  const CloseReply = () => {
+    setReplyState({ isOpen: false, cid: null , id: null })
+    setReplyUser("")
   }
 
   return (
@@ -70,7 +82,7 @@ export default function Comments({ postid, styling }) {
 
               { replies.length === 0 ? <p className='text-gray-200 text-[11px]'>No replies</p> :  <button onClick={() => setisOpenReply(!isOpenReply)} className='text-gray-200 text-[11px]'><span>{isOpenReply ? <KeyboardArrowUpOutlinedIcon sx={{ fontSize: 16 }} /> : <KeyboardArrowDownOutlinedIcon sx={{ fontSize: 16 }} />}</span>View replies</button>}
 
-                <button className='text-gray-200 text-[11px]'>Reply</button>
+                <button onClick={() => HandleReply(value.username , value.uniqueid)} className='text-gray-200 text-[11px]'>Reply</button>
               </div>
 
             </div>
@@ -81,7 +93,8 @@ export default function Comments({ postid, styling }) {
       </div>
       <div className='w-full h-[15%] flex items-center justify-center'>
 
-      <Inputcomment placeholder={"Comment something..."} ActionFunction={HandlePostComment} Text={Comment_text} setText={setComment_text} />
+    {ReplyState.isOpen ? <Reply ReplyState={ReplyState} setReplyUsername={setReplyUser} CloseReply={CloseReply} setReplyState={setReplyState} ReplyUsername={ReplyUser} /> :   <Inputcomment placeholder={"Comment something..."} ActionFunction={HandlePostComment} Text={Comment_text} setText={setComment_text} />}
+
       </div>
 
     </div>
