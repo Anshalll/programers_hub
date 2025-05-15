@@ -185,7 +185,7 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
 
   return (
     <>
-      {Object.keys(selectedImage).length > 0 && !isLoading && <div className='w-[800px] relative p-[10px] gap-[20px] flex items-center justify-center rounded-lg h-[90%] bg-black'>
+      {Object.keys(selectedImage).length > 0 && !isLoading && <div className='w-[900px] relative p-[10px] gap-[20px] flex items-center justify-center rounded-lg h-[90%] bg-black'>
 
         {selecteduserImage !== null && selecteduserImage > 0 ? <button onClick={() => HandleSelectedImage(selecteduserImage - 1)} className="absolute left-[-10px] hover:text-[#FF6500] text-white bg-gray-900 rounded-full"><NavigateBeforeIcon /></button> : <></>}
 
@@ -204,7 +204,7 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
               ))}
             </div>
 
-            <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${JSON.parse(selectedImage.filename)[ActiveIndex]}`} className="w-[70%] h-[80%] object-contain" alt="" />
+            <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${JSON.parse(selectedImage.filename)[ActiveIndex]}`} className="w-[85%] h-[80%] object-contain" alt="" />
           </div>
 
           <div className='w-full mt-[20px] h-[20%] flex flex-col items-center justify-between '>

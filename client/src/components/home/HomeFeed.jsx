@@ -14,7 +14,7 @@ import { useDispatch } from 'react-redux';
 import { setudata } from '../../redux/userdata/slice';
 import Comments from '../Comments';
 import { skipToken } from '@reduxjs/toolkit/query';
-import { setComments } from '../../redux/post/slice'
+import { setComments , setReplies} from '../../redux/post/slice'
 import { usePostSliceData } from '../../hooks/usePostSliceData'
 
 export default function HomeFeed() {
@@ -41,6 +41,10 @@ export default function HomeFeed() {
         if (!isLoadingComments && !error && fetchedpostdata?.comments?.length > 0) {
             dispatch(setComments(fetchedpostdata.comments))
         }
+        if (!isLoadingComments && !error && fetchedpostdata?.replies?.length > 0) {
+            dispatch(setReplies(fetchedpostdata.replies))
+        }
+
     }, [fetchedpostdata, isLoadingComments, error, dispatch])
 
     useEffect(() => {
@@ -113,7 +117,7 @@ export default function HomeFeed() {
             {isLoading ? <div className='flex w-full h-full items-center justify-center'>
                 <Loading />
             </div> : UserPosts.map((post, index) => (
-                <div key={index} className='p-[20px] gap-[20px] w-[50%] rounded-lg darkcomp flex flex-col '>
+                <div key={index} className='p-[20px] gap-[20px] w-[60%] rounded-lg darkcomp flex flex-col '>
 
                     <div className='flex items-center justify-between'>
                         <div className='flex items-center gap-[20px]'>
@@ -164,7 +168,7 @@ export default function HomeFeed() {
                         <div className='max-h-[500px] flex-col w-full'>
 
                             <p className='font-bold h-[40px]'>Comments</p>
-                            <Comments styling={"w-full h-[calc(100%-40px)]"} postid={post.uniqueid} />
+                            <Comments styling={"w-full h-[calc(100%-40px)] flex flex-col-reverse"} postid={post.uniqueid} />
 
                         </div>
 

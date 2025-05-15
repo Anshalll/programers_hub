@@ -3,7 +3,6 @@ import { useDispatch } from 'react-redux'
 import toast from 'react-hot-toast';
 import { useState } from 'react';
 import { usePostSliceData } from '../hooks/usePostSliceData'
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
@@ -11,14 +10,18 @@ import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutl
 import Inputcomment from './Inputcomment';
 import { setComments } from '../redux/post/slice';
 import Reply from './Reply';
+import CommentUserCard from './CommentUserCard';
+import CommentReplies from './CommentReplies';
+
+
 export default function Comments({ postid, styling }) {
 
   const [Datasend] = useSendDataMutation()
   const dispatch = useDispatch()
   const [Comment_text, setComment_text] = useState("")
-  const { comments , replies} = usePostSliceData()
+  const { comments, replies } = usePostSliceData()
   const [isOpenReply, setisOpenReply] = useState(false)
-  const [ReplyUser , setReplyUser] = useState("")
+  const [ReplyUser, setReplyUser] = useState("")
   const [ReplyState, setReplyState] = useState({ isOpen: false, id: null, cid: null })
 
   const ErrorAction = () => toast.error('An error occured!', {
@@ -35,55 +38,41 @@ export default function Comments({ postid, styling }) {
       ErrorAction()
     }
     if (response.data) {
-      dispatch(setComments([ response.data.comment[0] , ...comments  ]))
+      dispatch(setComments([response.data.comment[0], ...comments]))
       setComment_text("")
     }
 
   }
 
-  const HandleReply = (username , cid) => {
-    setReplyState({ isOpen: true, cid:  cid, id: postid })
+  const HandleReply = (username, cid) => {
+    setReplyState({ isOpen: true, cid: cid, id: postid })
     setReplyUser(username)
   }
 
   const CloseReply = () => {
-    setReplyState({ isOpen: false, cid: null , id: null })
+    setReplyState({ isOpen: false, cid: null, id: null })
     setReplyUser("")
   }
 
   return (
 
     <div className={styling}>
-      
+
       <div className='Scroller flex flex-col h-[85%]  gap-[20px] overflow-y-auto'>
 
         {comments.length > 0 ? comments.map((value, index) => (
           <div key={index}>
 
             <div className='flex flex-col gap-[10px] w-full'>
-              <div className='flex gap-[10px] w-full '>
-                <img className='w-[30px] h-[30px] rounded-full object-cover' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${value.dp}`} alt="" />
-                <div className='bg-black flex flex-col gap-[10px] w-full rounded-lg shadow-white/20 p-[10px] shadow-sm'>
-                  <div className='flex items-center justify-between w-full'>
-
-                    <p className='font-bold text-cyan-500'>{value.username}</p>
-                    <div className='flex items-center gap-[3px]'>
-                      <span className='text-[12px]'>{value.postedon}</span>
-                      <button className=''><MoreVertIcon className='text-cyan-500' sx={{ fontSize: 16 }} /></button>
-                    </div>
-                  </div>
-                  <p className='text-gray-200'>{value.message}</p>
-
-                </div>
-
-              </div>
+              <CommentUserCard type={"comment"} value={value}/>
               <div className='flex px-[40px] w-full gap-[20px] items-center'>
-                <p className='text-[11px] flex items-center gap-[3px]'><span>{value.likedby  ? <FavoriteIcon sx={{ fontSize: 14 }} className='text-[crimson]' /> : <FavoriteBorderOutlinedIcon sx={{ fontSize: 14 }} />}</span>{value.likes}</p>
+                <p className='text-[11px] flex items-center gap-[3px]'><span>{value.likedby ? <FavoriteIcon sx={{ fontSize: 14 }} className='text-[crimson]' /> : <FavoriteBorderOutlinedIcon sx={{ fontSize: 14 }} />}</span>{value.likes}</p>
 
-              { replies.length === 0 ? <p className='text-gray-200 text-[11px]'>No replies</p> :  <button onClick={() => setisOpenReply(!isOpenReply)} className='text-gray-200 text-[11px]'><span>{isOpenReply ? <KeyboardArrowUpOutlinedIcon sx={{ fontSize: 16 }} /> : <KeyboardArrowDownOutlinedIcon sx={{ fontSize: 16 }} />}</span>View replies</button>}
+                {replies.length === 0 ? <p className='text-gray-200 text-[11px]'>No replies</p> : <button onClick={() => setisOpenReply(!isOpenReply)} className='text-gray-200 text-[11px]'><span>{isOpenReply ? <KeyboardArrowUpOutlinedIcon sx={{ fontSize: 16 }} /> : <KeyboardArrowDownOutlinedIcon sx={{ fontSize: 16 }} />}</span>View replies {replies.filter((e) => e.cid === value.uniqueid).length}</button>}
 
-                <button onClick={() => HandleReply(value.username , value.uniqueid)} className='text-gray-200 text-[11px]'>Reply</button>
+                <button onClick={() => HandleReply(value.username, value.uniqueid)} className='text-gray-200 text-[11px]'>Reply</button>
               </div>
+             {(replies.length > 0 && isOpenReply) ? <CommentReplies HandleReply={HandleReply} value={value}/> : <></>}
 
             </div>
           </div>
@@ -93,7 +82,7 @@ export default function Comments({ postid, styling }) {
       </div>
       <div className='w-full h-[15%] flex items-center justify-center'>
 
-    {ReplyState.isOpen ? <Reply ReplyState={ReplyState} setReplyUsername={setReplyUser} CloseReply={CloseReply} setReplyState={setReplyState} ReplyUsername={ReplyUser} /> :   <Inputcomment placeholder={"Comment something..."} ActionFunction={HandlePostComment} Text={Comment_text} setText={setComment_text} />}
+        {ReplyState.isOpen ? <Reply ReplyState={ReplyState} setReplyUsername={setReplyUser} CloseReply={CloseReply} setReplyState={setReplyState} ReplyUsername={ReplyUser} /> : <Inputcomment placeholder={"Comment something..."} ActionFunction={HandlePostComment} Text={Comment_text} setText={setComment_text} />}
 
       </div>
 
