@@ -8,7 +8,7 @@ import { useSendDataMutation } from '../redux/apis/slice'
 import {useProfiledata} from '../hooks/useProfiledata'
 import { setReplies } from '../redux/post/slice';
 
-export default function CommentReplies({ value, HandleReply }) {
+export default function CommentReplies({isAdmin ,  value, HandleReply }) {
 
 
   const ErrorAction = () => toast.error('An error occured!', {
@@ -62,8 +62,8 @@ export default function CommentReplies({ value, HandleReply }) {
         {replies.map((replyval, index) => (
           replyval.cid === value.uniqueid && <div key={index} className='w-full  border-l-2'>
             <div className='w-full h-full flex-col flex gap-[10px]  px-[20px]'>
-
-              <CommentUserCard type={"reply"} value={replyval} />
+         
+              <CommentUserCard isAdmin={isAdmin} type={"reply"} value={replyval} index={index} />
               <div className='flex w-full items-center px-[40px] gap-[10px]'>
 
                 <button onClick={() => HandleReplyLike(replyval.uniqueid , replyval.hasliked ? "unlike" : "like")} className='text-[11px]  flex items-center gap-[3px]'><span>{replyval.hasliked ? <FavoriteIcon sx={{ fontSize: 14 }} className='text-[crimson]' /> : <FavoriteBorderOutlinedIcon sx={{ fontSize: 14 }} />}</span>{replyval.likes}</button>

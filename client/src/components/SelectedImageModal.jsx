@@ -246,8 +246,8 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
 
             
             <p className='font-bold h-[40px]'>Comments</p>
-
-            {selectedImage.allowcomments === 1 && <Comments styling={"w-full h-[calc(100%-40px)]"} comments={fetchedpostdata.comments} postid={selectedImage.uniqueid}/> }
+              
+            {selectedImage.allowcomments === 1 && <Comments belongsto={selectedImage.belongsto} styling={"w-full h-[calc(100%-40px)]"} comments={fetchedpostdata.comments} postid={selectedImage.uniqueid}/> }
             
             
           </div>

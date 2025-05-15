@@ -168,7 +168,7 @@ export default function HomeFeed() {
                         <div className='max-h-[500px] flex-col w-full'>
 
                             <p className='font-bold h-[40px]'>Comments</p>
-                            <Comments styling={"w-full h-[calc(100%-40px)] flex flex-col-reverse"} postid={post.uniqueid} />
+                            <Comments belongsto={post.belongsto} styling={"w-full h-[calc(100%-40px)] flex flex-col-reverse gap-[20px]"} postid={post.uniqueid} />
 
                         </div>
 
