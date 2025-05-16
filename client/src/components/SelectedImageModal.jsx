@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ShareIcon from '@mui/icons-material/Share';
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
@@ -10,50 +10,62 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import { useProfiledata } from '../hooks/useProfiledata'
 import { skipToken } from '@reduxjs/toolkit/query';
-import { useSendDataMutation , useFetchDataQuery } from '../redux/apis/slice';
+import { useSendDataMutation, useFetchDataQuery } from '../redux/apis/slice';
 import toast, { Toaster } from 'react-hot-toast';
 import UpdatePost from './UpdatePost';
-import { setpostcomments } from '../redux/userdata/slice'
-import Comments from './Comments';
-import Inputcomment from './Inputcomment';
-import { useDispatch } from 'react-redux';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import Reply from './Reply';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import HandlePostLike from '../shared/HandlePostLike';
+import Comments from './Comments';
+import { setComments, setReplies } from '../redux/post/slice';
+import { useDispatch } from 'react-redux';
+import { usePostSliceData } from '../hooks/usePostSliceData'
+import Loading from './Loading';
 
 
 export default function SelectedImageModal({ userPosts: post, setselecteduserImage, selecteduserImage }) {
 
-
+  const dispatch = useDispatch()
   const [Desc, setDesc] = useState("")
-  const { data, comments, replies } = useProfiledata()
+  const { data } = useProfiledata()
   const [isAdmin, setisAdmin] = useState(false)
   const [Datasend] = useSendDataMutation()
   const Optref = useRef(null)
   const [isOpen, setisOpen] = useState(false)
   const [Update, setUpdate] = useState(false)
-  const [Comment, setComment] = useState("")
-  const dispatch = useDispatch()
-  const [ReplyState, setReplyState] = useState({ isOpen: false, id: null, cid: null })
-  const [ReplyUsername, setReplyUsername] = useState("")
+  const { comments: PostComments, replies: PostReplies } = usePostSliceData()
+
   const [selectedImage, setSelectedImage] = useState({})
   const [ActiveIndex, setActiveIndex] = useState(0)
   const [IsPostLiked, setisPostLiked] = useState(false)
 
-  const { isLoading, error, data: fetchedpostdata, refetch } = useFetchDataQuery(
-    selectedImage?.uniqueid ? `/getpostdata/${selectedImage.uniqueid}/` : skipToken
+  const { isLoading, error, data: fetchedpostdata } = useFetchDataQuery(
+    post[selecteduserImage] ? `/getpostdata/${post[selecteduserImage]?.uniqueid}/` : skipToken
   );
 
 
   useEffect(() => {
-    if(!isLoading && !error && fetchedpostdata) {
-    
+    if (fetchedpostdata?.comments) {
+      dispatch(setComments(fetchedpostdata.comments))
+    } else {
+      dispatch(setComments([]))
+    }
+
+    if (fetchedpostdata?.replies) {
+      dispatch(setReplies(fetchedpostdata.replies))
+    } else {
+      dispatch(setReplies([]))
+    }
+  }, [fetchedpostdata, dispatch])
+
+  useEffect(() => {
+    if (!isLoading && !error && fetchedpostdata) {
+
       setisPostLiked(fetchedpostdata.hasliked)
 
     }
-  } , [isLoading , error , fetchedpostdata])
+  }, [isLoading, error, fetchedpostdata])
 
 
   const HandlePostClose = () => {
@@ -66,7 +78,10 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
     if (selecteduserImage !== null && selecteduserImage >= 0) {
 
       setSelectedImage(post[selecteduserImage])
+
     }
+
+
   }, [selecteduserImage, post])
 
   const clipboardcopy = () => toast.success('Copied to clipboard', {
@@ -74,10 +89,6 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
     position: 'top-center'
   });
 
-  const ErrorAction = () => toast.error('An error occured!', {
-    duration: 2000,
-    position: 'top-center'
-  });
 
 
   useEffect(() => {
@@ -164,46 +175,31 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
 
 
   const PostLike = async (action) => {
-    const { post , postlike } = await HandlePostLike(action , Datasend , selectedImage  , data , setSelectedImage)
+    const { post, postlike } = await HandlePostLike(action, Datasend, selectedImage, data, setSelectedImage)
     setSelectedImage(post)
     setisPostLiked(postlike)
-    
-  }
-
-  const HandlePostComment = async () => {
-    const response = await Datasend({ url: "/comments", method: "POST", data: { comment: Comment, postid: selectedImage.uniqueid } })
-
-    if (response.error) {
-      ErrorAction()
-    }
-    if (response.data) {
-
-      dispatch(setpostcomments([response.data.comment[0], ...comments]))
-
-      setComment("")
-    }
 
   }
 
-  const CloseReply = () => {
-    setReplyState({ id: null, isOpen: false, cid: null })
-    setReplyUsername("")
-  }
+
+
 
   const HandleSelectedImage = (index) => {
     setselecteduserImage(index)
 
   }
 
+
+
   return (
     <>
-      {Object.keys(selectedImage).length > 0 && !isLoading && <div className='w-[800px] relative p-[10px] gap-[20px] flex items-center justify-center rounded-lg h-[600px] bg-black'>
+      {Object.keys(selectedImage).length > 0 && !isLoading && <div className='w-[900px] relative p-[10px] gap-[20px] flex items-center justify-center rounded-lg h-[90%] bg-black'>
 
         {selecteduserImage !== null && selecteduserImage > 0 ? <button onClick={() => HandleSelectedImage(selecteduserImage - 1)} className="absolute left-[-10px] hover:text-[#FF6500] text-white bg-gray-900 rounded-full"><NavigateBeforeIcon /></button> : <></>}
 
         <div className='w-[50%] h-full'>
           <Toaster />
-          <div className='flex gap-[10px] items-center w-full h-[90%]'>
+          <div className='flex gap-[10px] items-center w-full h-[80%]'>
 
             <div className='Scroller w-[15%] flex flex-col gap-[10px] h-[80%] overflow-y-auto'>
               {JSON.parse(selectedImage.filename).map((value, index) => (
@@ -216,23 +212,24 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
               ))}
             </div>
 
-            <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${JSON.parse(selectedImage.filename)[ActiveIndex]}`} className="w-[70%] h-[80%] object-contain" alt="" />
+            <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/post/${JSON.parse(selectedImage.filename)[ActiveIndex]}`} className="w-[85%] h-[80%] object-contain" alt="" />
           </div>
 
-          <div className='w-full mt-[20px] flex items-center justify-between '>
+          <div className='w-full mt-[20px] h-[20%] flex flex-col items-center justify-between '>
+            {selectedImage.description.trim() !== "" ? <p className='w-full text-white rounded-b-2 p-[10px] shadow-lg bg-gray-900'>{Desc}{(selectedImage.description.length > 200 && Desc.length <= 200) ? <span className='text-[#FF6500] cursor-pointer' onClick={() => MoreDesc()}>more</span> : selectedImage.description.length > 200 && Desc.length > 200 ? <span className='text-[#FF6500] cursor-pointer' onClick={() => LessDesc()}>less</span> : <></>} </p> : <></>}
+            <div className='flex w-full  text-white justify-between items-center gap-[20px]'>
 
-            <div className='flex  text-white items-center gap-[20px]'>
+              <button onClick={() => PostLike(IsPostLiked ? "unlike" : "like", Datasend, selectedImage, setisPostLiked, data, setSelectedImage)} className='flex cursor-pointer items-center gap-[3px]'> {IsPostLiked ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} {selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>
 
-              <button onClick={() => PostLike(IsPostLiked  ? "unlike" : "like" , Datasend , selectedImage , setisPostLiked ,  data , setSelectedImage)} className='flex cursor-pointer items-center gap-[3px]'> {IsPostLiked ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} {selectedImage.hidelikecount !== 1 ? selectedImage.likes : <></>}</button>
-              
               <button className='flex cursor-pointer items-center gap-[3px]'><ShareIcon sx={{ fontSize: 16 }} />{selectedImage.shares}</button>
-          
-           
-              {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />{comments.length + replies.length}</button> : <></>}
+
+
+              {selectedImage.allowcomments === 1 ? <button className='flex cursor-pointer items-center gap-[3px]'><CommentOutlinedIcon sx={{ fontSize: 16 }} />{PostComments.length + PostReplies.length}</button> : <></>}
+
               <button><SendOutlinedIcon sx={{ fontSize: 16 }} /></button>
             </div>
 
-            <p className='text-gray-300  text-[10px]'>{selectedImage.dateposted}</p>
+            <p className='text-gray-300 w-full text-[10px]'>{selectedImage.dateposted}</p>
 
           </div>
 
@@ -253,21 +250,30 @@ export default function SelectedImageModal({ userPosts: post, setselecteduserIma
             </div>
             <button className='cursor-pointer' onClick={() => HandlePostClose()}><CloseOutlinedIcon sx={{ fontSize: 16 }} /></button>
           </div>
-          <div className='h-[calc(100%-20px)]  overflow-y-auto flex flex-col gap-[20px]'>
+          <div className='h-[calc(100%-20px)] flex flex-col gap-[20px]'>
 
-            {selectedImage.description.trim() !== "" ? <p className='rounded-b-2 p-[10px] shadow-lg bg-gray-900'>{Desc}{(selectedImage.description.length > 200 && Desc.length <= 200) ? <span className='text-[#FF6500] cursor-pointer' onClick={() => MoreDesc()}>more</span> : selectedImage.description.length > 200 && Desc.length > 200 ? <span className='text-[#FF6500] cursor-pointer' onClick={() => LessDesc()}>less</span> : <></>} </p> : <></>}
 
-            {selectedImage.allowcomments === 1 ? <Comments error={error} isLoading={isLoading} data={fetchedpostdata} SelectedImage={selectedImage} setReplyState={setReplyState} refetch={refetch} ReplyState={ReplyState} setReplyUsername={setReplyUsername} /> : <></>}
+            <p className='font-bold h-[40px]'>Comments</p>
+
+            {selectedImage.allowcomments === 1 ? (isLoading ? 
+              <div className='w-full flex items-center  h-[calc(100%-40px)] justify-center'>
+
+              <Loading/> 
+              </div>
+              
+              :  <Comments belongsto={selectedImage.belongsto} styling={"w-full h-[calc(100%-40px)]"} comments={fetchedpostdata.comments} postid={selectedImage.uniqueid} /> ): <p className='w-full h-full flex items-center justify-center font-bold text-xl'>Comments not allowed! </p> }
+
+
           </div>
-          {selectedImage.allowcomments === 1 ? (!ReplyState.isOpen ? <Inputcomment placeholder={"Comment something..."} ActionFunction={HandlePostComment} Text={Comment} setText={setComment} /> :
-            <Reply setReplyUsername={setReplyUsername} setReplyState={setReplyState} ReplyState={ReplyState} CloseReply={CloseReply} ReplyUsername={ReplyUsername} />
-          ) : <></>}
+
 
 
         </div> : <UpdatePost setSelectedPost={setSelectedImage} SelectedPost={selectedImage} setUpdate={setUpdate} />
         }
 
         {(selecteduserImage !== null && selecteduserImage < post.length - 1) && <button onClick={() => HandleSelectedImage(selecteduserImage + 1)} className="absolute right-[-10px] hover:text-[#FF6500] text-white bg-gray-900 rounded-full"><NavigateNextIcon /></button>}
+
+
 
 
       </div>}
