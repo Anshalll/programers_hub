@@ -117,22 +117,22 @@ export default function Comments({belongsto ,  postid, styling }) {
               <CommentUserCard index={index} isAdmin={isAdmin} type={"comment"} value={value} />
               <div className='flex px-[40px] w-full gap-[20px] items-center'>
                 <button onClick={() => HandleCommentLike(value.uniqueid, value.likedby ? "unlike" : "like")} className='text-[11px] flex items-center gap-[3px]'><span>{value.likedby ? <FavoriteIcon sx={{ fontSize: 14 }} className='text-[crimson]' /> : <FavoriteBorderOutlinedIcon sx={{ fontSize: 14 }} />}</span>{value.likes}</button>
-              
-                {replies.length === 0 ? <p className='text-gray-200 text-[11px]'>No replies</p> : <button onClick={() => setisOpenReply(!isOpenReply)} className='text-gray-200 text-[11px]'><span>{isOpenReply ? <KeyboardArrowUpOutlinedIcon sx={{ fontSize: 16 }} /> : <KeyboardArrowDownOutlinedIcon sx={{ fontSize: 16 }} />}</span>View replies {replies.filter((e) => e.cid === value.uniqueid).length}</button>}
 
-                <button onClick={() => HandleReply(value.username, value.uniqueid)} className='text-gray-200 text-[11px]'>Reply</button>
+                {replies.filter((e) => e.cid === value.uniqueid).length === 0 ? <p className='text-gray-200 text-[11px]'>No replies</p> : <button onClick={() => setisOpenReply(!isOpenReply)} className='text-gray-200 text-[11px]'><span>{isOpenReply ? <KeyboardArrowUpOutlinedIcon sx={{ fontSize: 16 }} /> : <KeyboardArrowDownOutlinedIcon sx={{ fontSize: 16 }} />}</span>View replies {replies.filter((e) => e.cid === value.uniqueid).length}</button>}
+
+                { value.username === userdata.username ? <></> :  <button onClick={() => HandleReply(value.username, value.uniqueid)} className='text-gray-200 text-[11px]'>Reply</button>}
               </div>
               {(replies.length > 0 && isOpenReply) ? <CommentReplies isAdmin={isAdmin} HandleReply={HandleReply} value={value} /> : <></>}
 
             </div>
           </div>
 
-        )) : <></>}
+        )) : <p  className='w-full h-full flex items-center justify-center font-bold text-xl text-white'>No comments</p> }
 
       </div>
       <div className='w-full h-[15%] flex items-center justify-center'>
 
-        {ReplyState.isOpen ? <Reply ReplyState={ReplyState} setReplyUsername={setReplyUser} CloseReply={CloseReply} setReplyState={setReplyState} ReplyUsername={ReplyUser} /> : <Inputcomment placeholder={"Comment something..."} ActionFunction={HandlePostComment} Text={Comment_text} setText={setComment_text} />}
+       {ReplyState.isOpen ? <Reply ReplyState={ReplyState} setReplyUsername={setReplyUser} CloseReply={CloseReply} setReplyState={setReplyState} ReplyUsername={ReplyUser} /> : <Inputcomment placeholder={"Comment something..."} ActionFunction={HandlePostComment} Text={Comment_text} setText={setComment_text} />} 
 
       </div>
 

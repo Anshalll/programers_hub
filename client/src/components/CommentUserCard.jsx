@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState  , useRef , useEffect} from 'react'
 import { useSendDataMutation } from '../redux/apis/slice'
 import { usePostSliceData } from '../hooks/usePostSliceData';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -9,14 +9,29 @@ import toast from 'react-hot-toast';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
-
-export default function CommentUserCard({ isAdmin, type, value, index }) {
+export default function CommentUserCard({ isAdmin, type, value }) {
 
   const { data: userdata } = useProfiledata()
   const [isOpenCommentop, setisOpenCommentop] = useState({ isOpen: false, id: null })
   const dispatch = useDispatch()
   const [Datasend] = useSendDataMutation()
   const {comments , replies} = usePostSliceData()
+  const menuRef = useRef(null);
+
+
+  
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (isOpenCommentop.isOpen && menuRef.current && !menuRef.current.contains(event.target)) {
+      setisOpenCommentop({ isOpen: false, id: null });
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, [isOpenCommentop]);
 
     const ErrorAction = () => toast.error('An error occured!', {
     duration: 2000,
@@ -102,7 +117,7 @@ export default function CommentUserCard({ isAdmin, type, value, index }) {
 
   return (
     <div className='flex gap-[10px] w-full '>
-      <img className='w-[30px] h-[30px] rounded-full object-cover' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${value.dp}`} alt="" />
+    <a className='w-[40px] rounded-full h-[40px] flex' href={`${import.meta.env.VITE_CLIENTLOCAL}/profile?user=${value.username}`} ><img className='w-[30px] h-[30px]  rounded-full object-cover' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${value.dp}`} alt="" /></a>  
       <div className='bg-black flex flex-col gap-[10px] w-full rounded-lg shadow-white/20 p-[10px] shadow-sm'>
         <div className='flex items-center justify-between w-full'>
           <div className='flex items-center gap-[10px]'>
@@ -110,7 +125,7 @@ export default function CommentUserCard({ isAdmin, type, value, index }) {
             <p className='font-bold text-cyan-500'>{value.username}</p>
             {type === "comment" &&  value.pinned == 1 && <i className='text-[11px] text-gray-300'>Pinned</i>}
           </div>
-          <div className='flex items-center gap-[3px] relative'>
+          <div ref={menuRef} className='flex items-center gap-[3px] relative'>
 
 
             <span className='text-[10px]'>{value.postedon}</span>

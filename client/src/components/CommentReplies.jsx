@@ -69,7 +69,7 @@ export default function CommentReplies({isAdmin ,  value, HandleReply }) {
                 <button onClick={() => HandleReplyLike(replyval.uniqueid , replyval.hasliked ? "unlike" : "like")} className='text-[11px]  flex items-center gap-[3px]'><span>{replyval.hasliked ? <FavoriteIcon sx={{ fontSize: 14 }} className='text-[crimson]' /> : <FavoriteBorderOutlinedIcon sx={{ fontSize: 14 }} />}</span>{replyval.likes}</button>
 
 
-                <button onClick={() => HandleReply(value.username, value.uniqueid)} className='text-gray-200 text-[11px]'>Reply</button>
+              {replyval.username === userdata.username ? <> </> :   <button onClick={() => HandleReply(value.username, value.uniqueid)} className='text-gray-200 text-[11px]'>Reply</button>}
               </div>
             </div>
 
