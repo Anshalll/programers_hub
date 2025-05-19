@@ -1462,7 +1462,7 @@ def get_home_posts():
 
 
 
-        get_posts = database.ExecuteQuery("SELECT po.* , r.id AS registerid , r.username ,p.dp , p.id , postlike.pid   , postlike.uid AS hasliked , follower.followedby , follower.belongsto FROM posts po INNER JOIN registers r on r.id = po.belongsto LEFT JOIN profile p on p.id = po.belongsto LEFT JOIN post_likes postlike on postlike.pid  = po.uniqueid AND postlike.uid = %s LEFT JOIN followers follower on follower.belongsto = po.belongsto   ORDER BY po.likes DESC LIMIT 100" , (user[0]["id"] , ))
+        get_posts = database.ExecuteQuery("SELECT po.* , r.id AS registerid , r.username ,p.dp , p.id , postlike.pid   , postlike.uid AS hasliked , co.belongsto AS commentbelongsto, COUNT(co.id) AS commentcount , replies.pid AS repliesPostid , COUNT(replies.id) as replycount FROM posts po INNER JOIN registers r on r.id = po.belongsto LEFT JOIN profile p on p.id = po.belongsto LEFT JOIN post_likes postlike on postlike.pid  = po.uniqueid AND postlike.uid = %s  LEFT JOIN comments co on co.belongsto = po.uniqueid LEFT JOIN comment_replies replies on replies.pid = po.uniqueid GROUP BY po.uniqueid   ORDER BY po.likes DESC LIMIT 100" , (user[0]["id"] , ))
 
         
         
