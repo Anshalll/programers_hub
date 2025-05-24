@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router"
 import { Theme } from '../../Theme/ThemeContext'
-import { House, SquarePlus, User, MessageCircle, Clapperboard } from 'lucide-react-native';
+import { House, SquarePlus, CircleUser, MessageCircle, Clapperboard } from 'lucide-react-native';
 
 const TabLayout = () => {
     return (
@@ -41,7 +41,7 @@ const TabLayout = () => {
             <Tabs.Screen name="(profile)/index" options={{
                 tabBarShowLabel: false,
                 title: "Home", tabBarIcon: ({ color }) => (
-                    <User size={24} color={color} />
+                    <CircleUser size={24} color={color} />
                 )
             }} />
 
