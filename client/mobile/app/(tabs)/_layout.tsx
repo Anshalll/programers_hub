@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router"
 import { Theme } from '../../Theme/ThemeContext'
-import { House, SquarePlus, User, MessageCircle, Menu } from 'lucide-react-native';
+import { House, SquarePlus, User, MessageCircle, Clapperboard } from 'lucide-react-native';
 
 const TabLayout = () => {
     return (
@@ -48,7 +48,7 @@ const TabLayout = () => {
             <Tabs.Screen name="(more)/index" options={{
                 tabBarShowLabel: false,
                 title: "Home", tabBarIcon: ({ color }) => (
-                    <Menu size={24} color={color} />
+                    <Clapperboard size={24} color={color} />
                 )
             }} />
 

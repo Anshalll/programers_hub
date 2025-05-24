@@ -4,5 +4,5 @@ export const Theme = {
     Secondarycolor: "cyan",
     buttonColor: "cyan",
     border: "cyan",
-    darkcomp: "#09090b",
+    darkcomp: "#141414",
 }
