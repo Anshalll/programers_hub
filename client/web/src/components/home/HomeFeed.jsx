@@ -119,7 +119,7 @@ export default function HomeFeed() {
                 <Loading />
             </div> : UserPosts.map((post, index) => (
                 <div key={index} className='p-[20px] gap-[20px] w-[60%] rounded-lg darkcomp flex flex-col '>
-                    <Toaster/>
+                    <Toaster />
                     <div className='flex items-center justify-between'>
                         <div className='flex items-center gap-[20px]'>
                             <img src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${post.dp}`} className='w-[40px] h-[40px] rounded-full object-cover' alt="" />
@@ -155,9 +155,22 @@ export default function HomeFeed() {
 
                         <button onClick={() => HandleFeedPostLike(post.hasliked === profiledata.id ? "unlike" : "like", post
                         )} className='flex items-center gap-[5px]'>{post.hasliked === profiledata.id ? <FavoriteIcon sx={{ fontSize: 16, color: "crimson" }} /> : <FavoriteBorderIcon sx={{ fontSize: 16 }} />} <span>{post.likes}</span> </button>
-                       {post.allowcomments === 1 ?  <button className='flex items-center gap-[5px]' onClick={() => DisplayComment(post.uniqueid)}><CommentOutlinedIcon sx={{ fontSize: 16 }} />
+                        {post.allowcomments === 1 ? <button className='flex items-center gap-[5px]' onClick={() => DisplayComment(post.uniqueid)}><CommentOutlinedIcon sx={{ fontSize: 16 }} />
                             <span>
-                                {PostComments.filter((e) => e.belongsto === post.uniqueid).length + PostReplies.filter((e) => e.pid === post.uniqueid).length}
+
+
+                                {(() => {
+                                    if (PostComments.length === 0) {
+
+                                        return post.commentcount + post.replycount
+
+                                    }
+                                    else {
+                                        return PostComments.filter((e) => e.belongsto === post.uniqueid).length + PostReplies.filter((e) => e.pid === post.uniqueid).length
+                                    }
+                                })()
+
+                                }
                             </span>
 
                         </button> : <></>}
@@ -165,16 +178,16 @@ export default function HomeFeed() {
                         <button><ShareOutlinedIcon sx={{ fontSize: 16 }} /></button>
                         <button><BookmarkBorderOutlinedIcon sx={{ fontSize: 16 }} /></button>
                     </div>
-                    {(ShowComments.isOpen && ShowComments.id === post.uniqueid  && !error) ?
+                    {(ShowComments.isOpen && ShowComments.id === post.uniqueid && !error) ?
                         <div className='max-h-[500px] flex gap-[10px] flex-col w-full'>
                             <div className='flex w-full items-center justify-between'>
 
                                 <p className='font-bold h-[40px]'>Comments</p>
                                 <button onClick={() => setShowComments({ isOpen: false, id: "" })}><CloseIcon sx={{ fontSize: 16 }} /></button>
                             </div>
-                           {isLoadingComments ? <div className='w-full flex items-center justify-center h-[100px]'>
-                            <Loading/>
-                           </div> :  <Comments belongsto={post.belongsto} styling={"w-full h-[calc(100%-40px)] flex flex-col-reverse gap-[20px]"} postid={post.uniqueid} />}
+                            {isLoadingComments ? <div className='w-full flex items-center justify-center h-[100px]'>
+                                <Loading />
+                            </div> : <Comments belongsto={post.belongsto} styling={"w-full h-[calc(100%-40px)] flex flex-col-reverse gap-[20px]"} postid={post.uniqueid} />}
 
                         </div>
 
