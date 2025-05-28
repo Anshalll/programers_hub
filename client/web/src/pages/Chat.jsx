@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Layout from '../Layout'
 import ChatOptions from '../components/ChatOptions'
 import ChatMessages from '../components/ChatMessages'
+
 export default function Chat() {
 
   const [ChatUser, setChatUser] = useState({

@@ -1,11 +1,22 @@
-import React, { useState } from 'react'
-import DoneAllIcon from '@mui/icons-material/DoneAll';
+import React, { useEffect, useState } from 'react'
 import Input from './Inputcomment'
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import InsertPhotoOutlinedIcon from '@mui/icons-material/InsertPhotoOutlined';
 import ChatHeader from './chat/ChatHeader';
+import { SocketInit } from "../socket/SocketConnection.js";
+import { useProfiledata } from '../hooks/useProfiledata.jsx';
 
 export default function ChatMessages({ user }) {
+
+    const socket = SocketInit()
+    const {data} = useProfiledata()
+
+    useEffect(() => {
+        if (socket.connected) {
+          socket.emit("joinchat" , {"userA" : {name: data.username , isJoined: true} , "userb" : {name: user.username, isJoined: false}})
+        }
+    }, [socket , data, user])
+
     const [NewMessage, setNewMessage] = useState("")
 
     let Messages = [
@@ -59,6 +70,8 @@ export default function ChatMessages({ user }) {
         { seen: false, message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis iure praesentium veritatis perspiciatis eius ullam aperiam natus necessitatibus ducimus vitae similique consequatur inventore ea fugiat, nesciunt nulla error velit accusantium. Quisquam ratione iusto inventore reprehenderit ducimus excepturi quasi delectus facilis tenetur beatae? Architecto error libero, vitae aspernatur sunt quam id aliquid recusandae necessitatibus incidunt iure, explicabo iusto! Impedit explicabo molestiae odio modi in alias eius aliquam aspernatur, aliquid amet assumenda ut necessitatibus expedita reiciendis, laudantium sapiente dolorem maiores numquam recusandae nesciunt sequi iste eveniet! Debitis, consectetur? Ipsam rerum, id modi nesciunt debitis perspiciatis officiis eos odio numquam provident recusandae laborum!", time: "03:16 am", type: "receiver" }
     ];
 
+
+
     const SendMessage = () => {
 
     }
@@ -72,30 +85,22 @@ export default function ChatMessages({ user }) {
                     <div key={key}>
 
                         <div className={`flex ${item.type === "sender" ? "justify-end" : "justify-start"} w-full`} key={key}>
-                            {item.type === "receiver" && <div className='max-w-[70%] bg-[#00565e]  rounded-tl-md rounded-tr-2xl rounded-br-2xl shadow-lg shadow-cyan-900/30 p-4'>
+                            {item.type === "receiver" && <div className={`max-w-[70%]  darkcomp rounded-tl-md rounded-tr-2xl rounded-br-2xl shadow-lg shadow-cyan-900/30 p-4`}>
                                 <p className='text-white'>{item.message}</p>
-
-
-                                <p className='text-xs mt-2 text-gray-400'>{item.time}</p>
-
 
                             </div>}
                             {item.type === "sender" &&
 
                                 <div className='flex flex-col max-w-[70%] h-max items-end gap-[10px] '>
 
-                                    
-                                    <div className='w-full   bg-[#00565e] shadow-lg rounded-tl-2xl rounded-tr-md rounded-bl-2xl  shadow-cyan-900/30 p-4'>
+
+                                    <div className='w-full  darkcomp shadow-lg rounded-tl-2xl rounded-tr-md rounded-bl-2xl  shadow-cyan-900/30 p-4'>
                                         <p className='leading-relaxed text-white'>{item.message}</p>
 
-                                      
+
 
 
                                     </div>
-
-                                    <p className='text-xs flex items-center gap-[7px] text-cyan-100/70'>{item.time} <span className={`${item.seen ? "text-[chartreuse]" : "text-[crimson]"} `}><DoneAllIcon sx={{ fontSize: 14 }} /></span></p>
-                                    
-
 
                                 </div>}
                         </div>

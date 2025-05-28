@@ -14,9 +14,14 @@ import os
 import requests
 from functions.CreateProfile import createProfile
 import json
+from flask_socketio import SocketIO
+from Socket.index import MainSocket
+from Redis_config import RedisServer
 
 app = Flask(__name__)
+RedisServer.CheckConnection()
 CORS(app , supports_credentials=True,   origins=[os.getenv("CLIENTURL") , "http://localhost:5173" , "http://127.0.0.1:5173"])
+socketio = SocketIO(app=app , cors_credentials=True ,  cors_allowed_origins=[os.getenv("CLIENTURL") , "http://localhost:5173" , "http://127.0.0.1:5173"])
 
 database.get_connection()
 app.secret_key = os.getenv("SESSIONKEY")
@@ -45,7 +50,6 @@ def index():
            "SELECT p.*  from posts p  where p.belongsto = %s" , (userdata[0]["id"] , )
         )
 
-        print(len(userposts))
         
         userdata.append(userposts)
         if len(userdata) == 0:
@@ -1474,4 +1478,13 @@ def get_home_posts():
 
 
 
-app.run(debug=True , port=8000 , host="0.0.0.0")
+@socketio.on("connect_user")
+def handle_connect():
+    return MainSocket.handle_connect()
+
+@socketio.on("joinchat")
+def JoinChat(data):
+    return MainSocket.JoinChat(data)
+
+if __name__ == "__main__":
+    socketio.run(app , debug=True , port=8000 , host="0.0.0.0")

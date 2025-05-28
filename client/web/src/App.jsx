@@ -20,6 +20,8 @@ export default function App() {
   const Passwordreset = lazy(() => import("./pages/Passwordreset.jsx"))
   const Chat = lazy(() => import("./pages/Chat.jsx"))
   
+
+  
   const Resetpass = lazy(() => import("./pages/Resetpass.jsx"))
   const CommunityRanking = lazy(() => import("./pages/CommunityRanking.jsx"))
 

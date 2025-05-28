@@ -40,7 +40,7 @@ const TabLayout = () => {
 
             <Tabs.Screen name="(profile)/index" options={{
                 tabBarShowLabel: false,
-                title: "Home", tabBarIcon: ({ color }) => (
+                title: "Profile", tabBarIcon: ({ color }) => (
                     <CircleUser size={24} color={color} />
                 )
             }} />

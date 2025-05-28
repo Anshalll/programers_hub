@@ -118,7 +118,7 @@ export default function HomeFeed() {
             {isLoading ? <div className='flex w-full h-full items-center justify-center'>
                 <Loading />
             </div> : UserPosts.map((post, index) => (
-                <div key={index} className='p-[20px] gap-[20px] w-[60%] rounded-lg darkcomp flex flex-col '>
+                <div key={index} className='p-[20px] gap-[20px] w-[600px] rounded-lg darkcomp flex flex-col '>
                     <Toaster />
                     <div className='flex items-center justify-between'>
                         <div className='flex items-center gap-[20px]'>
