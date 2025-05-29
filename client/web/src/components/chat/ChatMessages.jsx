@@ -1,21 +1,27 @@
 import React, { useEffect, useState } from 'react'
-import Input from './Inputcomment'
+import Input from '../Inputcomment.jsx'
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import InsertPhotoOutlinedIcon from '@mui/icons-material/InsertPhotoOutlined';
-import ChatHeader from './chat/ChatHeader';
-import { SocketInit } from "../socket/SocketConnection.js";
-import { useProfiledata } from '../hooks/useProfiledata.jsx';
+import ChatHeader from './ChatHeader.jsx';
+import { SocketInit } from "../../socket/SocketConnection.js";
+import { useProfiledata } from '../../hooks/useProfiledata.jsx';
 
 export default function ChatMessages({ user }) {
 
     const socket = SocketInit()
-    const {data} = useProfiledata()
+    const { data } = useProfiledata()
 
     useEffect(() => {
         if (socket.connected) {
-          socket.emit("joinchat" , {"userA" : {name: data.username , isJoined: true} , "userb" : {name: user.username, isJoined: false}})
+            socket.emit("joinchat", {
+                usera: { name: data.username, isJoined: true },
+                userb: { name: user.username, isJoined: false }
+            }, (e) => {
+                console.log(e);
+            });
+
         }
-    }, [socket , data, user])
+    }, [socket, data, user])
 
     const [NewMessage, setNewMessage] = useState("")
 

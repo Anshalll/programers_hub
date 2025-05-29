@@ -5,6 +5,7 @@ let initialState = {
   
     data : {},
     post: [],
+    activechat: []
 
 }
 
@@ -21,11 +22,13 @@ const userdataSlice = createSlice({
         setuserpost : (state, action) => {
             state.post = action.payload
         },
-      
+        setuseractivechat : (state, action) => {
+            state.activechat = action.payload
+        }
     }
     
 })
 
 
 export default userdataSlice.reducer
-export const {setudata , setuserpost } = userdataSlice.actions
+export const {setudata , setuserpost , setuseractivechat} = userdataSlice.actions

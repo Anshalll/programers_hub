@@ -17,7 +17,7 @@ import json
 from flask_socketio import SocketIO
 from Socket.index import MainSocket
 from Redis_config import RedisServer
-
+import numpy as np
 app = Flask(__name__)
 RedisServer.CheckConnection()
 CORS(app , supports_credentials=True,   origins=[os.getenv("CLIENTURL") , "http://localhost:5173" , "http://127.0.0.1:5173"])
@@ -1477,6 +1477,49 @@ def get_home_posts():
         return jsonify(error="Internal server error!") , 500
 
 
+@app.route("/api/getuserchat" , methods=["GET"])
+def getuserchat():
+    try: 
+        if "username" not in session:
+            return jsonify(logged=False), 403
+        
+        user = session["username"]
+        user_id = database.ExecuteQuery("SELECT id from registers where username = %s" , (user , ))
+        
+        if len(user_id) == 0:
+            return jsonify(error="No such user!") , 400
+
+
+        uchats = []
+        get_active_Chats = database.ExecuteQuery("SELECT * FROM messages_user where belongsto = %s LIMIT 50" , (user_id[0]["id"] , ))
+
+    
+        uchats.append({ "type" : "activechat" , "data" : get_active_Chats })
+
+        query = """
+            SELECT 
+                following.follows, 
+                following.belongsto, 
+                follower.followedby, 
+                follower.belongsto
+            FROM followings following
+            LEFT JOIN followers follower ON following.belongsto = follower.belongsto
+            WHERE following.belongsto = %s
+            LIMIT 20
+            """
+        params = (user_id[0]["id"], )
+        get_recommended = database.ExecuteQuery(query, params)
+        
+        union_chat_data = np.union1d(np.array(json.loads(get_recommended[0]["follows"])) , np.array(json.loads(get_recommended[0]["followedby"])))
+
+     
+        uchats.append({ "type" : "recommended" , "data" : union_chat_data.tolist() })
+
+        return jsonify(data = uchats) , 200
+    except Exception as e:
+        print(e)
+        return jsonify(error="Internal server error!") , 500
+#sockets
 
 @socketio.on("connect_user")
 def handle_connect():

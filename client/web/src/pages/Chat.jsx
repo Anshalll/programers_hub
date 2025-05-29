@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Layout from '../Layout'
-import ChatOptions from '../components/ChatOptions'
-import ChatMessages from '../components/ChatMessages'
+import ChatOptions from '../components/chat/ChatOptions'
+import ChatMessages from '../components/chat/ChatMessages'
 
 export default function Chat() {
 

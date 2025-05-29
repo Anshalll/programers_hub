@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import ChatLists from './ChatLists'
-import CommunitiesList from './CommunitiesList'
+import CommunitiesList from '../CommunitiesList'
 
 export default function ChatOptions() {
 
