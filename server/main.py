@@ -1497,23 +1497,39 @@ def getuserchat():
         uchats.append({ "type" : "activechat" , "data" : get_active_Chats })
 
         query = """
-            SELECT 
-                following.follows, 
-                following.belongsto, 
-                follower.followedby, 
-                follower.belongsto
-            FROM followings following
-            LEFT JOIN followers follower ON following.belongsto = follower.belongsto
-            WHERE following.belongsto = %s
-            LIMIT 20
+  
+        SELECT * FROM (SELECT
+        following.belongsto,
+        following.follows AS data
+
+        from followings following 
+        WHERE following.belongsto = %s
+        LIMIT 10) AS followings_data
+            UNION
+        SELECT * FROM (SELECT
+        follower.belongsto,
+        follower.followedby AS data
+       
+        from followers follower 
+        WHERE follower.belongsto = %s
+        LIMIT 10) AS followers_data
             """
-        params = (user_id[0]["id"], )
+        params = (user_id[0]["id"], user_id[0]["id"], )
         get_recommended = database.ExecuteQuery(query, params)
         
-        union_chat_data = np.union1d(np.array(json.loads(get_recommended[0]["follows"])) , np.array(json.loads(get_recommended[0]["followedby"])))
+        if len(get_recommended) > 0: 
+          
+            users = json.loads(get_recommended[0]["data"])
+            placeholders = ",".join(["%s"]  * len(users))
+            query = f"""
+                SELECT reg.username, reg.id, po.id, po.dp FROM registers reg LEFT JOIN profile po on po.id = reg.id WHERE username in ({placeholders})
+            """
+            results = database.ExecuteQuery(query , users)
+            uchats.append({ "type" : "recommended" , "data" : results })
 
-     
-        uchats.append({ "type" : "recommended" , "data" : union_chat_data.tolist() })
+        else:
+            uchats.append({ "type" : "recommended" , "data" : [] })
+
 
         return jsonify(data = uchats) , 200
     except Exception as e:

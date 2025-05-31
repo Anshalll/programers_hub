@@ -22,21 +22,21 @@ export default function ChatLists() {
         <div className="Scroller flex flex-col h-[calc(100vh-60px)] p-[10px] gap-[20px] overflow-y-auto">
             {activechat.map((item, index) => (
                 <div className='flex flex-col w-full gap-[20px]' key={index} >
+             
+                    {item.type === "recommended" && item?.data.map((user, id) => (
+                        <button key={id} className='flex items-center border-b-2 p-[7px] border-gray-800 w-full gap-[10px]'>
+                            <img className='w-[30px] h-[30px] rounded-full' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${user.dp}`} alt="" />
+                            <p className='text-white'>{user.username}</p>
+                        </button>
+                    ))}
 
-               { item.type === "recommended" && item?.data?.length > 0 ? (item.data.map((vals, key) => (
-                    <div key={key} className='text-white'>
-                        <p>Recommended</p>
-                        <button onClick={() => {}}>{vals}</button>
-                    </div>
-                ))) : <></>}
 
-
-               { item.type === "activechat" && item?.data?.length > 0 ? (item.data.map((vals, key) => (
-                    <div key={key} className='text-white'>
-                        <p>Recommended</p>
-                        <p>{vals}</p>
-                    </div>
-                ))) : <></>}
+                    {item.type === "activechat" && item?.data?.length > 0 ? (item.data.map((vals, key) => (
+                        <div key={key} className='text-white'>
+                            <p>Recommended</p>
+                            <p>{vals}</p>
+                        </div>
+                    ))) : <></>}
 
                 </div>
 
