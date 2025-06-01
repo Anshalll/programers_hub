@@ -24,12 +24,13 @@ class MainSocket:
             return {"error": 'An error occured'}, 400
 
 
-        room_id = f"{usera}/{userb}"
+        chat_room_id = database.ExecuteQuery(    "SELECT * FROM messages_user WHERE (sender = %s AND reciever = %s) OR (sender = %s AND reciever = %s)", (usera , userb , usera, userb))
+        
+        
 
-        get_socket_room = RedisServer.Redis_get(room_id)
-        print(get_socket_room)
-
-
-        return {"message": "Joined chat with username"}
-    
+        if len(chat_room_id) == 0:
+            return {"chat": False , "data": []}
+        else:
+            return {"chat": True, "data": chat_room_id}
+        
 MainSocket = MainSocket()

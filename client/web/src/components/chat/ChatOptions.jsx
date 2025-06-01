@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import ChatLists from './ChatLists'
 import CommunitiesList from '../CommunitiesList'
 
-export default function ChatOptions() {
+export default function ChatOptions({ setChatUser }) {
 
   const [Selected , setSelected] = useState(0)
   
@@ -16,7 +16,7 @@ export default function ChatOptions() {
       </div>
 
      
-        {Selected === 0 ? <ChatLists /> : <CommunitiesList />}
+        {Selected === 0 ? <ChatLists setChatUser={setChatUser}/> : <CommunitiesList setChatUser={setChatUser}/>}
     
     </div>
   )

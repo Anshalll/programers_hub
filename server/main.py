@@ -1491,7 +1491,7 @@ def getuserchat():
 
 
         uchats = []
-        get_active_Chats = database.ExecuteQuery("SELECT * FROM messages_user where belongsto = %s LIMIT 50" , (user_id[0]["id"] , ))
+        get_active_Chats = database.ExecuteQuery("SELECT * FROM messages_user where sender = %s LIMIT 50" , (user_id[0]["id"] , ))
 
     
         uchats.append({ "type" : "activechat" , "data" : get_active_Chats })
@@ -1543,7 +1543,7 @@ def handle_connect():
 
 @socketio.on("joinchat")
 def JoinChat(data):
-    return MainSocket.JoinChat(data)
-
+    return  MainSocket.JoinChat(data)
+    
 if __name__ == "__main__":
     socketio.run(app , debug=True , port=8000 , host="0.0.0.0")

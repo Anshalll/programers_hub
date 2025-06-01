@@ -4,7 +4,7 @@ import { setuseractivechat } from '../../redux/userdata/slice'
 import { useDispatch } from 'react-redux'
 import { useActiveChat } from '../../hooks/useActiveChat'
 
-export default function ChatLists() {
+export default function ChatLists({ setChatUser  }) {
 
     const { data, isLoading, error } = useFetchDataQuery("/getuserchat")
     const dispatch = useDispatch()
@@ -24,7 +24,7 @@ export default function ChatLists() {
                 <div className='flex flex-col w-full gap-[20px]' key={index} >
              
                     {item.type === "recommended" && item?.data.map((user, id) => (
-                        <button key={id} className='flex items-center border-b-2 p-[7px] border-gray-800 w-full gap-[10px]'>
+                        <button onClick={() => setChatUser({ type: "chat" , data: user  })} key={id} className='flex items-center border-b-2 p-[7px] border-gray-800 w-full gap-[10px]'>
                             <img className='w-[30px] h-[30px] rounded-full' src={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${user.dp}`} alt="" />
                             <p className='text-white'>{user.username}</p>
                         </button>
