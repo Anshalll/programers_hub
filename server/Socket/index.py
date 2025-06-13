@@ -52,8 +52,18 @@ class MainSocket:
             
             emit("receive_message" , {
                 "from": session["username"],
-                "message": msg
+                "message": msg,
+                "type": "receiver",
+                
             } , to=tousersid )
+    def markseen(self, data):
+        enduser = data["username"]
+        if not enduser:
+            return {"error" : "An error occured!"}
+        endusersid  = RedisServer.Redis_get_key_value(enduser)
+        emit("seen_status" , {
+            "from" : session["username"],
             
+        } , to=endusersid)
 
 MainSocket = MainSocket()

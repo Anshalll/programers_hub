@@ -14,7 +14,7 @@ export default function ChatMessages({ selectedChat }) {
     const [Messages, setMessages] = useState([])
     const [Users, setUsers] = useState({})
     const socket = useSocket()
-
+    const [Seenlast, setSeenlast] = useState(false)
 
     const [NewMessage, setNewMessage] = useState("")
     useEffect(() => {
@@ -38,17 +38,25 @@ useEffect(() => {
 
 useEffect(() => {
   const handler = (msg) => {
-    console.log(msg)
+    
     setMessages((e) => [...e, msg])
-  
+    socket.emit("markseen" , {
+        "username" : selectedChat.data.username
+    })
   };
 
+  const markseen = (e) => {
+    console.log(e)
+    setSeenlast(true)
+  }
+
   socket.on("receive_message", handler);
+  socket.on("seen_status" , markseen)
 
   return () => {
     socket.off("receive_message", handler);
   };
-}, [socket, data.username]);
+}, [socket, data.username , Messages , selectedChat]);
 
 
     const SendMessage = () => {
@@ -58,9 +66,10 @@ useEffect(() => {
                 touser: selectedChat.data.username
 
             })
-            console.log(socket.id)
+            setSeenlast(false)
+            setMessages((e) => [...e , {"from" : data.username, "message": NewMessage, "type": "sender"}])
         }
-    }
+    }   
 
     return (
         <div className='w-full h-full flex-col  '>
@@ -85,16 +94,13 @@ useEffect(() => {
 
                                         <div className='w-full  darkcomp shadow-lg rounded-tl-2xl rounded-tr-md rounded-bl-2xl  shadow-cyan-900/30 p-4'>
                                             <p className='leading-relaxed text-white'>{item.message}</p>
-
-
-
-
+                                            { Seenlast &&  <p className='text-white'>Seen</p> }
                                         </div>
 
                                     </div>
                             </div>
                         </div>
-                    ))}
+                    ))} 
                 </div>
 
                 <div className='flex text-white justify-center items-center w-full h-[80px] darkcomp'>

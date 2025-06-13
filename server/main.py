@@ -1587,6 +1587,10 @@ def Getchatdata(data):
 @socketio.on("sendmessage")
 def sendmessage(data):
      MainSocket.sendMessage(data)
-    
+
+@socketio.on("markseen")
+def messageseen(data):
+    MainSocket.markseen(data)
+
 if __name__ == "__main__":
     socketio.run(app , debug=True , port=8000 , host="0.0.0.0")
