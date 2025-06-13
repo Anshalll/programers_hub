@@ -6,8 +6,9 @@ import { setAuthuser } from "./redux/auth/slice.js";
 import ProtectedRoutes from "./ProtectedRoutes.jsx";
 import { useAuthSlice } from "./hooks/useAuthSlice.js";
 import Loading from "./components/Loading.jsx";
-import {setudata, setuserpost} from './redux/userdata/slice.js'
+import { setudata, setuserpost } from './redux/userdata/slice.js'
 import CreatePost from "./pages/CreatePost.jsx";
+import { useSocket } from './socket/SocketConnection'
 
 export default function App() {
 
@@ -19,9 +20,10 @@ export default function App() {
   const Communities = lazy(() => import("./pages/Communities.jsx"));
   const Passwordreset = lazy(() => import("./pages/Passwordreset.jsx"))
   const Chat = lazy(() => import("./pages/Chat.jsx"))
-  
+  const socket = useSocket()
 
-  
+
+
   const Resetpass = lazy(() => import("./pages/Resetpass.jsx"))
   const CommunityRanking = lazy(() => import("./pages/CommunityRanking.jsx"))
 
@@ -30,7 +32,7 @@ export default function App() {
 
   useEffect(() => {
     if (!isLoading) {
-      
+
       if (!error) {
 
         dispatch(setAuthuser(data.logged));
@@ -41,22 +43,40 @@ export default function App() {
       }
       else {
         dispatch(setAuthuser(error.data.logged))
-        
+
       }
     }
 
   }, [isLoading, data, error, dispatch])
 
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleConnect = () => {
+      if (socket.id) {
+          console.log(socket.id )
+      }
+
+
+    };
   
+    socket.on("connect", handleConnect);
+    
+    return () => {
+      socket.off("connect", handleConnect);
+    };
+  }, [socket]);
+
+
 
   return (
     <>
       {!isLoading ? <Router>
         <Suspense fallback={<div className="flex items-center justify-center min-h-screen w-[100vw] bg-black">
-        <Loading />
-      </div>}>
+          <Loading />
+        </div>}>
           <Routes>
-          <Route path="/" element={<Home />} />
+            <Route path="/" element={<Home />} />
 
             <Route element={<ProtectedRoutes user={auth} />} >
 
@@ -73,8 +93,8 @@ export default function App() {
 
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/forgotpassword" element={<Passwordreset/>} />
-              <Route path="/resetpass" element={<Resetpass/>} />
+              <Route path="/forgotpassword" element={<Passwordreset />} />
+              <Route path="/resetpass" element={<Resetpass />} />
 
             </Route>
 
@@ -82,7 +102,7 @@ export default function App() {
         </Suspense>
       </Router> : <div className="flex items-center justify-center min-h-screen w-[100vw] bg-black">
         <Loading />
-      </div> }
+      </div>}
 
     </>
 

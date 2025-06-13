@@ -1,4 +1,5 @@
 from flask import Flask, jsonify , request , session , send_from_directory
+from flask_session import Session
 from  flask_cors import CORS
 from db.db import database
 from  functions.CheckRequiredFields import CheckFields
@@ -17,20 +18,27 @@ import json
 from flask_socketio import SocketIO
 from Socket.index import MainSocket
 from Redis_config import RedisServer
-import numpy as np
+
 app = Flask(__name__)
 RedisServer.CheckConnection()
-CORS(app , supports_credentials=True,   origins=[os.getenv("CLIENTURL") , "http://localhost:5173" , "http://127.0.0.1:5173"])
-socketio = SocketIO(app=app , cors_credentials=True ,  cors_allowed_origins=[os.getenv("CLIENTURL") , "http://localhost:5173" , "http://127.0.0.1:5173"])
+
+
+
 
 database.get_connection()
-app.secret_key = os.getenv("SESSIONKEY")
+app.config["SECRET_KEY"] = os.getenv("SESSIONKEY")
+app.config["SESSION_TYPE"] = "redis"
 app.config.update(
-    SESSION_COOKIE_HTTPONLY=True,   # Prevent JavaScript access
+    
+    SESSION_COOKIE_HTTPONLY=False,   # Prevent JavaScript access
     SESSION_COOKIE_SECURE=True,     # Allow only over HTTPS
     SESSION_COOKIE_SAMESITE="None", # Allow cross-origin requests
 )
+Session(app)
 
+CORS(app , supports_credentials=True,   origins=[os.getenv("CLIENTURL") , "http://localhost:5173" , "http://127.0.0.1:5173"])
+
+socketio = SocketIO(app=app , cors_allowed_origins=[os.getenv("CLIENTURL") , "http://localhost:5173" , "http://127.0.0.1:5173" ]   )
 #Auth apis
 
 @app.route('/api/index', methods=['GET'])
@@ -1484,6 +1492,7 @@ def getuserchat():
             return jsonify(logged=False), 403
         
         user = session["username"]
+
         user_id = database.ExecuteQuery("SELECT id from registers where username = %s" , (user , ))
         
         if len(user_id) == 0:
@@ -1535,15 +1544,49 @@ def getuserchat():
     except Exception as e:
         print(e)
         return jsonify(error="Internal server error!") , 500
+
+@app.route("/api/getuserstatus" , methods=["POST"])
+def getuserstatus():
+    try:
+
+        if "username" not in session:
+            return jsonify(logged=False), 403
+        
+        user  = session["username"]
+        udict = {}
+        data = request.get_json()
+        if data["udata"] and len(data["udata"]) >=0:
+            for i in data["udata"]:
+                check_user = database.ExecuteQuery("SELECT * FROM messages_user WHERE sender = %s AND reciever = %s" , (user ,  i))
+                
+        return jsonify(data=[]), 200
+    except Exception as e:
+        print(e)
+        return jsonify(error="Internal server error!"), 500
+
 #sockets
 
-@socketio.on("connect_user")
-def handle_connect():
-    return MainSocket.handle_connect()
 
-@socketio.on("joinchat")
-def JoinChat(data):
-    return  MainSocket.JoinChat(data)
+
+@socketio.on("connect")
+def connectuser():
+    print("connected user : " , request.sid)
+    MainSocket.handle_connect(session["username"] )
+
+@socketio.on("disconnect")
+def disconnectuser():
+    print("Disconnected user: " , request.sid)
+    return MainSocket.handle_disconnect(session["username"])
+
+
+@socketio.on("getchatdata")
+def Getchatdata(data):
+    return  MainSocket.Getchatdata(data)
+
+
+@socketio.on("sendmessage")
+def sendmessage(data):
+     MainSocket.sendMessage(data)
     
 if __name__ == "__main__":
     socketio.run(app , debug=True , port=8000 , host="0.0.0.0")

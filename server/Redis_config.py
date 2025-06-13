@@ -25,7 +25,22 @@ class RedisConnect():
 
         except Exception as e:
             print(e)
-            
+    def Redis_insert_key_value(self , key , value):
+        try:
+            self.r.execute_command("SET" , key , value)
+        except Exception as e:
+            print(e)
+            return {"error" : "Internal server error!"}
+    
+    def Redis_get_key_value(self , key):
+        try:
+            data = self.r.execute_command("GET" , key)
+            return data
+        except Exception as e:
+            print(e)
+            return {"error" : "Internal server error!"}
+        
+
     def Redis_get(self , key ):
         try: 
             data = self.r.execute_command('JSON.GET', key, '.')
@@ -36,4 +51,11 @@ class RedisConnect():
                 return {"data" : None , "error": False}
         except:
             return {"error" : True}
+    def Redis_del(self , key):
+        try:
+            print("deleted user" , key)
+            self.r.delete(key)
+        except Exception as e:
+            print(e)
+            return  {"error" : "Internal server error!"}
 RedisServer = RedisConnect(redis.Redis(host='localhost', port=6379, decode_responses=True))
