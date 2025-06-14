@@ -45,17 +45,19 @@ class MainSocket:
         msg = data["message"]
         touser = data["touser"]
         tousersid = RedisServer.Redis_get_key_value(touser)
-       
-        fromuser = session["username"]
-
-        if msg.strip() != "" and touser.strip() != "" and fromuser.strip() != "":
+        if  tousersid: 
             
-            emit("receive_message" , {
-                "from": session["username"],
-                "message": msg,
-                "type": "receiver",
+            fromuser = session["username"]
+
+            if msg.strip() != ""  and fromuser.strip() != "":
                 
-            } , to=tousersid )
+                emit("receive_message" , {
+                    "from": session["username"],
+                    "message": msg,
+                    "type": "receiver",
+                    
+                } , to=tousersid )
+                
     def markseen(self, data):
         enduser = data["username"]
         if not enduser:

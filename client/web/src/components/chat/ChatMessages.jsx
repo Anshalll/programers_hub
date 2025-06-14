@@ -77,7 +77,7 @@ useEffect(() => {
                 <ChatHeader type={selectedChat.data.type} profilePic={`${import.meta.env.VITE_SERVERURL}/api/sendstatic/dp/${selectedChat.data.dp}`} username={selectedChat.data.username} isOnline={false} />
                 <div className='Scroller h-[calc(100%-160px)] px-[20px] flex flex-col overflow-y-auto gap-[20px]  w-full'>
 
-                    {!Messages.chat ? <div className='w-full h-full flex items-center justify-center'>
+                    {Messages.length === 0 ? <div className='w-full h-full flex items-center justify-center'>
                         <p className='text-lg text-white font-bold'>Start a conversation</p>
                     </div> : <></>}
 
